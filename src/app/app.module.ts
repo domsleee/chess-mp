@@ -3,16 +3,28 @@ import { NgModule } from '@angular/core';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { NgxChessgroundModule } from 'ngx-chessground';
+import {APP_BASE_HREF} from '@angular/common';
+import { ChessBoardComponent } from './chess-board/chess-board.component';
+import { ChessTimerComponent } from './chess-timer/chess-timer.component';
+import { ChessTimerFormatPipe } from './chess-timer-format.pipe';
+
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    ChessBoardComponent,
+    ChessTimerComponent,
+    ChessTimerFormatPipe
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    NgxChessgroundModule
   ],
-  providers: [],
+  providers: [
+    {provide: APP_BASE_HREF, useValue: '/zzzz'}
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
