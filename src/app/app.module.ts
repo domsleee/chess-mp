@@ -23,7 +23,7 @@ import { ChessTimerFormatPipe } from './chess-timer-format.pipe';
     NgxChessgroundModule
   ],
   providers: [
-    {provide: APP_BASE_HREF, useValue: '/zzzz'}
+    {provide: APP_BASE_HREF, useValue: '/'}
   ],
   bootstrap: [AppComponent]
 })

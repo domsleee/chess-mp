@@ -4,15 +4,16 @@ import { NgxChessgroundComponent } from 'ngx-chessground';
 import { initial, toColor } from '../util/play';
 import * as ChessJS from 'chess.js';
 import { OnePlayerBoardChanger } from './helpers/OnePlayerBoardChanger';
-import { DummyGetNextMove } from './helpers/DummyGetNextMove';
+import { DummyGetNextMove } from './helpers/GetNextMove/DummyGetNextMove';
 import { Square } from 'chess.js';
 import { IBoardChanger } from './helpers/IBoardChanger';
-import { IGetNextMove } from './helpers/IGetNextMove';
+import { IGetNextMove } from './helpers/GetNextMove/IGetNextMove';
 import { Api } from 'chessground/api';
 import { Key, Piece, PiecesDiff } from 'chessground/types';
-import { NullGetNextMove } from './helpers/NullGetNextMove';
+import { NullGetNextMove } from './helpers/GetNextMove/NullGetNextMove';
 import { ChessTimerComponent } from '../chess-timer/chess-timer.component';
 import { ChessTimerService } from '../chess-timer.service';
+import { StockfishGetNextMove } from './helpers/GetNextMove/StockfishGetNextMove';
 export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
 
 @Component({
@@ -28,7 +29,7 @@ export class ChessBoardComponent {
     this.boardChanger = new OnePlayerBoardChanger('white');
     this.getNextMoveHandlers = {
       'white': new NullGetNextMove(),
-      'black': new DummyGetNextMove(),
+      'black': new StockfishGetNextMove(),
     }
   }
 
@@ -81,7 +82,7 @@ export class ChessBoardComponent {
 
         this.chessTimerService.setTurn(toColor(chess) == 'black' ? 1 : 0)
         cg.set({
-          check: chess.in_check(),
+          check: chess.in_check() ? toColor(chess) : false,
         });
         this.boardChanger.onMove(chess, cg);
         cg.playPremove();
@@ -93,7 +94,8 @@ export class ChessBoardComponent {
   }
 
   async getAndApplyNextMove(cg: Api, chess: ChessJS.ChessInstance) {
-    var move = await this.getNextMoveHandlers[toColor(chess)].getMove(chess);
+    const move = await this.getNextMoveHandlers[toColor(chess)].getMove(chess);
+    console.log("MOVE", move);
     if (move != null) {
       cg.move(move.from, move.to);
     }

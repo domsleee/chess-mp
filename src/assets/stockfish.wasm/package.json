@@ -1,0 +1,62 @@
+{
+  "_from": "stockfish.wasm",
+  "_id": "stockfish.wasm@0.10.0",
+  "_inBundle": false,
+  "_integrity": "sha512-OTvOlz0ijCSmIb/YvOZ1Dn6vwZVS4Ge3N+RcV0d2b6LXUtCJ9UwmBHypRW3DZ+VXf8WNm7E3P+6jMTVvb3QaBg==",
+  "_location": "/stockfish.wasm",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "stockfish.wasm",
+    "name": "stockfish.wasm",
+    "escapedName": "stockfish.wasm",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/stockfish.wasm/-/stockfish.wasm-0.10.0.tgz",
+  "_shasum": "dc3ef4d98a2a79724c29510d39d89e4a5f0f1888",
+  "_spec": "stockfish.wasm",
+  "_where": "/Users/dom/git/chess-mp",
+  "author": {
+    "name": "Niklas Fiekas",
+    "email": "niklas.fiekas@backscattering.de"
+  },
+  "bugs": {
+    "url": "https://github.com/niklasf/stockfish.wasm/issues",
+    "email": "niklas.fiekas@backscattering.de"
+  },
+  "bundleDependencies": false,
+  "deprecated": false,
+  "description": "WebAssembly port of the strong chess engine Stockfish",
+  "files": [
+    "Copying.txt",
+    "stockfish.js",
+    "stockfish.wasm",
+    "stockfish.worker.js"
+  ],
+  "homepage": "https://github.com/niklasf/stockfish.wasm#readme",
+  "keywords": [
+    "chess",
+    "stockfish",
+    "emscripten",
+    "lichess",
+    "webassembly"
+  ],
+  "license": "GPL-3.0",
+  "main": "stockfish.js",
+  "name": "stockfish.wasm",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/niklasf/stockfish.wasm.git"
+  },
+  "scripts": {
+    "prepare": "cd src && make clean && make ARCH=wasm build -j && cd .. && cat preamble.js src/stockfish.js > stockfish.js && cp src/stockfish.worker.js src/stockfish.wasm ."
+  },
+  "version": "0.10.0"
+}
