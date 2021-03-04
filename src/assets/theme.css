@@ -2,6 +2,10 @@
  * Board
  */
 .blue .cg-wrap {
+  /*background-image: url("images/board/brown.svg");*/
+}
+
+cg-board {
   background-image: url("images/board/brown.svg");
 }
 

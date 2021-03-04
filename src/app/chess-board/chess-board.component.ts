@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { Chessground } from 'chessground';
-import { NgxChessgroundComponent } from 'ngx-chessground';
+import { NgxChessgroundComponent, NgxChessgroundModule } from 'ngx-chessground';
 import { initial, toColor } from '../util/play';
 import * as ChessJS from 'chess.js';
 import { OnePlayerBoardChanger } from './helpers/OnePlayerBoardChanger';
@@ -36,14 +36,20 @@ export class ChessBoardComponent {
 
   @ViewChild('chess') ngxChessgroundComponent!: NgxChessgroundComponent;
 
+  // @ts-ignore
+  cg: Api;
+
+  // @ts-ignore
+  chess: ChessJS.ChessInstance;
+
   ngAfterViewInit(): void {
     this.chessTimerService.startTimer();
+    this.chess = new Chess();
     this.ngxChessgroundComponent.runFn = this.run.bind(this);
   }
 
   run(el: any) {
-    const chess = new Chess();
-    const cg = Chessground(el, {
+    this.cg = Chessground(el, {
       turnColor: 'white',
       movable: {
         free: false,
@@ -58,38 +64,40 @@ export class ChessBoardComponent {
     });
 
     // @ts-ignore
-    window.chess = chess;
+    window.chess = this.chess;
     // @ts-ignore
-    window.cg = cg;
+    window.cg = this.cg;
 
-    this.getAndApplyNextMove(cg, chess);
+    this.getAndApplyNextMove(this.cg, this.chess);
 
-    this.boardChanger.initial(chess, cg);
-    cg.set({
-      events: { move: (orig: Key, dest: Key) => {
-        const oldColor = toColor(chess);
-        const res = chess.move({ from: orig as Square, to: dest as Square, promotion: 'q' });
-        if (res != null && res.promotion != undefined) {
-          let m: PiecesDiff = new Map();
-          const piece: Piece = {
-            role: 'queen',
-            color: oldColor
-          };
-          m.set(res.to, piece);
-          cg.setPieces(m);
-        }
-
-        this.chessTimerService.setTurn(toColor(chess) == 'black' ? 1 : 0)
-        cg.set({
-          check: chess.in_check() ? toColor(chess) : false,
-        });
-        this.boardChanger.onMove(chess, cg);
-        cg.playPremove();
-        this.getAndApplyNextMove(cg, chess);
-      } },
+    this.boardChanger.initial(this.chess, this.cg);
+    this.cg.set({
+      events: { move: this.moveHandler.bind(this) },
     });
 
-    return cg;
+    return this.cg;
+  }
+
+  moveHandler(orig: Key, dest: Key) {
+    const oldColor = toColor(this.chess);
+    const res = this.chess.move({ from: orig as Square, to: dest as Square, promotion: 'q' });
+    if (res != null && res.promotion != undefined) {
+      let m: PiecesDiff = new Map();
+      const piece: Piece = {
+        role: 'queen',
+        color: oldColor
+      };
+      m.set(res.to, piece);
+      this.cg.setPieces(m);
+    }
+
+    this.chessTimerService.setTurn(toColor(this.chess))
+    this.cg.set({
+      check: this.chess.in_check() ? toColor(this.chess) : false,
+    });
+    this.boardChanger.onMove(this.chess, this.cg);
+    this.cg.playPremove();
+    this.getAndApplyNextMove(this.cg, this.chess);
   }
 
   async getAndApplyNextMove(cg: Api, chess: ChessJS.ChessInstance) {
