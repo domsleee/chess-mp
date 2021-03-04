@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Observable, timer } from 'rxjs';
+import { BehaviorSubject, Observable, timer } from 'rxjs';
 import { ChessTimerFormatPipe } from '../chess-timer-format.pipe';
 import { ChessTimerService } from '../chess-timer.service';
 
@@ -10,9 +10,14 @@ import { ChessTimerService } from '../chess-timer.service';
   providers: [ChessTimerFormatPipe]
 })
 export class ChessTimerComponent {
-  constructor(private chessTimerService: ChessTimerService) { }
+  time1: BehaviorSubject<number>;
+  time2: BehaviorSubject<number>;
 
-  getTime1 = () => this.chessTimerService.time1;
-  getTime2 = () => this.chessTimerService.time2;
+  constructor(private chessTimerService: ChessTimerService) {
+    this.time1 = this.chessTimerService.time1;
+    this.time2 = this.chessTimerService.time2;
+  }
+
+
 
 }

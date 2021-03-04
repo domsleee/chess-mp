@@ -31,13 +31,12 @@ export class ChessBoardComponent {
       'white': new NullGetNextMove(),
       'black': new StockfishGetNextMove(),
     }
+    this.chessTimerService.setStartingTime(60);
   }
 
   @ViewChild('chess') ngxChessgroundComponent!: NgxChessgroundComponent;
 
   ngAfterViewInit(): void {
-    this.chessTimerService.setStartingTime(60);
-
     this.chessTimerService.startTimer();
     this.ngxChessgroundComponent.runFn = this.run.bind(this);
   }
