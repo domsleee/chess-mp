@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { Chessground } from 'chessground';
 import { NgxChessgroundComponent, NgxChessgroundModule } from 'ngx-chessground';
-import { initial, toColor } from '../util/play';
+import { initial, toColor, toDests } from '../util/play';
 import * as ChessJS from 'chess.js';
 import { OnePlayerBoardChanger } from './helpers/OnePlayerBoardChanger';
 import { DummyGetNextMove } from './helpers/GetNextMove/DummyGetNextMove';
@@ -14,6 +14,8 @@ import { NullGetNextMove } from './helpers/GetNextMove/NullGetNextMove';
 import { ChessTimerComponent } from '../chess-timer/chess-timer.component';
 import { ChessTimerService } from '../chess-timer.service';
 import { StockfishGetNextMove } from './helpers/GetNextMove/StockfishGetNextMove';
+import { ChessStatusService } from '../chess-status.service';
+import { PeerToPeerService } from '../peer-to-peer.service';
 export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
 
 @Component({
@@ -25,11 +27,13 @@ export class ChessBoardComponent {
   boardChanger: IBoardChanger;
   getNextMoveHandlers: {'white': IGetNextMove, 'black': IGetNextMove};
 
-  constructor(private chessTimerService: ChessTimerService) {
+  constructor(private chessTimerService: ChessTimerService,
+    private ChessStatusService: ChessStatusService,
+    private PeerToPeerService: PeerToPeerService) {
     this.boardChanger = new OnePlayerBoardChanger('white');
     this.getNextMoveHandlers = {
       'white': new NullGetNextMove(),
-      'black': new StockfishGetNextMove(),
+      'black': new StockfishGetNextMove(650),
     }
     this.chessTimerService.setStartingTime(60);
   }
@@ -43,9 +47,16 @@ export class ChessBoardComponent {
   chess: ChessJS.ChessInstance;
 
   ngAfterViewInit(): void {
+    this.chessTimerService.setStartingTime(60);
     this.chessTimerService.startTimer();
     this.chess = new Chess();
+
     this.ngxChessgroundComponent.runFn = this.run.bind(this);
+
+    this.chessTimerService.timeout.subscribe(color => {
+      this.ChessStatusService.setTimeout(color);
+      this.onGameOver();
+    })
   }
 
   run(el: any) {
@@ -54,7 +65,7 @@ export class ChessBoardComponent {
       movable: {
         free: false,
       },
-      animation: { enabled: true },
+      animation: { enabled: false },
       draggable: {
         showGhost: true,
       },
@@ -97,12 +108,32 @@ export class ChessBoardComponent {
     });
     this.boardChanger.onMove(this.chess, this.cg);
     this.cg.playPremove();
+
+    this.ChessStatusService.updateStatusFromGame(this.chess);
+
+    if (this.ChessStatusService.isGameOver()) {
+      this.onGameOver();
+    }
+
+    if (res?.captured != null) {
+      new Audio('/assets/audio/Capture.mp3').play();
+    } else {
+      new Audio('/assets/audio/Move.mp3').play();
+    }
+
     this.getAndApplyNextMove(this.cg, this.chess);
+  }
+
+  private onGameOver() {
+    this.cg.stop();
+    new Audio('/assets/audio/GenericNotify.mp3').play();
+
+    this.chessTimerService.pauseTimer();
   }
 
   async getAndApplyNextMove(cg: Api, chess: ChessJS.ChessInstance) {
     const move = await this.getNextMoveHandlers[toColor(chess)].getMove(chess);
-    console.log("MOVE", move);
+    if (this.ChessStatusService.isGameOver()) return;
     if (move != null) {
       cg.move(move.from, move.to);
     }

@@ -11,37 +11,48 @@ interface ITimerState {
   providedIn: 'root'
 })
 export class ChessTimerService {
+  whiteTime: BehaviorSubject<number> = new BehaviorSubject(10);
+  blackTime: BehaviorSubject<number> = new BehaviorSubject(10);
+  timeout: Subject<Color> = new Subject();
 
-  timerState: ITimerState = {
+  private timerState: ITimerState = {
     turn: 'white',
     msWhenLastChanged: -1
   };
-  time1: BehaviorSubject<number> = new BehaviorSubject(10);
-  time2: BehaviorSubject<number> = new BehaviorSubject(10);
 
-  totalTimeSeconds: number = 60;
-
-  myTimer = timer(10, -1);
+  private paused = false;
+  private myTimer = timer(10, -1);
 
   public setStartingTime(totalTimeSeconds: number, startingTurn: Color = 'white') {
-    this.time1.next(this.totalTimeSeconds);
-    this.time2.next(this.totalTimeSeconds);
+    this.whiteTime.next(totalTimeSeconds);
+    this.blackTime.next(totalTimeSeconds);
     this.timerState.turn = startingTurn;
   }
 
   public startTimer() {
     this.timerState.msWhenLastChanged = Date.now();
     this.myTimer.subscribe(t => {
+      if (this.paused) return;
       const currentMs = Date.now();
       const diff = currentMs - this.timerState.msWhenLastChanged;
 
       if (this.timerState.turn == 'white') {
-        this.time1.next(Math.max(0, this.time1.getValue() - diff / 1000));
+        this.whiteTime.next(Math.max(0, this.whiteTime.getValue() - diff / 1000));
+        if (this.whiteTime.getValue() == 0) {
+          this.timeout.next('white');
+        }
       } else {
-        this.time2.next(Math.max(0, this.time2.getValue() - diff / 1000));
+        this.blackTime.next(Math.max(0, this.blackTime.getValue() - diff / 1000));
+        if (this.blackTime.getValue() == 0) {
+          this.timeout.next('black');
+        }
       }
       this.timerState.msWhenLastChanged = currentMs;
     })
+  }
+
+  public pauseTimer() {
+    this.paused = true;
   }
 
   public setTurn(turn: Color) {

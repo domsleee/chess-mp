@@ -98,9 +98,15 @@
       visibility: hidden;
     }
   }
+
+  app-chess-board {
+    width: 100%;
+  }
 </style>
 
 <div class="content" role="main">
-  <app-chess-board style="width: 100%"></app-chess-board>
+  <router-outlet style="width: 100%"></router-outlet>
+
+  <!-- <app-chess-board style="width: 100%"></app-chess-board> -->
 </div>
   

@@ -25,6 +25,7 @@ export class OnePlayerBoardChanger implements IBoardChanger {
       movable: {
         color: this.myPlayer,
         dests: toDests(chess),
+        free: toColor(chess) != this.myPlayer
       },
     });
   }

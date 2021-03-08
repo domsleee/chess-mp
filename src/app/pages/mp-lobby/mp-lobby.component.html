@@ -1,0 +1,46 @@
+<style>
+.flex-container {
+  display: flex;
+}
+
+.flex-child {
+  flex: 1;
+  border: 2px solid yellow;
+}  
+
+.flex-child:first-child {
+  margin-right: 20px;
+}
+</style>
+
+<h1>MP Lobby</h1>
+<p>link: {{url}}</p>
+Players:
+
+<div class="flex-container">
+
+  <div class="flex-child magenta">
+    <button mat-button (click)="setTeam('white')">Set Team</button>
+    <ul>
+      <ng-template ngFor let-item [ngForOf]="(names | async) | keyvalue">
+        <li *ngIf="item.value.team == 'white'" [style.font-weight]="item.value.isOwnedByMe ? 'bold' : 'normal'">
+          {{item.value.name}}
+        </li>
+      </ng-template>
+    </ul>
+  </div>
+  
+  <div class="flex-child green">
+    <button mat-button (click)="setTeam('black')">Set Team</button>
+    <ul>
+      <ng-template ngFor let-item [ngForOf]="(names | async) | keyvalue">
+        <li *ngIf="item.value.team == 'black'" [style.font-weight]="item.value.isOwnedByMe ? 'bold' : 'normal'">
+          {{item.value.name}}
+        </li>
+      </ng-template>
+    </ul>
+  </div>
+
+</div>
+<button mat-button (click)="readyClick()">{{readyString}}</button>
+<p>numReady: {{numberReady}}</p>

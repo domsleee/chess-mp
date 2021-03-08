@@ -11,7 +11,7 @@ export class StockfishGetNextMove implements IGetNextMove {
   sf: any;
   sfEmitter = new Subject<string>();
 
-  constructor() {
+  constructor(private movetime: number = 3000) {
     // @ts-ignore
     this.initPromise = Stockfish().then((sf: any) => {
       this.sf = sf;
@@ -30,7 +30,7 @@ export class StockfishGetNextMove implements IGetNextMove {
   async getMove(cg: ChessInstance) {
     await this.doInit();
     this.sf.postMessage(`position fen ${cg.fen()}`);
-    this.sf.postMessage("go movetime 3000");
+    this.sf.postMessage(`go movetime ${this.movetime}`);
     const bestMove = await this.sfEmitter.pipe(
       filter(val => val.startsWith("bestmove")),
       take(1)

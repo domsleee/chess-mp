@@ -1,10 +1,13 @@
 
+<style>
+  :host {
+    width: 100%;
+  }
+</style>
 
-<main>
-    <app-chess-timer></app-chess-timer>
-    <div style="width: 100%; height: 100%">
-        <ngx-chessground class='is2d' #chess></ngx-chessground>
-    </div>
+<main style="display: flex; flex-direction: row;">
+  <div style="width: 100%; height: 100%">
+    <ngx-chessground class='is2d' #chess></ngx-chessground>
+  </div>
+  <app-chess-timer style="margin:auto"></app-chess-timer>
 </main>
-
-
