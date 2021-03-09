@@ -14,7 +14,7 @@
 </style>
 
 <h1>MP Lobby</h1>
-<p>link: {{url}}</p>
+<p><a [routerLink]="hostUrl">{{url}}</a></p>
 Players:
 
 <div class="flex-container">
@@ -44,3 +44,4 @@ Players:
 </div>
 <button mat-button (click)="readyClick()">{{readyString}}</button>
 <p>numReady: {{numberReady}}</p>
+<button mat-button (click)="startGame()">Start</button>

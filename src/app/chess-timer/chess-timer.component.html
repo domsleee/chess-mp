@@ -1,3 +1,5 @@
+<div style="display: inline-flex;" [ngStyle]="{'flex-direction': flexDirection}">
 <p>{{blackTime | async | chessTimerFormat}}</p>
 <p style="font-size:20px">{{currentStatus | async}}</p>
 <p>{{whiteTime | async | chessTimerFormat}}</p>
+</div>

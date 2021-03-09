@@ -9,5 +9,5 @@
   <div style="width: 100%; height: 100%">
     <ngx-chessground class='is2d' #chess></ngx-chessground>
   </div>
-  <app-chess-timer style="margin:auto"></app-chess-timer>
+  <app-chess-timer style="margin:auto" [inverted]="myTeam === 'black'"></app-chess-timer>
 </main>

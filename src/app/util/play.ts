@@ -87,7 +87,7 @@ export function toColor(chess: ChessInstance): Color {
   return chess.turn() === 'w' ? 'white' : 'black';
 }
 
-function invertColor(color: Color) {
+export function invertColor(color: Color) {
   return color == 'black' ? 'white' : 'black';
 }
 

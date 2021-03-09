@@ -17,7 +17,7 @@ export class StockfishGetNextMove implements IGetNextMove {
       this.sf = sf;
       sf.addMessageListener((line: any) => {
         this.sfEmitter.next(line);
-        console.log(line);
+        // console.log(line);
       });
       sf.postMessage("uci");
     });

@@ -12,10 +12,12 @@ export interface IPlayerTeam {
   isReady: boolean;
 };
 
+export type NameType = {[key: string]: IPlayerTeam};
+
 @Injectable()
 export class PlayerCollectorService {
   messageSubscription: Subscription;
-  names: BehaviorSubject<{[key: string]: IPlayerTeam}> = new BehaviorSubject({});
+  names: BehaviorSubject<NameType> = new BehaviorSubject({});
   newName: Subject<void> = new Subject();
 
   constructor(private peerToPeerService: PeerToPeerService) {
@@ -38,7 +40,6 @@ export class PlayerCollectorService {
         isReady: message.data.isReady ?? existingValue?.isReady ?? false
       };
 
-      console.log(currNames);
       this.names.next(currNames);
       if (isNewName) this.newName.next();
     }

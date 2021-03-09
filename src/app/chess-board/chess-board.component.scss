@@ -1,0 +1,9 @@
+.cg-wrap.orientation-white {
+  coords.ranks coord:nth-child(odd), coords.files coord:nth-child(even) {
+    color: #946f51
+  }
+
+  coords.ranks coord:nth-child(even), coords.files coord:nth-child(odd) {
+    color: #F0D9B5
+  }
+}

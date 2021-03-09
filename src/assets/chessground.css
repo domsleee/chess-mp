@@ -187,12 +187,23 @@ cg-board piece.fading {
   /*transform: translateY(39%);*/
   width: 0.5rem;
 }
-.cg-wrap coords.ranks coord:nth-child(odd), .cg-wrap coords.files coord:nth-child(even) {
+
+.cg-wrap.orientation-white coords.ranks coord:nth-child(odd), .cg-wrap.orientation-white coords.files coord:nth-child(even) {
   color: #946f51
 }
-.cg-wrap coords.ranks coord:nth-child(even), .cg-wrap coords.files coord:nth-child(odd) {
+
+.cg-wrap.orientation-white coords.ranks coord:nth-child(even), .cg-wrap.orientation-white  coords.files coord:nth-child(odd) {
   color: #F0D9B5
 }
+
+.cg-wrap.orientation-black coords.ranks coord:nth-child(even), .cg-wrap.orientation-black coords.files coord:nth-child(odd) {
+  color: #946f51
+}
+
+.cg-wrap.orientation-black coords.ranks coord:nth-child(odd), .cg-wrap.orientation-black  coords.files coord:nth-child(even) {
+  color: #F0D9B5
+}
+
 
 @media screen and (min-width: 900px) {
   .cg-wrap coords {

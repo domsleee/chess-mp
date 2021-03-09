@@ -6,11 +6,12 @@ import { HomeComponent } from './pages/home/home.component';
 import { JoinComponent } from './pages/join/join.component';
 import { MpLobbyComponent } from './pages/mp-lobby/mp-lobby.component';
 import { RouteNames } from './pages/routes';
+import { PreventDeactivateGuard } from './prevent-deactivate.guard';
 
 const routes: Routes = [
   { path: RouteNames.HOME, component: HomeComponent },
   { path: RouteNames.MP_LOBBY, component: MpLobbyComponent, canActivate: [IsHostGuardGuard] },
-  { path: RouteNames.PLAY, component: ChessBoardComponent },
+  { path: RouteNames.PLAY, component: ChessBoardComponent, canDeactivate: [PreventDeactivateGuard] },
   { path: RouteNames.JOIN + '/:id', component: JoinComponent}
 ];
 
