@@ -25,8 +25,12 @@ export class PlayerCollectorService {
     this.messageSubscription = this.peerToPeerService.messageSubject.subscribe(this.processMessage.bind(this));
   }
 
+  ngOnDestroy() {
+    this.messageSubscription.unsubscribe();
+  }
+
   private processMessage(message: IMessage) {
-    if (message.data.command == 'INFO') {
+    if (message.data.command === 'INFO') {
       let currNames = this.names.getValue();
       const isNewName = !(message.from in currNames);
 
@@ -35,13 +39,22 @@ export class PlayerCollectorService {
       currNames[message.from] = {
         name: message.data.name,
         owner: message.data.owner,
-        isOwnedByMe: message.data.owner == this.peerToPeerService.getId(),
+        isOwnedByMe: message.data.owner === this.peerToPeerService.getId(),
         team: message.data.team ?? existingValue?.team ?? 'white',
         isReady: message.data.isReady ?? existingValue?.isReady ?? false
       };
 
       this.names.next(currNames);
       if (isNewName) this.newName.next();
+    }
+    else if (message.data.command === 'DISCONNECTED') {
+      let currNames = this.names.getValue();
+      const existingValue: IPlayerTeam | null = currNames[message.data.name];
+
+      if (existingValue != null) {
+        delete currNames[message.data.name];
+      }
+      this.names.next(currNames);
     }
   }
 
@@ -63,9 +76,5 @@ export class PlayerCollectorService {
       isReady
     });
     this.processMessage(message);
-  }
-
-  ngOnDestroy() {
-    this.messageSubscription.unsubscribe();
   }
 }

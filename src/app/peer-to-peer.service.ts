@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Key } from 'chessground/types';
 import Peer from 'peerjs';
-import { Subject } from 'rxjs';
+import { ReplaySubject, Subject } from 'rxjs';
 import { ICommand, IInfo, IMessage, IMove, Message } from './peer-to-peer/defs';
 
 
@@ -9,7 +9,7 @@ import { ICommand, IInfo, IMessage, IMove, Message } from './peer-to-peer/defs';
   providedIn: 'root'
 })
 export class PeerToPeerService {
-  messageSubject: Subject<IMessage> = new Subject();
+  messageSubject: Subject<IMessage> = new ReplaySubject(100);
   newConnection: Subject<void> = new Subject();
   connected: Subject<void> = new Subject();
   isHost = false;
@@ -38,12 +38,32 @@ export class PeerToPeerService {
       this.peer.on('connection', (conn) => {
         this.connections[conn.peer] = conn;
         this.newConnection.next();
-        conn.on('data', this.messageHandler.bind(this))
+        conn.on('data', this.messageHandler.bind(this));
         conn.on('close', () => {
           console.log(`connection: ${conn.peer} closed!`);
           delete this.connections[conn.peer];
+        });
+        conn.on('error', (err) => {
+          console.log(`connection: ${conn.peer} error! ${err}`);
+          this.onPeerDisconnectAsHost(conn);
+        });
+        conn.on('iceStateChanged', (status) => {
+          if (status === 'disconnected') {
+            this.onPeerDisconnectAsHost(conn);
+          }
+          console.log("STATUS CHANGED", status);
+
         })
       });
+
+    });
+  }
+
+  private onPeerDisconnectAsHost(conn: any) {
+    delete this.connections[conn.peer];
+    this.broadcast({
+      command: 'DISCONNECTED',
+      name: conn.peer
     });
   }
 
@@ -60,14 +80,14 @@ export class PeerToPeerService {
         this.connected.next();
         this.isConnected = true;
         this.newConnection.next();
-      })
+      });
       conn.on('data', this.messageHandler.bind(this))
       conn.on('close', () => {
         console.log(`connection: ${id} is closed`);
-      })
+      });
       conn.on('error', (err: any) => {
-        console.log(`connection: ${id} error: ${err}`)
-      })
+        console.log(`connection: ${id} error: ${err}`);
+      });
     });
   }
 

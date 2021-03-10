@@ -3,12 +3,12 @@ import * as ChessJS from 'chess.js';
 export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
 
 
-export type Message = IMove | IInfo | IReady | IStart;
+export type Message = IMove | IInfo | IReady | IStart | IDisconnectNotification;
 
 export interface IMessage {
-  type: 'BROADCAST',
-  from: string,
-  data: Message
+  type: 'BROADCAST';
+  from: string;
+  data: Message;
 }
 
 
@@ -19,24 +19,29 @@ export interface ICommand {
 export interface IMove extends ICommand {
   command: 'MOVE';
   numMoves: number;
-  orig: Key,
-  dest: Key,
-  promotion?: Exclude<ChessJS.PieceType, 'p'>
+  orig: Key;
+  dest: Key;
+  promotion?: Exclude<ChessJS.PieceType, 'p'>;
 }
 
 export interface IInfo extends ICommand {
-  command: 'INFO',
-  name: string,
-  team?: Color,
-  owner: string,
-  isReady?: boolean
-};
+  command: 'INFO';
+  name: string;
+  team?: Color;
+  owner: string;
+  isReady?: boolean;
+}
 
 export interface IReady extends ICommand {
-  command: 'READY',
-  isReady: boolean
-};
+  command: 'READY';
+  isReady: boolean;
+}
 
 export interface IStart extends ICommand {
-  command: 'START',
-};
+  command: 'START';
+}
+
+export interface IDisconnectNotification extends ICommand {
+  command: 'DISCONNECTED';
+  name: string;
+}

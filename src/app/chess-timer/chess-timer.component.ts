@@ -30,6 +30,5 @@ export class ChessTimerComponent {
   ngOnInit() {
     console.log("INVERTED??", this.inverted);
     this.flexDirection = !this.inverted ? 'column' : 'column-reverse';
-
   }
 }
