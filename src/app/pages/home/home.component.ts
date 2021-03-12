@@ -44,8 +44,11 @@ export class HomeComponent implements OnInit {
 
   async hostGame() {
     this.peerToPeerService.setAlias(this.control.controls['name'].value);
-    this.peerToPeerService.setupAsHost();
-    await this.peerToPeerService.connected.pipe(first()).toPromise();
+    try {
+      await this.peerToPeerService.setupAsHost();
+    } catch(err) {
+      console.log(err);
+    }
     this.router.navigate([RouteNames.MP_LOBBY], { replaceUrl: true });
   }
 }
