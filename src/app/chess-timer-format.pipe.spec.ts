@@ -8,8 +8,9 @@ describe('ChessTimerFormatPipe', () => {
 
   it('certain values', () => {
     const pipe = new ChessTimerFormatPipe();
-    expect(pipe.transform(10)).toEqual("00:10:00");
-    expect(pipe.transform(9)).toEqual("00:09:00"); //
+    expect(pipe.transform(10)).toEqual("00:10.00");
+    expect(pipe.transform(9)).toEqual("00:09.00");
+    expect(pipe.transform(8.55)).toEqual("00:08.55");
 
   });
 });

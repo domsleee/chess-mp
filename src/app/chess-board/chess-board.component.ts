@@ -11,7 +11,7 @@ import { ChessTimerService } from '../chess-timer.service';
 import { ChessStatusService } from '../chess-status.service';
 import { PeerToPeerService } from '../peer-to-peer.service';
 import { Router } from '@angular/router';
-import { IPlayerTeam, NameType } from '../player-collector.service';
+import { PlayerTeamDict } from '../player-collector.service';
 import { MoveHandler } from './helpers/MoveHandlerFactory';
 import { DataFerryService } from '../data-ferry.service';
 export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
@@ -31,7 +31,7 @@ export class ChessBoardComponent {
     private PeerToPeerService: PeerToPeerService,
     private router: Router,
     private dataFerryService: DataFerryService) {
-    const names: NameType | null = this.dataFerryService.getNames();
+    const names: PlayerTeamDict | null = this.dataFerryService.getNames();
 
     console.log(this.router.getCurrentNavigation()?.extras?.state);
     console.log("CONSTRUCTOR", names);

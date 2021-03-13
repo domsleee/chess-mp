@@ -8,7 +8,8 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "postinstall": "ngcc"
+    "postinstall": "ngcc",
+    "peer": "peerjs --port 9000 --key peerjs --path /myapp"
   },
   "browser": {
     "fs": false,
@@ -46,7 +47,8 @@
     "@angular-devkit/build-angular": "~0.1100.1",
     "@angular/cli": "~11.0.1",
     "@angular/compiler-cli": "~11.0.0",
-    "@types/jasmine": "~3.6.0",
+    "@types/jasmine": "^3.6.6",
+    "@types/mocha": "^8.2.1",
     "@types/node": "^12.20.4",
     "codelyzer": "^6.0.0",
     "file-loader": "^6.2.0",

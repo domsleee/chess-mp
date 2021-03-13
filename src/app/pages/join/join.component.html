@@ -1,8 +1,10 @@
+
 <h1>Chess MP - Join Game</h1>
 <form [formGroup]="control">
   <mat-form-field class="example-full-width">
     <mat-label>Name</mat-label>
     <input matInput formControlName="name" required>
   </mat-form-field>
-  <app-loading-button text="Join Game" (click)="joinGameIfValid" [loading]="loading" #myButton></app-loading-button>
+  <app-loading-button text="Join Game" (click)="joinGameIfValid()" [loading]="loading" #myButton></app-loading-button>
 </form>
+<div *ngIf='err != ""'>{{err}}</div>

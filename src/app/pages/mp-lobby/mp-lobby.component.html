@@ -22,22 +22,18 @@ Players:
   <div class="flex-child magenta">
     <button mat-button (click)="setTeam('white')">Set Team</button>
     <ul>
-      <ng-template ngFor let-item [ngForOf]="(names | async) | keyvalue">
-        <li *ngIf="item.value.team == 'white'" [style.font-weight]="item.value.isOwnedByMe ? 'bold' : 'normal'">
-          {{item.value.name}}
-        </li>
-      </ng-template>
+      <li *ngFor="let item of (team1Names | async) | keyvalue" [style.font-weight]="item.value.isOwnedByMe ? 'bold' : 'normal'">
+        {{item.value.name}}
+      </li>
     </ul>
   </div>
   
   <div class="flex-child green">
     <button mat-button (click)="setTeam('black')">Set Team</button>
     <ul>
-      <ng-template ngFor let-item [ngForOf]="(names | async) | keyvalue">
-        <li *ngIf="item.value.team == 'black'" [style.font-weight]="item.value.isOwnedByMe ? 'bold' : 'normal'">
-          {{item.value.name}}
-        </li>
-      </ng-template>
+      <li *ngFor="let item of (team2Names | async) | keyvalue" [style.font-weight]="item.value.isOwnedByMe ? 'bold' : 'normal'">
+        {{item.value.name}}
+      </li>
     </ul>
   </div>
 

@@ -19,6 +19,9 @@ import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import { JoinComponent } from './pages/join/join.component';
+import {MatSnackBarModule} from '@angular/material/snack-bar';
+import {MatGridListModule} from '@angular/material/grid-list';
+
 
 
 @NgModule({
@@ -44,7 +47,9 @@ import { JoinComponent } from './pages/join/join.component';
     BrowserAnimationsModule,
     FormsModule,
     ReactiveFormsModule,
-    BrowserModule
+    MatSnackBarModule,
+    MatGridListModule
+    
   ],
   providers: [
     {provide: APP_BASE_HREF, useValue: '/'}

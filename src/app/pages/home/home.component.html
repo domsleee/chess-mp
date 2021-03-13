@@ -4,5 +4,6 @@
     <mat-label>Name</mat-label>
     <input matInput formControlName="name" required>
   </mat-form-field>
-  <app-loading-button text="Host Game" (click)="hostGameIfValid" [loading]="loading" #myButton></app-loading-button>
+  <app-loading-button text="Host Game" (click)="hostGameIfValid()" [loading]="loading" #myButton></app-loading-button>
 </form>
+<div *ngIf='err != ""'>{{err}}</div>

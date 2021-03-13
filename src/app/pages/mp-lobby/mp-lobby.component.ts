@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Color } from 'chessground/types';
 import Peer from 'peerjs';
-import { BehaviorSubject, Subscription } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs';
+import { filter, map } from 'rxjs/operators';
 import { DataFerryService } from 'src/app/data-ferry.service';
 import { PeerToPeerService } from 'src/app/peer-to-peer.service';
 import { IInfo } from 'src/app/peer-to-peer/defs';
-import { IPlayerTeam, PlayerCollectorService } from 'src/app/player-collector.service';
+import { IPlayerTeam, PlayerCollectorService, PlayerTeamDict } from 'src/app/player-collector.service';
 import { RouteNames } from '../routes';
 
 @Component({
@@ -17,7 +18,10 @@ import { RouteNames } from '../routes';
 })
 export class MpLobbyComponent implements OnInit {
   url: string;
-  names: BehaviorSubject<{[id: string]: IPlayerTeam}>;
+  names: BehaviorSubject<PlayerTeamDict>;
+  team1Names: Observable<PlayerTeamDict>;
+  team2Names: Observable<PlayerTeamDict>;
+
   connectedSubscription: Subscription;
   numberReady = 0;
   readyString = 'ready';
@@ -41,6 +45,12 @@ export class MpLobbyComponent implements OnInit {
         this.startGameNoBroadcast();
       }
     })
+    this.team1Names = this.names.pipe(map(t => this.keyValueFilter(t, "white")));
+    this.team2Names = this.names.pipe(map(t => this.keyValueFilter(t, "black")));
+  }
+
+  private keyValueFilter(names: PlayerTeamDict, teamName: Color): PlayerTeamDict {
+    return Object.fromEntries(Object.entries(names).filter(([k, v]) => v.team == teamName));
   }
 
   ngOnInit(): void {

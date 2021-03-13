@@ -12,12 +12,13 @@ export interface IPlayerTeam {
   isReady: boolean;
 };
 
-export type NameType = {[key: string]: IPlayerTeam};
+export type PlayerTeamDict = {[id: string]: IPlayerTeam};
+
 
 @Injectable()
 export class PlayerCollectorService {
   messageSubscription: Subscription;
-  names: BehaviorSubject<NameType> = new BehaviorSubject({});
+  names: BehaviorSubject<PlayerTeamDict> = new BehaviorSubject({});
   newName: Subject<void> = new Subject();
 
   constructor(private peerToPeerService: PeerToPeerService) {

@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 import { LoadingButtonComponent } from 'src/app/loading-button/loading-button.component';
@@ -14,10 +15,12 @@ import { RouteNames } from '../routes';
 export class HomeComponent implements OnInit {
   control: FormGroup;
   loading: boolean = false;
+  err = '';
   @ViewChild('myButton', {static: false}) button: LoadingButtonComponent | null = null;
 
   constructor(private peerToPeerService: PeerToPeerService,
-    private router: Router) {
+    private router: Router,
+    private matSnackBar: MatSnackBar) {
     this.control = new FormGroup({
       name: new FormControl('')
     });
@@ -29,26 +32,28 @@ export class HomeComponent implements OnInit {
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.control.setValue({'name': 'dom'});
-      this.hostGameIfValid();
+      // this.hostGameIfValid();
     }, 1)
   }
 
   hostGameIfValid = async () => {
-    if (this.control.valid) {
-      this.loading = true;
+    if (!this.control.valid) return;
+    this.loading = true;
+
+    try {
       await this.hostGame();
+      this.err = '';
+    } catch(err) {
+      this.err = err;
+    } finally {
       this.loading = false;
     }
-    return;
+
   }
 
   async hostGame() {
     this.peerToPeerService.setAlias(this.control.controls['name'].value);
-    try {
-      await this.peerToPeerService.setupAsHost();
-    } catch(err) {
-      console.log(err);
-    }
+    await this.peerToPeerService.setupAsHost();
     this.router.navigate([RouteNames.MP_LOBBY], { replaceUrl: true });
   }
 }

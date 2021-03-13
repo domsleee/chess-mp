@@ -1,10 +1,12 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { first } from 'rxjs/operators';
 import { LoadingButtonComponent } from 'src/app/loading-button/loading-button.component';
 import { PeerToPeerService } from 'src/app/peer-to-peer.service';
+import { environment } from 'src/environments/environment';
 import { RouteNames } from '../routes';
 
 @Component({
@@ -19,11 +21,13 @@ export class JoinComponent implements OnInit {
   loading: boolean = false;
   joinId = '';
   activateRouteSubscription: Subscription;
+  err = '';
   @ViewChild('myButton', {static: false}) button: LoadingButtonComponent | null = null;
 
   constructor(private peerToPeerService: PeerToPeerService,
     private router: Router,
-    private activatedRoute: ActivatedRoute) {
+    private activatedRoute: ActivatedRoute,
+    private matSnackBar: MatSnackBar) {
     this.control = new FormGroup({
       name: new FormControl('')
     });
@@ -42,26 +46,33 @@ export class JoinComponent implements OnInit {
   }
 
   ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.control.setValue({'name': 'other'});
-      this.joinGameIfValid();
-    }, 1)
+    if (!environment.production) {
+      setTimeout(() => {
+        this.control.setValue({'name': 'other'});
+        this.joinGameIfValid();
+      }, 1)
+    }
   }
 
   joinGameIfValid = async () => {
-    if (this.control.valid) {
-      this.loading = true;
-      await this.hostGame();
+    if (!this.control.valid) return;
+    this.loading = true;
+
+    try {
+      await this.joinGame();
+      this.err = '';
+    } catch(err) {
+      this.err = err;
+    } finally {
       this.loading = false;
     }
-    return;
+
   }
 
-  async hostGame() {
-    this.peerToPeerService.setupByConnectingToId(this.joinId);
+  async joinGame() {
+    await this.peerToPeerService.setupByConnectingToId(this.joinId);
     this.peerToPeerService.setAlias(this.control.controls['name'].value);
-    await this.peerToPeerService.connected.pipe(first()).toPromise();
-    this.router.navigate([RouteNames.MP_LOBBY]);
+    this.router.navigate([RouteNames.MP_LOBBY], { replaceUrl: true });
   }
 
 }

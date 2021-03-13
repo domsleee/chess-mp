@@ -1,9 +1,13 @@
 import { Injectable } from '@angular/core';
 import { Key } from 'chessground/types';
 import Peer, { PeerJSOption } from 'peerjs';
-import { ReplaySubject, Subject } from 'rxjs';
+import { interval, ReplaySubject, Subject } from 'rxjs';
+import { timeout } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
 import { ICommand, IInfo, IMessage, IMove, Message } from './peer-to-peer/defs';
 
+const debug = console.log;
+const TIMEOUT_MS = 5000;
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +15,6 @@ import { ICommand, IInfo, IMessage, IMove, Message } from './peer-to-peer/defs';
 export class PeerToPeerService {
   messageSubject: Subject<IMessage> = new ReplaySubject(100);
   newConnection: Subject<void> = new Subject();
-  connected: Subject<void> = new Subject();
   isHost = false;
   isConnected = false;
   alias = '';
@@ -27,89 +30,107 @@ export class PeerToPeerService {
   }
 
   getPeerConfig(): PeerJSOption {
-    return {
-      host: 'localhost',
-      path: '/myapp',
-      port: 9000,
-      key: 'peerjs'
-    };
+    if (!environment.production) {
+      return {
+        host: 'localhost',
+        path: '/myapp',
+        port: 9000,
+        key: 'peerjs'
+      };
+    }
+    return {};
   }
 
-  setupAsHost() {
-    return new Promise((resolve, reject) => {
-      this.peer?.destroy();
-      this.peer = new Peer(this.getPeerConfig());
-      this.isHost = true;
-      this.peer.on('open', (id: string) => {
-        console.log(`I am connected to server (${this.peer!.id})`);
-        this.connected.next();
-        this.isConnected = true;
-        resolve(true);
-  
-        this.peer!.on('connection', (conn) => {
-          this.connections[conn.peer] = conn;
-          this.newConnection.next();
-          conn.on('data', this.messageHandler.bind(this));
-          conn.on('close', () => {
-            console.log(`connection: ${conn.peer} closed!`);
-            delete this.connections[conn.peer];
-          });
-          conn.on('error', (err) => {
-            console.log(`connection: ${conn.peer} error! ${err}`);
-            this.onPeerDisconnectAsHost(conn);
-          });
-          // @ts-ignore
-          conn.on('iceStateChanged', (status: any) => {
-            if (status === 'disconnected') {
-              this.onPeerDisconnectAsHost(conn);
-            }
-            console.log("STATUS CHANGED", status);
-  
-          })
-        });
+  async setupAsHost() {
+    this.peer?.destroy();
+    this.peer = new Peer(this.getPeerConfig());
+    this.isHost = true;
+    await this.connectToPeerServer();
+    this.isConnected = true;
 
-        this.peer!.on('error', (err) => {
-          console.log("ERRRRR??");
-
-          reject(err);
-        })
-
-        this.peer!.on('close', () => {
-          console.log("CLOSE??");
-        })
-      });
+    this.peer!.on('connection', (conn) => {
+      this.connections[conn.peer] = conn;
+      this.newConnection.next();
+      conn.on('data', this.messageHandler.bind(this));
+      this.attachErrorAndCloseConnEvents(conn);
+    });
+    this.peer!.on('close', () => {
+      debug("NOT ACCEPTING INCOMING CONNECTIONS??");
     });
   }
 
-  private onPeerDisconnectAsHost(conn: any) {
+  async setupByConnectingToId(id: string) {
+    this.destroy();
+    this.peer = new Peer(this.getPeerConfig());
+    this.isHost = false;
+    await this.connectToPeerServer();
+
+    return new Promise((resolve, reject) => {
+      const timeoutSub = interval(TIMEOUT_MS).subscribe(t => {
+        reject(`Could not connect after ${TIMEOUT_MS}ms. Is the host ${id} correct?`);
+        timeoutSub.unsubscribe();
+      });
+
+      debug(`connecting to ${id}`)
+      const conn = this.peer!.connect(id);
+      conn.on('open', () => {
+        debug(`connected to ${id}!`);
+        this.connections[id] = conn;
+        this.isConnected = true;
+        conn.on('data', this.messageHandler.bind(this))
+        resolve(true);
+        timeoutSub.unsubscribe();
+      });
+      this.attachErrorAndCloseConnEvents(conn, (err) => {
+        reject(err);
+        conn.close();
+        timeoutSub.unsubscribe();
+      });
+
+    })
+  }
+
+  private connectToPeerServer() {
+    return new Promise((resolve, reject) => {
+      this.peer!.on('open', (id: string) => {
+        debug(`I am connected to peer server as (${this.peer!.id})`);
+        resolve(true);
+      });
+      this.peer!.on('error', (err) => {
+        reject(err);
+      });
+    })
+  }
+
+  private attachErrorAndCloseConnEvents(conn: Peer.DataConnection, additionalFn?: (err?: string) => void) {
+    conn.on('error', (err) => {
+      console.log(`connection: ${conn.peer} error! ${err}`);
+      this.onPeerDisconnected(conn);
+      if (additionalFn != null) additionalFn(err);
+    });
+
+    this.attachToConnCloseEvents(conn, () => {
+      console.log(`connection: ${conn.peer} closed!`);
+      this.onPeerDisconnected(conn);
+      if (additionalFn != null) additionalFn();
+    });
+  }
+
+  private attachToConnCloseEvents(conn: Peer.DataConnection, fn: () => void) {
+    conn.on('close', () => fn());
+    // @ts-ignore
+    conn.on('iceStateChanged', (status: any) => {
+      if (status === 'disconnected') {
+        fn();
+      }
+    })
+  }
+
+  private onPeerDisconnected(conn: any) {
     delete this.connections[conn.peer];
     this.broadcast({
       command: 'DISCONNECTED',
       name: conn.peer
-    });
-  }
-
-  setupByConnectingToId(id: string) {
-    this.destroy();
-    this.peer = new Peer(this.getPeerConfig());
-    this.isHost = false;
-    this.peer.on('open', (myId: string) => {
-      console.log(`connecting to ${id}`)
-      const conn = this.peer!.connect(id);
-      conn.on('open', () => {
-        console.log(`connected to ${id}!`);
-        this.connections[id] = conn;
-        this.connected.next();
-        this.isConnected = true;
-        this.newConnection.next();
-      });
-      conn.on('data', this.messageHandler.bind(this))
-      conn.on('close', () => {
-        console.log(`connection: ${id} is closed`);
-      });
-      conn.on('error', (err: any) => {
-        console.log(`connection: ${id} error: ${err}`);
-      });
     });
   }
 

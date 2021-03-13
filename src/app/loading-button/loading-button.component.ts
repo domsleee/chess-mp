@@ -13,8 +13,6 @@ export class LoadingButtonComponent implements OnInit {
   @Input() loading: boolean = false;
   @Input() disabled: boolean = false;
 
-  @Output() click: EventEmitter<void> = new EventEmitter();
-
   constructor() { }
 
   ngOnInit(): void { }
