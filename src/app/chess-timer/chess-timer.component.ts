@@ -36,7 +36,7 @@ export class ChessTimerComponent {
       if (value == null) return key;
       return value.name;
     }));
-    this.myName = this.playerCollectorService.names.pipe(map(t => t[this.peerToPeerService.getId()].name))
+    this.myName = this.playerCollectorService.names.pipe(map(t => t[this.peerToPeerService.getId()].name));
   }
 
   ngOnInit() {
