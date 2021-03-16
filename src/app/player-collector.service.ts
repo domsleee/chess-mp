@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Color } from 'chessground/types';
-import { BehaviorSubject, Subject, Subscription } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { PeerToPeerService } from './peer-to-peer.service';
 import { IInfo, IMessage } from './peer-to-peer/defs';
 
@@ -15,15 +16,24 @@ export interface IPlayerTeam {
 export type PlayerTeamDict = {[id: string]: IPlayerTeam};
 
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class PlayerCollectorService {
   messageSubscription: Subscription;
   names: BehaviorSubject<PlayerTeamDict> = new BehaviorSubject({});
   newName: Subject<void> = new Subject();
-
+  team1Names: Observable<PlayerTeamDict>;
+  team2Names: Observable<PlayerTeamDict>;
+  
   constructor(private peerToPeerService: PeerToPeerService) {
-    this.setTeam('white');
     this.messageSubscription = this.peerToPeerService.messageSubject.subscribe(this.processMessage.bind(this));
+    this.team1Names = this.names.pipe(map(t => this.keyValueFilter(t, "white")));
+    this.team2Names = this.names.pipe(map(t => this.keyValueFilter(t, "black")));
+  }
+
+  private keyValueFilter(names: PlayerTeamDict, teamName: Color): PlayerTeamDict {
+    return Object.fromEntries(Object.entries(names).filter(([k, v]) => v.team == teamName));
   }
 
   ngOnDestroy() {
@@ -49,33 +59,33 @@ export class PlayerCollectorService {
       if (isNewName) this.newName.next();
     }
     else if (message.data.command === 'DISCONNECTED') {
-      let currNames = this.names.getValue();
-      const existingValue: IPlayerTeam | null = currNames[message.data.name];
-
-      if (existingValue != null) {
-        delete currNames[message.data.name];
+      const currNames = this.names.getValue();
+      let newNames: PlayerTeamDict = {};
+      for (const key in currNames) {
+        if (currNames[key].owner !== message.data.name) {
+          newNames[key] = currNames[key];
+        }
       }
-      this.names.next(currNames);
+
+      this.names.next(newNames);
     }
   }
 
   setTeam(team: Color) {
-    const message = this.peerToPeerService.broadcast({
+    this.peerToPeerService.broadcastAndToSelf({
       command: 'INFO',
       name: this.peerToPeerService.getAlias(),
       team: team,
       owner: this.peerToPeerService.getId()
     });
-    this.processMessage(message);
   }
 
   setIsReady(isReady: boolean) {
-    const message = this.peerToPeerService.broadcast({
+    this.peerToPeerService.broadcastAndToSelf({
       command: 'INFO',
       name: this.peerToPeerService.getAlias(),
       owner: this.peerToPeerService.getId(),
       isReady
     });
-    this.processMessage(message);
   }
 }

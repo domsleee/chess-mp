@@ -8,6 +8,7 @@ import { ICommand, IInfo, IMessage, IMove, Message } from './peer-to-peer/defs';
 
 const debug = console.log;
 const TIMEOUT_MS = 5000;
+export const DEFAULT_ID = 'default';
 
 @Injectable({
   providedIn: 'root'
@@ -26,7 +27,7 @@ export class PeerToPeerService {
   }
 
   getId() {
-    return this.peer!.id;
+    return this.peer?.id ?? DEFAULT_ID;
   }
 
   getPeerConfig(): PeerJSOption {
@@ -128,7 +129,7 @@ export class PeerToPeerService {
 
   private onPeerDisconnected(conn: any) {
     delete this.connections[conn.peer];
-    this.broadcast({
+    this.broadcastAndToSelf({
       command: 'DISCONNECTED',
       name: conn.peer
     });
@@ -157,6 +158,12 @@ export class PeerToPeerService {
       this.broadcast(message.data, message.from);
     }
     this.messageSubject.next(message);
+  }
+
+  broadcastAndToSelf(data: Message, from: string | null = null) {
+    const message = this.broadcast(data, from);
+    this.messageSubject.next(message);
+    return message;
   }
 
   broadcast(data: Message, from: string | null = null) {

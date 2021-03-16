@@ -2,17 +2,46 @@ import { Injectable } from '@angular/core';
 import * as ChessJS from 'chess.js';
 import { Color } from 'chessground/types';
 import { BehaviorSubject } from 'rxjs';
+import { IPlayerTeam, PlayerCollectorService, PlayerTeamDict } from './player-collector.service';
+import { toColor } from './util/play';
+import { PlayersTurnInfo } from './util/PlayersTurnInfo';
 export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class ChessStatusService {
   currentStatus = new BehaviorSubject<string>('');
+  currentTurn = new BehaviorSubject<[string, IPlayerTeam|null]>(['', null]);
+  chess: ChessJS.ChessInstance;
+  playersTurnInfo: PlayersTurnInfo;
 
-  constructor() { }
+  constructor(private playerCollectorService: PlayerCollectorService) {
+    this.chess = new Chess();
+    this.playersTurnInfo = new PlayersTurnInfo(this.playerCollectorService.names.getValue());
+    this.playerCollectorService.newName.subscribe(() => {
+      this.playersTurnInfo = new PlayersTurnInfo(this.playerCollectorService.names.getValue());
+    });
+    this.updateCurrentTurn();
+  }
 
-  updateStatusFromGame(chess: ChessJS.ChessInstance) {
+  move(move: string | ChessJS.ShortMove): ChessJS.Move | null {
+    const res = this.chess.move(move);
+    this.updateStatusFromGame(this.chess);
+    this.updateCurrentTurn();
+    return res;
+  }
+
+  getColor() {
+    return toColor(this.chess);
+  }
+
+  private updateCurrentTurn() {
+    console.log(this.playersTurnInfo.getPlayer(this.getNumMoves()));
+    const playerId = this.playersTurnInfo.getPlayer(this.getNumMoves());
+    const playerTeamDict = this.playerCollectorService.names.getValue()[playerId] || null;
+    this.currentTurn.next([playerId, playerTeamDict]);
+  }
+
+  private updateStatusFromGame(chess: ChessJS.ChessInstance) {
     if (chess.in_stalemate()) {
       this.currentStatus.next('stalemate');
     } else if (chess.in_checkmate()) {
@@ -28,5 +57,21 @@ export class ChessStatusService {
 
   setTimeout(color: Color) {
     this.currentStatus.next(`timeout ${color}`);
+  }
+
+  getNumMoves() {
+    return this.chess.history().length;
+  }
+
+  isPlayersMove(playersId: string) {
+    return this.playersTurnInfo.isPlayersTurn(this.getNumMoves(), playersId)
+  }
+
+  didMoveBelongToPlayer(playersId: string) {
+    return this.playersTurnInfo.didMoveBelongToPlayer(this.getNumMoves(), playersId)
+  }
+
+  isPlayersMoveNext(playersId: string) {
+    return this.playersTurnInfo.isPlayersTurnNext(this.getNumMoves(), playersId);
   }
 }

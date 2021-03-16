@@ -7,7 +7,7 @@ import { PeerToPeerService } from './peer-to-peer.service';
 @Injectable({
   providedIn: 'root'
 })
-export class IsHostGuardGuard implements CanActivate {
+export class IsConnectedGuard implements CanActivate {
   constructor(private peerToPeerService: PeerToPeerService,
     private router: Router)
   {

@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { IsHostGuardGuard } from './is-host-guard.guard';
+import { IsConnectedGuard } from './is-connected.guard';
 
 describe('IsHostGuardGuard', () => {
-  let guard: IsHostGuardGuard;
+  let guard: IsConnectedGuard;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    guard = TestBed.inject(IsHostGuardGuard);
+    guard = TestBed.inject(IsConnectedGuard);
   });
 
   it('should be created', () => {

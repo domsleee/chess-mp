@@ -29,11 +29,13 @@ export class MpLobbyComponent implements OnInit {
 
   constructor(private peerToPeerService: PeerToPeerService,
     private router: Router,
-    private playerCollectorService: PlayerCollectorService,
-    private dataFerryService: DataFerryService) {
+    private playerCollectorService: PlayerCollectorService) {
     this.hostUrl = '/join/' + this.peerToPeerService.getHostId();
     this.url = window.location.host + this.router.parseUrl(this.hostUrl).toString();
     this.names = this.playerCollectorService.names;
+    this.team1Names = this.playerCollectorService.team1Names;
+    this.team2Names = this.playerCollectorService.team2Names;
+
     this.connectedSubscription = this.playerCollectorService.newName.subscribe(() => {
       this.setTeam(this.playerCollectorService.names.getValue()[this.peerToPeerService.getId()].team);
     })
@@ -45,13 +47,8 @@ export class MpLobbyComponent implements OnInit {
         this.startGameNoBroadcast();
       }
     })
-    this.team1Names = this.names.pipe(map(t => this.keyValueFilter(t, "white")));
-    this.team2Names = this.names.pipe(map(t => this.keyValueFilter(t, "black")));
   }
 
-  private keyValueFilter(names: PlayerTeamDict, teamName: Color): PlayerTeamDict {
-    return Object.fromEntries(Object.entries(names).filter(([k, v]) => v.team == teamName));
-  }
 
   ngOnInit(): void {
     this.setTeam('white');
@@ -79,7 +76,6 @@ export class MpLobbyComponent implements OnInit {
   }
 
   startGameNoBroadcast() {
-    this.dataFerryService.setNames(this.names.getValue());
     this.router.navigate([RouteNames.PLAY]);
   }
 }

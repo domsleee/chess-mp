@@ -48,8 +48,8 @@ export class JoinComponent implements OnInit {
   ngAfterViewInit(): void {
     if (!environment.production) {
       setTimeout(() => {
-        this.control.setValue({'name': 'other'});
-        this.joinGameIfValid();
+        //this.control.setValue({'name': 'other'});
+        //this.joinGameIfValid();
       }, 1)
     }
   }
