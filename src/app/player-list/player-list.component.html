@@ -1,0 +1,3 @@
+<ul>
+  <li *ngFor="let item of players | keyvalue" [style.font-weight]="item.key == currentId ? 'bold' : 'normal'" [style.text-decoration]="item.key == nextId || item.key == currentId ? 'underline' : 'none'">{{item.value?.name}}</li>
+</ul>

@@ -3,9 +3,9 @@ import { Color } from 'chessground/types';
 import { BehaviorSubject, Subject, timer } from 'rxjs';
 
 interface ITimerState {
-  turn: Color,
-  msWhenLastChanged: number
-};
+  turn: Color;
+  msWhenLastChanged: number;
+}
 
 @Injectable({
   providedIn: 'root'

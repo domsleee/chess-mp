@@ -1,12 +1,11 @@
 import { Component, Input, OnInit } from '@angular/core';
-import Peer from 'peerjs';
 import { BehaviorSubject, Observable, timer } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ChessStatusService } from '../chess-status.service';
 import { ChessTimerFormatPipe } from '../chess-timer-format.pipe';
 import { ChessTimerService } from '../chess-timer.service';
-import { PeerToPeerService } from '../peer-to-peer.service';
-import { PlayerCollectorService } from '../player-collector.service';
+import { DEFAULT_ID, PeerToPeerService } from '../peer-to-peer.service';
+import { PlayerCollectorService, PlayerTeamDict } from '../player-collector.service';
 
 
 @Component({
@@ -20,9 +19,15 @@ export class ChessTimerComponent {
   blackTime: BehaviorSubject<number>;
   currentStatus: BehaviorSubject<string>;
   currentTurn: Observable<string>;
+  currentId: Observable<string>;
+  nextId: Observable<string>;
   myName: Observable<string>;
+  myId: string;
 
-  @Input() inverted: boolean = false;
+  whiteNames: Observable<PlayerTeamDict>;
+  blackNames: Observable<PlayerTeamDict>;
+
+  @Input() inverted = false;
   flexDirection = 'column';
 
   constructor(private chessTimerService: ChessTimerService,
@@ -32,11 +37,14 @@ export class ChessTimerComponent {
     this.whiteTime = this.chessTimerService.whiteTime;
     this.blackTime = this.chessTimerService.blackTime;
     this.currentStatus = this.ChessStatusService.currentStatus;
-    this.currentTurn = this.ChessStatusService.currentTurn.asObservable().pipe(map(([key, value]) => {
-      if (value == null) return key;
-      return value.name;
-    }));
-    this.myName = this.playerCollectorService.names.pipe(map(t => t[this.peerToPeerService.getId()].name));
+    this.whiteNames = this.playerCollectorService.team1Names;
+    this.blackNames = this.playerCollectorService.team2Names;
+
+    this.currentId = this.ChessStatusService.currentTurn.asObservable().pipe(map(([key, value]) => key));
+    this.nextId = this.ChessStatusService.nextTurn.asObservable().pipe(map(([key, value]) => key));
+    this.currentTurn = this.ChessStatusService.currentTurn.asObservable().pipe(map(([key, value]) => value?.name ?? key));
+    this.myId = this.peerToPeerService.getId();
+    this.myName = this.playerCollectorService.names.pipe(map(t => t[this.peerToPeerService.getId()]?.name ?? DEFAULT_ID));
   }
 
   ngOnInit() {

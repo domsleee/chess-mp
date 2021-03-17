@@ -25,7 +25,7 @@ export class PlayerCollectorService {
   newName: Subject<void> = new Subject();
   team1Names: Observable<PlayerTeamDict>;
   team2Names: Observable<PlayerTeamDict>;
-  
+
   constructor(private peerToPeerService: PeerToPeerService) {
     this.messageSubscription = this.peerToPeerService.messageSubject.subscribe(this.processMessage.bind(this));
     this.team1Names = this.names.pipe(map(t => this.keyValueFilter(t, "white")));

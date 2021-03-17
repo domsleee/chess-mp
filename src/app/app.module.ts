@@ -21,6 +21,8 @@ import {MatInputModule} from '@angular/material/input';
 import { JoinComponent } from './pages/join/join.component';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatGridListModule} from '@angular/material/grid-list';
+import { PlayerListComponent } from './player-list/player-list.component';
+import { ReplaceNullWithEmptyPipe } from './replace-null-with-empty.pipe';
 
 
 
@@ -34,7 +36,9 @@ import {MatGridListModule} from '@angular/material/grid-list';
 
     HomeComponent,
     LoadingButtonComponent,
-    JoinComponent
+    JoinComponent,
+    PlayerListComponent,
+    ReplaceNullWithEmptyPipe
   ],
   imports: [
     BrowserModule,

@@ -11,6 +11,9 @@ export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
 export class ChessStatusService {
   currentStatus = new BehaviorSubject<string>('');
   currentTurn = new BehaviorSubject<[string, IPlayerTeam|null]>(['', null]);
+  previousTurn = new BehaviorSubject<[string, IPlayerTeam|null]>(['', null]);
+  nextTurn = new BehaviorSubject<[string, IPlayerTeam|null]>(['', null]);
+
   chess: ChessJS.ChessInstance;
   playersTurnInfo: PlayersTurnInfo;
 
@@ -36,9 +39,15 @@ export class ChessStatusService {
 
   private updateCurrentTurn() {
     console.log(this.playersTurnInfo.getPlayer(this.getNumMoves()));
-    const playerId = this.playersTurnInfo.getPlayer(this.getNumMoves());
+    this.previousTurn.next(this.currentTurn.getValue());
+    this.currentTurn.next(this.getTupleForMoveNumber(this.getNumMoves()));
+    this.nextTurn.next(this.getTupleForMoveNumber(this.getNumMoves() + 1));
+  }
+
+  private getTupleForMoveNumber(moveNumber: number): [string, IPlayerTeam] {
+    const playerId = this.playersTurnInfo.getPlayer(moveNumber);
     const playerTeamDict = this.playerCollectorService.names.getValue()[playerId] || null;
-    this.currentTurn.next([playerId, playerTeamDict]);
+    return [playerId, playerTeamDict];
   }
 
   private updateStatusFromGame(chess: ChessJS.ChessInstance) {
