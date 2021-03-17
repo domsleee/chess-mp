@@ -8,8 +8,8 @@ import { Api } from 'chessground/api';
 import { Color, Key, Piece, PiecesDiff } from 'chessground/types';
 import { ChessTimerService } from '../chess-timer.service';
 import { ChessStatusService } from '../chess-status.service';
-import { PeerToPeerService } from '../peer-to-peer.service';
-import { PlayerCollectorService, PlayerTeamDict } from '../player-collector.service';
+import { DEFAULT_ID, PeerToPeerService } from '../peer-to-peer.service';
+import { IPlayerTeam, PlayerCollectorService, PlayerTeamDict } from '../player-collector.service';
 import { MoveHandlerResolver } from './helpers/MoveHandlerResolver';
 export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
 
@@ -31,8 +31,7 @@ export class ChessBoardComponent {
     let names: PlayerTeamDict | null = this.playerCollectorService.names.getValue();
 
     this.isSinglePlayer = !this.peerToPeerService.isConnected;
-    if (this.isSinglePlayer) names = null;
-    this.moveHandlerResolver = new MoveHandlerResolver(this.peerToPeerService.isConnected ? this.peerToPeerService.getId() : 'a', names);
+    this.moveHandlerResolver = new MoveHandlerResolver(!this.peerToPeerService.isConnected);
     this.chessTimerService.setStartingTime(60);
     this.myTeam = this.chessStatusService.playersTurnInfo.getTeam(this.peerToPeerService.getId());
   }

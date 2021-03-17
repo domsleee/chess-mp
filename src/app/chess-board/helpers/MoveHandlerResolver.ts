@@ -8,13 +8,15 @@ import { StockfishGetNextMove } from "./GetNextMove/StockfishGetNextMove";
 export class MoveHandlerResolver {
   moveHandlers: IGetNextMove[] = [new NullGetNextMove(), new StockfishGetNextMove(650)]
 
-  constructor(private myId: string, private names: PlayerTeamDict | null) {
-    if (names != null) {
+  constructor(useDefault: boolean) {
+    console.log("USEDEFAULT", useDefault);
+    if (!useDefault) {
       this.moveHandlers = [new NullGetNextMove(), new NullGetNextMove()];
     }
   }
 
   getMoveHander(moveNumber: number): IGetNextMove {
+    console.log("GET MOVE HANDLER", moveNumber);
     return this.moveHandlers[moveNumber % 2];
   }
 }

@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { Color } from 'chessground/types';
 import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { PeerToPeerService } from './peer-to-peer.service';
+import { createPlayerTeam } from './chess-board/helpers/PlayerTeamHelper';
+import { DEFAULT_ID, PeerToPeerService } from './peer-to-peer.service';
 import { IInfo, IMessage } from './peer-to-peer/defs';
 
 export interface IPlayerTeam {
@@ -30,6 +31,13 @@ export class PlayerCollectorService {
     this.messageSubscription = this.peerToPeerService.messageSubject.subscribe(this.processMessage.bind(this));
     this.team1Names = this.names.pipe(map(t => this.keyValueFilter(t, "white")));
     this.team2Names = this.names.pipe(map(t => this.keyValueFilter(t, "black")));
+
+    if (!this.peerToPeerService.isConnected) {
+      this.names.next({
+        [DEFAULT_ID]: createPlayerTeam('default'),
+        'stockfish': createPlayerTeam('stockfish', 'black')
+      })
+    }
   }
 
   private keyValueFilter(names: PlayerTeamDict, teamName: Color): PlayerTeamDict {

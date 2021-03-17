@@ -1,4 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { createPlayerTeam } from '../chess-board/helpers/PlayerTeamHelper';
 import { DEFAULT_ID } from '../peer-to-peer.service';
 import { PlayerTeamDict, IPlayerTeam } from '../player-collector.service';
 
@@ -17,23 +18,6 @@ export class PlayerListComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.players == null) throw new Error('players is required');
-    if (false) {
-        this.players = {
-        [DEFAULT_ID]: this.createPlayerTeam('me'),
-        b: this.createPlayerTeam('bbb'),
-        c: this.createPlayerTeam('ccc'),
-      }
-    }
-  }
-
-  createPlayerTeam(name: string): IPlayerTeam {
-    return {
-      name,
-      team: 'white',
-      owner: 'zzz',
-      isOwnedByMe: false,
-      isReady: true
-    }
   }
 }
 
