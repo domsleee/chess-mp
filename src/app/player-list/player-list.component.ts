@@ -20,5 +20,3 @@ export class PlayerListComponent implements OnInit {
     if (this.players == null) throw new Error('players is required');
   }
 }
-
-
