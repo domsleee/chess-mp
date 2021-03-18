@@ -1,11 +1,12 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { BehaviorSubject, Observable, timer } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { PlayerTeamDict } from '../chess-board/helpers/PlayerTeamHelper';
 import { ChessStatusService } from '../chess-status.service';
 import { ChessTimerFormatPipe } from '../chess-timer-format.pipe';
 import { ChessTimerService } from '../chess-timer.service';
 import { DEFAULT_ID, PeerToPeerService } from '../peer-to-peer.service';
-import { PlayerCollectorService, PlayerTeamDict } from '../player-collector.service';
+import { PlayerCollectorService } from '../player-collector.service';
 
 
 @Component({
@@ -37,8 +38,8 @@ export class ChessTimerComponent {
     this.whiteTime = this.chessTimerService.whiteTime;
     this.blackTime = this.chessTimerService.blackTime;
     this.currentStatus = this.ChessStatusService.currentStatus;
-    this.whiteNames = this.playerCollectorService.team1Names;
-    this.blackNames = this.playerCollectorService.team2Names;
+    this.whiteNames = this.playerCollectorService.whiteNames;
+    this.blackNames = this.playerCollectorService.blackNames;
 
     this.currentId = this.ChessStatusService.currentTurn.asObservable().pipe(map(([key, value]) => key));
     this.nextId = this.ChessStatusService.nextTurn.asObservable().pipe(map(([key, value]) => key));

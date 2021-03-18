@@ -1,7 +1,6 @@
 
 import { Color } from 'chessground/types';
-import { DEFAULT_ID } from '../peer-to-peer.service';
-import { PlayerCollectorService, PlayerTeamDict } from '../player-collector.service';
+import { PlayerTeamDict } from '../chess-board/helpers/PlayerTeamHelper';
 
 export class PlayersTurnInfo {
   readonly players: {
@@ -16,7 +15,7 @@ export class PlayersTurnInfo {
         'black': Object.keys(names).filter(t => names[t].team == 'black').sort(),
       }
     } else {
-      this.players = {'white': [DEFAULT_ID], 'black': ['stockfish']};
+      throw new Error('can this happen?');
     }
   }
 

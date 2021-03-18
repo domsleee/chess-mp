@@ -1,7 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { createPlayerTeam } from '../chess-board/helpers/PlayerTeamHelper';
-import { DEFAULT_ID } from '../peer-to-peer.service';
-import { PlayerTeamDict, IPlayerTeam } from '../player-collector.service';
+import { PlayerTeamDict } from '../chess-board/helpers/PlayerTeamHelper';
 
 @Component({
   selector: 'app-player-list',

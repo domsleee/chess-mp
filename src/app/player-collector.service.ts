@@ -2,20 +2,9 @@ import { Injectable } from '@angular/core';
 import { Color } from 'chessground/types';
 import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { createPlayerTeam } from './chess-board/helpers/PlayerTeamHelper';
+import { createPlayerTeam, getDefaultNames, IPlayerTeam, PlayerTeamDict } from './chess-board/helpers/PlayerTeamHelper';
 import { DEFAULT_ID, PeerToPeerService } from './peer-to-peer.service';
 import { IInfo, IMessage } from './peer-to-peer/defs';
-
-export interface IPlayerTeam {
-  name: string;
-  team: Color;
-  owner: string;
-  isOwnedByMe: boolean;
-  isReady: boolean;
-};
-
-export type PlayerTeamDict = {[id: string]: IPlayerTeam};
-
 
 @Injectable({
   providedIn: 'root'
@@ -24,20 +13,21 @@ export class PlayerCollectorService {
   messageSubscription: Subscription;
   names: BehaviorSubject<PlayerTeamDict> = new BehaviorSubject({});
   newName: Subject<void> = new Subject();
-  team1Names: Observable<PlayerTeamDict>;
-  team2Names: Observable<PlayerTeamDict>;
+  whiteNames: Observable<PlayerTeamDict>;
+  blackNames: Observable<PlayerTeamDict>;
 
   constructor(private peerToPeerService: PeerToPeerService) {
     this.messageSubscription = this.peerToPeerService.messageSubject.subscribe(this.processMessage.bind(this));
-    this.team1Names = this.names.pipe(map(t => this.keyValueFilter(t, "white")));
-    this.team2Names = this.names.pipe(map(t => this.keyValueFilter(t, "black")));
+    this.whiteNames = this.names.pipe(map(t => this.keyValueFilter(t, "white")));
+    this.blackNames = this.names.pipe(map(t => this.keyValueFilter(t, "black")));
 
     if (!this.peerToPeerService.isConnected) {
-      this.names.next({
-        [DEFAULT_ID]: createPlayerTeam('default'),
-        'stockfish': createPlayerTeam('stockfish', 'black')
-      })
+      this.names.next(getDefaultNames())
     }
+  }
+
+  getColorNames(color: Color): PlayerTeamDict {
+    return this.keyValueFilter(this.names.getValue(), color);
   }
 
   private keyValueFilter(names: PlayerTeamDict, teamName: Color): PlayerTeamDict {

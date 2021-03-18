@@ -1,13 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Color } from 'chessground/types';
-import Peer from 'peerjs';
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
-import { DataFerryService } from 'src/app/data-ferry.service';
+import { PlayerTeamDict } from 'src/app/chess-board/helpers/PlayerTeamHelper';
 import { PeerToPeerService } from 'src/app/peer-to-peer.service';
-import { IInfo } from 'src/app/peer-to-peer/defs';
-import { IPlayerTeam, PlayerCollectorService, PlayerTeamDict } from 'src/app/player-collector.service';
+import { PlayerCollectorService } from 'src/app/player-collector.service';
 import { RouteNames } from '../routes';
 
 @Component({
@@ -33,8 +30,8 @@ export class MpLobbyComponent implements OnInit {
     this.hostUrl = '/join/' + this.peerToPeerService.getHostId();
     this.url = window.location.host + this.router.parseUrl(this.hostUrl).toString();
     this.names = this.playerCollectorService.names;
-    this.team1Names = this.playerCollectorService.team1Names;
-    this.team2Names = this.playerCollectorService.team2Names;
+    this.team1Names = this.playerCollectorService.whiteNames;
+    this.team2Names = this.playerCollectorService.blackNames;
 
     this.connectedSubscription = this.playerCollectorService.newName.subscribe(() => {
       this.setTeam(this.playerCollectorService.names.getValue()[this.peerToPeerService.getId()].team);

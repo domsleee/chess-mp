@@ -1,22 +1,39 @@
-import { Color } from "chessground/types";
-import { IPlayerTeam, PlayerTeamDict } from "src/app/player-collector.service";
-import { invertColor } from "src/app/util/play";
 import { IGetNextMove } from "./GetNextMove/IGetNextMove";
 import { NullGetNextMove } from "./GetNextMove/NullGetNextMove";
 import { StockfishGetNextMove } from "./GetNextMove/StockfishGetNextMove";
+import { IPlayerTeam, PlayerTeamDict } from "./PlayerTeamHelper";
 
 export class MoveHandlerResolver {
-  moveHandlers: IGetNextMove[] = [new NullGetNextMove(), new StockfishGetNextMove(650)]
+  private moveHandlers: {
+    'white': IGetNextMove[],
+    'black': IGetNextMove[]
+  };
 
-  constructor(useDefault: boolean) {
-    console.log("USEDEFAULT", useDefault);
-    if (!useDefault) {
-      this.moveHandlers = [new NullGetNextMove(), new NullGetNextMove()];
+  constructor(private whiteTeamDict: PlayerTeamDict, private blackTeamDict: PlayerTeamDict) {
+    this.moveHandlers = {
+      'white': this.buildMoveHandlers(whiteTeamDict),
+      'black': this.buildMoveHandlers(blackTeamDict)
     }
   }
 
+  private buildMoveHandlers(teamDict: PlayerTeamDict) {
+    const keys = Object.keys(teamDict);
+    if (keys.length == 0) {
+      return [new NullGetNextMove()];
+    }
+    
+    return keys.sort().map(key => this.buildMoveHandler(teamDict[key]));
+  }
+
+  private buildMoveHandler(player: IPlayerTeam): IGetNextMove {
+    if (player.engineSettings == null) return new NullGetNextMove();
+    return new StockfishGetNextMove(player.engineSettings.timeForMove ?? 0);
+  }
+
   getMoveHander(moveNumber: number): IGetNextMove {
+    const turnColor = moveNumber % 2 == 0 ? 'white' : 'black';
+    const numHandlers = this.moveHandlers[turnColor].length;
     console.log("GET MOVE HANDLER", moveNumber);
-    return this.moveHandlers[moveNumber % 2];
+    return this.moveHandlers[turnColor][Math.floor(moveNumber / 2) % numHandlers];
   }
 }

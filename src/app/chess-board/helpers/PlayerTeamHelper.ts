@@ -1,12 +1,41 @@
 import { Color } from "chessground/types";
-import { IPlayerTeam } from "src/app/player-collector.service";
+import { DEFAULT_ID } from "src/app/peer-to-peer.service";
 
-export function createPlayerTeam(name: string, color: Color = 'white'): IPlayerTeam {
+export function createPlayerTeam(name: string, color: Color = 'white', engineSettings: IEngineSettings | undefined = undefined): IPlayerTeam {
   return {
     name,
     team: color,
     owner: 'zzz',
     isOwnedByMe: false,
-    isReady: true
+    isReady: true,
+    engineSettings
   }
 }
+
+export function getDefaultNames() {
+  const engineSettings: IEngineSettings = {
+    timeForMove: 650
+  };
+
+  return {
+    [DEFAULT_ID]: createPlayerTeam('default'),
+    'stockfish': createPlayerTeam('stockfish', 'black', engineSettings)
+  }
+}
+
+export interface IEngineSettings {
+  timeForMove?: number;
+  elo?: number;
+};
+
+export interface IPlayerTeam {
+  name: string;
+  team: Color;
+  owner: string;
+  isOwnedByMe: boolean;
+  isReady: boolean;
+  engineSettings?: IEngineSettings;
+};
+
+export type PlayerTeamDict = {[id: string]: IPlayerTeam};
+
