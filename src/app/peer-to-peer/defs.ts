@@ -4,12 +4,12 @@ import { IEngineSettings, PlayerTeamDict } from "../chess-board/helpers/PlayerTe
 export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
 
 
-export type Message = IMove | IInfo | IReady | IStart | IDisconnectNotification | ISendNames;
+export type MessageData = IMove | IInfo | IReady | IStart | IDisconnectNotification | ISendNames;
 
 export interface IMessage {
   type: 'BROADCAST' | 'SINGLE';
   from: string;
-  data: Message;
+  data: MessageData;
 }
 
 
@@ -32,7 +32,6 @@ export interface IInfo extends ICommand {
   owner: string;
   isReady?: boolean;
   idOverride?: string;
-  isCpu?: boolean;
   engineSettings?: IEngineSettings;
 }
 

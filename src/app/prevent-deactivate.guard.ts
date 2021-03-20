@@ -11,7 +11,7 @@ export class PreventDeactivateGuard implements CanDeactivate<unknown> {
     currentRoute: ActivatedRouteSnapshot,
     currentState: RouterStateSnapshot,
     nextState?: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-    return window.confirm();
+    return window.confirm("Do you actually want to leave here?");
   }
   
 }

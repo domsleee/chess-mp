@@ -68,7 +68,7 @@ export class ChessBoardComponent {
   }
 
   ngDestroy() {
-    this.cg.destroy();
+    // this.cg.destroy();
   }
 
   private run(el: any) {

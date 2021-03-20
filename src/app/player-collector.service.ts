@@ -60,11 +60,6 @@ export class PlayerCollectorService {
         currNames[nameId].engineSettings!.timeForMove = message.data.engineSettings.timeForMove ?? currNames[nameId].engineSettings?.timeForMove;
       }
 
-      if (message.data.isCpu) {
-        currNames[nameId].engineSettings = getDefaultEngineSettings();
-        console.log(currNames[nameId])
-      }
-
       this.names.next(currNames);
       console.log("new names", currNames);
       if (isNewName) this.newName.next(nameId);
@@ -120,11 +115,11 @@ export class PlayerCollectorService {
     console.log("ADDNEWCPU");
     this.peerToPeerService.broadcastAndToSelf({
       command: 'INFO',
+      team: team,
       idOverride: this.getNewCPUId(),
       name: 'stockfish',
-      team: team,
       owner: this.peerToPeerService.getId(),
-      isCpu: true
+      engineSettings: getDefaultEngineSettings()
     })
   }
 

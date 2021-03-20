@@ -4,7 +4,7 @@ import Peer, { PeerJSOption } from 'peerjs';
 import { interval, ReplaySubject, Subject } from 'rxjs';
 import { timeout } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { ICommand, IInfo, IMessage, IMove, Message } from './peer-to-peer/defs';
+import { ICommand, IInfo, IMessage, IMove, MessageData } from './peer-to-peer/defs';
 
 const debug = console.log;
 const TIMEOUT_MS = 5000;
@@ -160,13 +160,13 @@ export class PeerToPeerService {
     this.messageSubject.next(message);
   }
 
-  broadcastAndToSelf(data: Message, from: string | null = null) {
+  broadcastAndToSelf(data: MessageData, from: string | null = null) {
     const message = this.broadcast(data, from);
     this.messageSubject.next(message);
     return message;
   }
 
-  broadcast(data: Message, from: string | null = null) {
+  broadcast(data: MessageData, from: string | null = null) {
     const message: IMessage = {
       from: from ?? this.peer!.id,
       type: 'BROADCAST',
@@ -178,7 +178,7 @@ export class PeerToPeerService {
     return message;
   }
 
-  sendSingleMessage(to: string, data: Message) {
+  sendSingleMessage(to: string, data: MessageData) {
     if (!(to in this.connections)) return;
     const message: IMessage = {
       from: this.peer!.id,
