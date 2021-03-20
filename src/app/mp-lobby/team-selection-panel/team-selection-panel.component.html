@@ -1,0 +1,15 @@
+<h2>{{team | titlecase }} team</h2>
+<button mat-button (click)="setTeam()">Set Team</button>
+<button mat-button (click)="addCPU()">Add CPU</button>
+
+<mat-accordion>
+  <mat-expansion-panel *ngFor="let item of (teamDict$ | async) | keyvalue; trackBy: trackByFn" hideToggle [disabled]="!item.value.engineSettings" (destroyed)="onDestroy()">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        {{item.value.name}}
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <app-player-config [player]="item.value" [playerId]="item.key"></app-player-config>
+  </mat-expansion-panel>
+</mat-accordion>

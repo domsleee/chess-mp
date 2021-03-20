@@ -5,7 +5,10 @@
 
 .flex-child {
   flex: 1;
-  border: 2px solid yellow;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 5px;
+  background: #eee;
 }  
 
 .flex-child:first-child {
@@ -15,29 +18,19 @@
 
 <h1>MP Lobby</h1>
 <p><a [routerLink]="hostUrl">{{url}}</a></p>
-Players:
 
 <div class="flex-container">
-
-  <div class="flex-child magenta">
-    <button mat-button (click)="setTeam('white')">Set Team</button>
-    <ul>
-      <li *ngFor="let item of (team1Names | async) | keyvalue" [style.font-weight]="item.value.isOwnedByMe ? 'bold' : 'normal'">
-        {{item.value.name}}
-      </li>
-    </ul>
+  <div class="flex-child">
+    <app-team-selection-panel [team]="'white'"></app-team-selection-panel>
   </div>
   
-  <div class="flex-child green">
-    <button mat-button (click)="setTeam('black')">Set Team</button>
-    <ul>
-      <li *ngFor="let item of (team2Names | async) | keyvalue" [style.font-weight]="item.value.isOwnedByMe ? 'bold' : 'normal'">
-        {{item.value.name}}
-      </li>
-    </ul>
+  <div class="flex-child">
+    <app-team-selection-panel [team]="'black'"></app-team-selection-panel>
   </div>
 
 </div>
-<button mat-button (click)="readyClick()">{{readyString}}</button>
-<p>numReady: {{numberReady}}</p>
-<button mat-button (click)="startGame()">Start</button>
+<!-- <button mat-button (click)="readyClick()">{{readyString}}</button>
+<p>numReady: {{numberReady}}</p> -->
+<div style="text-align:center; padding-top:10px">
+  <button mat-stroked-button (click)="startGame()">Start</button>
+</div>

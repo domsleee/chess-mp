@@ -21,6 +21,7 @@ export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
   providers: [ChessStatusService]
 })
 export class ChessBoardComponent {
+  // @ts-ignore
   private moveHandlerResolver: MoveHandlerResolver;
   private isSinglePlayer = false;
   myTeam: Color;
@@ -29,12 +30,18 @@ export class ChessBoardComponent {
     private chessStatusService: ChessStatusService,
     private peerToPeerService: PeerToPeerService,
     private playerCollectorService: PlayerCollectorService) {
-    const names: PlayerTeamDict = this.playerCollectorService.names.getValue();
+      
+    this.updateMoveHandlerResolver();
 
     this.isSinglePlayer = !this.peerToPeerService.isConnected;
-    this.moveHandlerResolver = new MoveHandlerResolver(this.playerCollectorService.getColorNames('white'), this.playerCollectorService.getColorNames('black'));
     this.chessTimerService.setStartingTime(60);
     this.myTeam = this.chessStatusService.playersTurnInfo.getTeam(this.peerToPeerService.getId());
+  }
+
+  private updateMoveHandlerResolver() {
+    const whiteTeamDict = this.playerCollectorService.getColorNames('white');
+    const blackTeamDict = this.playerCollectorService.getColorNames('black');
+    this.moveHandlerResolver = new MoveHandlerResolver(whiteTeamDict, blackTeamDict);
   }
 
   @ViewChild('chess') ngxChessgroundComponent!: NgxChessgroundComponent;

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Color } from 'chessground/types';
 import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { createPlayerTeam, getDefaultNames, IPlayerTeam, PlayerTeamDict } from './chess-board/helpers/PlayerTeamHelper';
+import { createPlayerTeam, getDefaultEngineSettings, getDefaultNames, IEngineSettings, IPlayerTeam, PlayerTeamDict } from './chess-board/helpers/PlayerTeamHelper';
 import { DEFAULT_ID, PeerToPeerService } from './peer-to-peer.service';
 import { IInfo, IMessage } from './peer-to-peer/defs';
 
@@ -12,7 +12,7 @@ import { IInfo, IMessage } from './peer-to-peer/defs';
 export class PlayerCollectorService {
   messageSubscription: Subscription;
   names: BehaviorSubject<PlayerTeamDict> = new BehaviorSubject({});
-  newName: Subject<void> = new Subject();
+  newName: Subject<string> = new Subject();
   whiteNames: Observable<PlayerTeamDict>;
   blackNames: Observable<PlayerTeamDict>;
 
@@ -41,20 +41,33 @@ export class PlayerCollectorService {
   private processMessage(message: IMessage) {
     if (message.data.command === 'INFO') {
       let currNames = this.names.getValue();
-      const isNewName = !(message.from in currNames);
+      console.log("new msg", message);
+      const nameId = message.data.idOverride ?? message.from;
 
-      const existingValue: IPlayerTeam | null = currNames[message.from];
+      const isNewName = !(nameId in currNames);
+      const existingValue: IPlayerTeam | null = currNames[nameId];
 
-      currNames[message.from] = {
+      currNames[nameId] = {
         name: message.data.name,
         owner: message.data.owner,
         isOwnedByMe: message.data.owner === this.peerToPeerService.getId(),
         team: message.data.team ?? existingValue?.team ?? 'white',
-        isReady: message.data.isReady ?? existingValue?.isReady ?? false
+        isReady: message.data.isReady ?? existingValue?.isReady ?? false,
       };
+      if (message.data.engineSettings) {
+        currNames[nameId].engineSettings = currNames[nameId].engineSettings ?? {};
+        currNames[nameId].engineSettings!.elo = message.data.engineSettings.elo ?? currNames[nameId].engineSettings?.elo;
+        currNames[nameId].engineSettings!.timeForMove = message.data.engineSettings.timeForMove ?? currNames[nameId].engineSettings?.timeForMove;
+      }
+
+      if (message.data.isCpu) {
+        currNames[nameId].engineSettings = getDefaultEngineSettings();
+        console.log(currNames[nameId])
+      }
 
       this.names.next(currNames);
-      if (isNewName) this.newName.next();
+      console.log("new names", currNames);
+      if (isNewName) this.newName.next(nameId);
     }
     else if (message.data.command === 'DISCONNECTED') {
       const currNames = this.names.getValue();
@@ -67,6 +80,19 @@ export class PlayerCollectorService {
 
       this.names.next(newNames);
     }
+    else if (message.data.command === 'SET_NAMES') {
+      const currNames = this.names.getValue();
+      const newNames = {...currNames, ...message.data.names}
+      this.names.next(newNames);
+    }
+  }
+
+  getPlayer(playerId: string): Observable<IPlayerTeam> {
+    return this.names.pipe(map(t => t[playerId]));
+  }
+
+  getPlayerSync(playerId: string): IPlayerTeam {
+    return this.names.getValue()[playerId];
   }
 
   setTeam(team: Color) {
@@ -78,12 +104,46 @@ export class PlayerCollectorService {
     });
   }
 
+  private getNewCPUId() {
+    const keys = Object.keys(this.names.getValue());
+    console.log(keys);
+    let id = this.peerToPeerService.getId();
+    let ct = 0;
+    while (keys.includes(id)) {
+      id = `${this.peerToPeerService.getId()}_sf${ct}`;
+      ct++;
+    }
+    return id;
+  }
+
+  addCPU(team: Color) {
+    console.log("ADDNEWCPU");
+    this.peerToPeerService.broadcastAndToSelf({
+      command: 'INFO',
+      idOverride: this.getNewCPUId(),
+      name: 'stockfish',
+      team: team,
+      owner: this.peerToPeerService.getId(),
+      isCpu: true
+    })
+  }
+
   setIsReady(isReady: boolean) {
     this.peerToPeerService.broadcastAndToSelf({
       command: 'INFO',
       name: this.peerToPeerService.getAlias(),
       owner: this.peerToPeerService.getId(),
       isReady
+    });
+  }
+
+  setEngineSettings(playerId: string, engineSettings: IEngineSettings) {
+    this.peerToPeerService.broadcastAndToSelf({
+      command: 'INFO',
+      idOverride: playerId,
+      name: this.getPlayerSync(playerId).name,
+      owner: this.peerToPeerService.getId(),
+      engineSettings: engineSettings
     });
   }
 }

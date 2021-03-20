@@ -13,14 +13,18 @@ export function createPlayerTeam(name: string, color: Color = 'white', engineSet
 }
 
 export function getDefaultNames() {
-  const engineSettings: IEngineSettings = {
-    timeForMove: 650
-  };
+  const engineSettings: IEngineSettings = getDefaultEngineSettings();
 
   return {
     [DEFAULT_ID]: createPlayerTeam('default'),
     'stockfish': createPlayerTeam('stockfish', 'black', engineSettings)
   }
+}
+
+export function getDefaultEngineSettings(): IEngineSettings {
+  return {
+    timeForMove: 650
+  };
 }
 
 export interface IEngineSettings {

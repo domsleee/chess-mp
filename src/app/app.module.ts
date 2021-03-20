@@ -23,6 +23,11 @@ import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatGridListModule} from '@angular/material/grid-list';
 import { PlayerListComponent } from './player-list/player-list.component';
 import { ReplaceNullWithEmptyPipe } from './replace-null-with-empty.pipe';
+import {MatSliderModule} from '@angular/material/slider';
+import {MatExpansionModule} from '@angular/material/expansion';
+import {MatCardModule} from '@angular/material/card';
+import { TeamSelectionPanelComponent } from './mp-lobby/team-selection-panel/team-selection-panel.component';
+import { PlayerConfigComponent } from './mp-lobby/player-config/player-config.component';
 
 
 
@@ -38,7 +43,9 @@ import { ReplaceNullWithEmptyPipe } from './replace-null-with-empty.pipe';
     LoadingButtonComponent,
     JoinComponent,
     PlayerListComponent,
-    ReplaceNullWithEmptyPipe
+    ReplaceNullWithEmptyPipe,
+    TeamSelectionPanelComponent,
+    PlayerConfigComponent
   ],
   imports: [
     BrowserModule,
@@ -52,8 +59,11 @@ import { ReplaceNullWithEmptyPipe } from './replace-null-with-empty.pipe';
     FormsModule,
     ReactiveFormsModule,
     MatSnackBarModule,
-    MatGridListModule
-    
+    MatGridListModule,
+    MatSliderModule,
+    MatExpansionModule,
+    MatCardModule
+
   ],
   providers: [
     {provide: APP_BASE_HREF, useValue: '/'}

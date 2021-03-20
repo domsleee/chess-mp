@@ -173,8 +173,24 @@ export class PeerToPeerService {
       data: data
     };
     for (const key in this.connections) {
-      this.connections[key].send(message);
+      this.sendMessage(key, message);
     }
     return message;
+  }
+
+  sendSingleMessage(to: string, data: Message) {
+    if (!(to in this.connections)) return;
+    const message: IMessage = {
+      from: this.peer!.id,
+      type: 'SINGLE',
+      data: data
+    }
+    this.sendMessage(to, message);
+  }
+
+  private sendMessage(to: string, message: IMessage) {
+    if (!(to in this.connections)) return;
+    console.log("SEND MESSAGE", message);
+    this.connections[to].send(message);
   }
 }

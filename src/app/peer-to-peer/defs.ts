@@ -1,12 +1,13 @@
 import { Color, Key } from "chessground/types";
 import * as ChessJS from 'chess.js';
+import { IEngineSettings, PlayerTeamDict } from "../chess-board/helpers/PlayerTeamHelper";
 export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
 
 
-export type Message = IMove | IInfo | IReady | IStart | IDisconnectNotification;
+export type Message = IMove | IInfo | IReady | IStart | IDisconnectNotification | ISendNames;
 
 export interface IMessage {
-  type: 'BROADCAST';
+  type: 'BROADCAST' | 'SINGLE';
   from: string;
   data: Message;
 }
@@ -30,6 +31,9 @@ export interface IInfo extends ICommand {
   team?: Color;
   owner: string;
   isReady?: boolean;
+  idOverride?: string;
+  isCpu?: boolean;
+  engineSettings?: IEngineSettings;
 }
 
 export interface IReady extends ICommand {
@@ -44,4 +48,10 @@ export interface IStart extends ICommand {
 export interface IDisconnectNotification extends ICommand {
   command: 'DISCONNECTED';
   name: string;
+}
+
+
+export interface ISendNames extends ICommand {
+  command: 'SET_NAMES';
+  names: PlayerTeamDict;
 }
