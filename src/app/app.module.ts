@@ -28,6 +28,7 @@ import {MatExpansionModule} from '@angular/material/expansion';
 import {MatCardModule} from '@angular/material/card';
 import { TeamSelectionPanelComponent } from './mp-lobby/team-selection-panel/team-selection-panel.component';
 import { PlayerConfigComponent } from './mp-lobby/player-config/player-config.component';
+import { SnapSliderComponent } from './snap-slider/snap-slider.component';
 
 
 
@@ -45,7 +46,8 @@ import { PlayerConfigComponent } from './mp-lobby/player-config/player-config.co
     PlayerListComponent,
     ReplaceNullWithEmptyPipe,
     TeamSelectionPanelComponent,
-    PlayerConfigComponent
+    PlayerConfigComponent,
+    SnapSliderComponent
   ],
   imports: [
     BrowserModule,

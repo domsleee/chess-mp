@@ -14,16 +14,23 @@ export function createPlayerTeam(name: string, color: Color = 'white', engineSet
 
 export function getDefaultNames() {
   const engineSettings: IEngineSettings = getDefaultEngineSettings();
+  const engineSettings2: IEngineSettings = {
+    ...engineSettings,
+    elo: 1350
+  };
 
   return {
     [DEFAULT_ID]: createPlayerTeam('default'),
-    'stockfish': createPlayerTeam('stockfish', 'black', engineSettings)
+    'stockfish': createPlayerTeam('Stockfish (3600)', 'black', engineSettings),
+    'stockfish2': createPlayerTeam('Stockfish (1000)', 'black', engineSettings2)
+
   }
 }
 
 export function getDefaultEngineSettings(): IEngineSettings {
   return {
-    timeForMove: 650
+    timeForMove: 700,
+    elo: 3600
   };
 }
 

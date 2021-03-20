@@ -16,9 +16,6 @@ import { RouteNames } from '../routes';
 })
 export class MpLobbyComponent implements OnInit {
   url: string;
-  names: BehaviorSubject<PlayerTeamDict>;
-  whiteNames: Observable<PlayerTeamDict>;
-  blackNames: Observable<PlayerTeamDict>;
 
   connectedSubscription: Subscription;
   numberReady = 0;
@@ -30,19 +27,15 @@ export class MpLobbyComponent implements OnInit {
     private playerCollectorService: PlayerCollectorService) {
     this.hostUrl = '/join/' + this.peerToPeerService.getHostId();
     this.url = window.location.host + this.router.parseUrl(this.hostUrl).toString();
-    this.names = this.playerCollectorService.names;
-    this.whiteNames = this.playerCollectorService.whiteNames;
-    this.blackNames = this.playerCollectorService.blackNames;
 
     this.connectedSubscription = this.playerCollectorService.newName.subscribe((id) => {
       if (this.peerToPeerService.isHost) {
         const message: ISendNames = {
           command: 'SET_NAMES',
-          names: this.names.getValue()
+          names: this.playerCollectorService.names.getValue()
         };
         this.peerToPeerService.sendSingleMessage(id, message);
       }
-      
 
       this.setTeam(this.playerCollectorService.getPlayerSync(this.peerToPeerService.getId()).team);
     })

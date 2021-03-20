@@ -1,7 +1,8 @@
 import { ChessInstance, ShortMove, Square } from "chess.js";
-import { Subject } from "rxjs";
+import { Subject, timer } from "rxjs";
 import { IGetNextMove } from "./IGetNextMove";
 import { filter, take, tap } from 'rxjs/operators';
+import { IEngineSettings } from "../PlayerTeamHelper";
 
 // declare var require: any;
 // const Stockfish = require('stockfish.wasm'); // the module, not the file
@@ -11,13 +12,29 @@ export class StockfishGetNextMove implements IGetNextMove {
   sf: any;
   sfEmitter = new Subject<string>();
 
-  constructor(private movetime: number = 3000) {
+  movetime = 700;
+
+  constructor(private engineSettings: IEngineSettings) {
+    // @ts-ignore
+    this.movetime = engineSettings.timeForMove ?? 700;
+
     // @ts-ignore
     this.initPromise = Stockfish().then((sf: any) => {
       this.sf = sf;
       sf.addMessageListener((line: any) => {
         this.sfEmitter.next(line);
+
         // console.log(line);
+        if (line == "uciok") {
+          console.log("OK!");
+          //sf.postMessage("setoption name UCI_LimitStrength value true");
+          //sf.postMessage("setoption name UCI_Elo value 1350");
+          //sf.postMessage("setoption name MultiPV value 5");
+
+          //sf.postMessage("setoption name Skill Level value 0");
+          //sf.postMessage("setoption name Skill Level Maximum Error value 900");
+          //sf.postMessage("setoption name Skill Level Probability value 10")
+        }
       });
       sf.postMessage("uci");
     });
@@ -28,13 +45,21 @@ export class StockfishGetNextMove implements IGetNextMove {
   }
 
   async getMove(cg: ChessInstance) {
+    const t = timer(this.movetime);
+    t.pipe()
     await this.doInit();
     this.sf.postMessage(`position fen ${cg.fen()}`);
-    this.sf.postMessage(`go movetime ${this.movetime}`);
-    const bestMove = await this.sfEmitter.pipe(
+    this.sf.postMessage(`go depth 1 movetime ${this.movetime}`);
+
+    const bestMovePromise = this.sfEmitter.pipe(
       filter(val => val.startsWith("bestmove")),
       take(1)
     ).toPromise();
+    const timerPromise = t.pipe(take(1)).toPromise();
+
+    await timerPromise;
+    const bestMove = await bestMovePromise;
+
     const s = bestMove.split(" ")[1];
     const promotion = bestMove.length === 5 ? bestMove[4] : '';
     const ret: ShortMove = {

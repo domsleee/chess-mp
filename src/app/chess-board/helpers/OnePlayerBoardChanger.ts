@@ -23,8 +23,9 @@ export class OnePlayerBoardChanger {
       movable: {
         color: invertColor(toColor(chess)),
         dests: toDests(chess),
-        free: true
-      },
+        free: false,
+        showDests: true
+      }
     });
   }
 

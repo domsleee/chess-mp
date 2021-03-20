@@ -12,6 +12,7 @@ import { DEFAULT_ID, PeerToPeerService } from '../peer-to-peer.service';
 import { PlayerCollectorService } from '../player-collector.service';
 import { MoveHandlerResolver } from './helpers/MoveHandlerResolver';
 import { PlayerTeamDict } from './helpers/PlayerTeamHelper';
+import { AudioService } from '../audio.service';
 export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
 
 @Component({
@@ -29,7 +30,8 @@ export class ChessBoardComponent {
   constructor(private chessTimerService: ChessTimerService,
     private chessStatusService: ChessStatusService,
     private peerToPeerService: PeerToPeerService,
-    private playerCollectorService: PlayerCollectorService) {
+    private playerCollectorService: PlayerCollectorService,
+    private audioService: AudioService) {
       
     this.updateMoveHandlerResolver();
 
@@ -147,9 +149,9 @@ export class ChessBoardComponent {
     }
 
     if (res!.captured != null) {
-      new Audio('/assets/audio/Capture.mp3').play();
+      this.audioService.capture.play();
     } else {
-      new Audio('/assets/audio/Move.mp3').play();
+      this.audioService.move.play();
     }
 
     return res;
@@ -157,7 +159,7 @@ export class ChessBoardComponent {
 
   private onGameOver() {
     this.cg.stop();
-    new Audio('/assets/audio/GenericNotify.mp3').play();
+    this.audioService.genericNotify.play();
     this.chessTimerService.pauseTimer();
   }
 

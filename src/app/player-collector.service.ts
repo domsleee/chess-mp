@@ -48,6 +48,7 @@ export class PlayerCollectorService {
       const existingValue: IPlayerTeam | null = currNames[nameId];
 
       currNames[nameId] = {
+        ...currNames[nameId],
         name: message.data.name,
         owner: message.data.owner,
         isOwnedByMe: message.data.owner === this.peerToPeerService.getId(),
@@ -55,9 +56,18 @@ export class PlayerCollectorService {
         isReady: message.data.isReady ?? existingValue?.isReady ?? false,
       };
       if (message.data.engineSettings) {
-        currNames[nameId].engineSettings = currNames[nameId].engineSettings ?? {};
-        currNames[nameId].engineSettings!.elo = message.data.engineSettings.elo ?? currNames[nameId].engineSettings?.elo;
-        currNames[nameId].engineSettings!.timeForMove = message.data.engineSettings.timeForMove ?? currNames[nameId].engineSettings?.timeForMove;
+        const currEngineSettings = currNames[nameId].engineSettings || {};
+        console.log("update engine settings...", nameId, currNames[nameId]);
+        currNames[nameId].engineSettings = currEngineSettings;
+        console.log("before updated...", currNames[nameId].engineSettings);
+
+        if ('elo' in message.data.engineSettings) {
+          currNames[nameId].engineSettings!.elo = message.data.engineSettings.elo;
+        }
+        if ('timeForMove' in message.data.engineSettings) {
+          currNames[nameId].engineSettings!.timeForMove = message.data.engineSettings.timeForMove;
+        }
+        console.log("new engine settings", currNames[nameId].engineSettings);
       }
 
       this.names.next(currNames);
@@ -113,13 +123,14 @@ export class PlayerCollectorService {
 
   addCPU(team: Color) {
     console.log("ADDNEWCPU");
+    const engineSettings = getDefaultEngineSettings();
     this.peerToPeerService.broadcastAndToSelf({
       command: 'INFO',
       team: team,
       idOverride: this.getNewCPUId(),
-      name: 'stockfish',
+      name: this.getEngineName(engineSettings),
       owner: this.peerToPeerService.getId(),
-      engineSettings: getDefaultEngineSettings()
+      engineSettings: engineSettings
     })
   }
 
@@ -132,11 +143,15 @@ export class PlayerCollectorService {
     });
   }
 
+  getEngineName(engineSettings: IEngineSettings) {
+    return `Stockfish (${engineSettings.elo}, ${(engineSettings.timeForMove ?? 0) / 1000}s)`;
+  }
+
   setEngineSettings(playerId: string, engineSettings: IEngineSettings) {
     this.peerToPeerService.broadcastAndToSelf({
       command: 'INFO',
       idOverride: playerId,
-      name: this.getPlayerSync(playerId).name,
+      name: this.getEngineName({...this.getPlayerSync(playerId).engineSettings, ...engineSettings}),
       owner: this.peerToPeerService.getId(),
       engineSettings: engineSettings
     });

@@ -1,9 +1,18 @@
-  <p>timeformove:{{myValue}}</p>
-
-  <mat-slider
-  tickInterval="1000"
-  min="1"
-  max="3300"
+  <app-snap-slider
+  label="ms per move"
+  [min]="0"
+  [max]="5000"
   [value]="(this.player)?.engineSettings?.timeForMove"
-  [(ngModel)]="myValue" (input)="myValue = $event.value"
-  (change)="setTimeForMove($event)"></mat-slider>
+  [roundFn]="roundTo100"
+  [updateModel]="updateTimeForMove"
+  ></app-snap-slider>
+
+  <app-snap-slider
+  label="elo"
+  [min]="100"
+  [max]="3600"
+  [value]="(this.player)?.engineSettings?.elo"
+  [roundFn]="roundTo50"
+
+  [updateModel]="updateElo"
+  ></app-snap-slider>

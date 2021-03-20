@@ -27,7 +27,7 @@ export class MoveHandlerResolver {
 
   private buildMoveHandler(player: IPlayerTeam): IGetNextMove {
     if (player.engineSettings == null) return new NullGetNextMove();
-    return new StockfishGetNextMove(player.engineSettings.timeForMove ?? 0);
+    return new StockfishGetNextMove(player.engineSettings);
   }
 
   getMoveHander(moveNumber: number): IGetNextMove {
