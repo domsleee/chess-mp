@@ -4,7 +4,7 @@ import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { createPlayerTeam, getDefaultEngineSettings, getDefaultNames, IEngineSettings, IPlayerTeam, PlayerTeamDict } from './chess-board/helpers/PlayerTeamHelper';
 import { DEFAULT_ID, PeerToPeerService } from './peer-to-peer.service';
-import { IInfo, IMessage } from './peer-to-peer/defs';
+import { IInfo, IInfoOptionals, IMessage, MessageData } from './peer-to-peer/defs';
 
 @Injectable({
   providedIn: 'root'
@@ -45,29 +45,18 @@ export class PlayerCollectorService {
       const nameId = message.data.idOverride ?? message.from;
 
       const isNewName = !(nameId in currNames);
-      const existingValue: IPlayerTeam | null = currNames[nameId];
-
       currNames[nameId] = {
         ...currNames[nameId],
-        name: message.data.name,
-        owner: message.data.owner,
-        isOwnedByMe: message.data.owner === this.peerToPeerService.getId(),
-        team: message.data.team ?? existingValue?.team ?? 'white',
-        isReady: message.data.isReady ?? existingValue?.isReady ?? false,
+        ...this.filterDict<IInfo>(message.data, ([k,v]) => k != 'engineSettings' && k != 'idOverride'),
+        isOwnedByMe: message.data.owner === this.peerToPeerService.getId()
       };
       if (message.data.engineSettings) {
-        const currEngineSettings = currNames[nameId].engineSettings || {};
-        console.log("update engine settings...", nameId, currNames[nameId]);
-        currNames[nameId].engineSettings = currEngineSettings;
-        console.log("before updated...", currNames[nameId].engineSettings);
-
-        if ('elo' in message.data.engineSettings) {
-          currNames[nameId].engineSettings!.elo = message.data.engineSettings.elo;
+        const currEngineSettings = currNames[nameId].engineSettings ?? {};
+        currNames[nameId].engineSettings = {...currEngineSettings, ...message.data.engineSettings};
+        const engineSettings = currNames[nameId]!.engineSettings;
+        if (engineSettings) {
+          currNames[nameId].name = this.getEngineName(engineSettings);
         }
-        if ('timeForMove' in message.data.engineSettings) {
-          currNames[nameId].engineSettings!.timeForMove = message.data.engineSettings.timeForMove;
-        }
-        console.log("new engine settings", currNames[nameId].engineSettings);
       }
 
       this.names.next(currNames);
@@ -92,6 +81,10 @@ export class PlayerCollectorService {
     }
   }
 
+  filterDict<T>(dict: T, fn: (entry: [string, any]) => boolean) {
+    return Object.fromEntries(Object.entries(dict).filter(fn));
+  }
+
   getPlayer(playerId: string): Observable<IPlayerTeam> {
     return this.names.pipe(map(t => t[playerId]));
   }
@@ -101,12 +94,36 @@ export class PlayerCollectorService {
   }
 
   setTeam(team: Color) {
-    this.peerToPeerService.broadcastAndToSelf({
-      command: 'INFO',
-      name: this.peerToPeerService.getAlias(),
-      team: team,
-      owner: this.peerToPeerService.getId()
+    return this.broadcastNamesMessage({team: team});
+  }
+
+  addCPU(team: Color) {
+    return this.setEngineSettings(this.getNewCPUId(), getDefaultEngineSettings(), team);
+  }
+
+  setIsReady(isReady: boolean) {
+    return this.broadcastNamesMessage({
+      isReady: isReady,
     });
+  }
+
+  setEngineSettings(playerId: string, engineSettings: IEngineSettings, team: Color | null = null) {
+    const infoOptionals: IInfoOptionals = {
+      idOverride: playerId,
+      engineSettings: engineSettings
+    }
+    if (team != null) {
+      infoOptionals.team = team;
+    }
+   
+    return this.broadcastNamesMessage(
+      infoOptionals,
+      this.getEngineName({...this.getPlayerSync(playerId)?.engineSettings ?? {}, ...engineSettings})
+    );
+  }
+
+  private getEngineName(engineSettings: IEngineSettings) {
+    return `Stockfish (${engineSettings.elo}, ${(engineSettings.timeForMove ?? 0) / 1000}s)`;
   }
 
   private getNewCPUId() {
@@ -121,39 +138,17 @@ export class PlayerCollectorService {
     return id;
   }
 
-  addCPU(team: Color) {
-    console.log("ADDNEWCPU");
-    const engineSettings = getDefaultEngineSettings();
-    this.peerToPeerService.broadcastAndToSelf({
-      command: 'INFO',
-      team: team,
-      idOverride: this.getNewCPUId(),
-      name: this.getEngineName(engineSettings),
-      owner: this.peerToPeerService.getId(),
-      engineSettings: engineSettings
-    })
-  }
-
-  setIsReady(isReady: boolean) {
-    this.peerToPeerService.broadcastAndToSelf({
+  private broadcastNamesMessage(data: IInfoOptionals, nameOverride: string | null = null) {
+    let message: MessageData = {
       command: 'INFO',
       name: this.peerToPeerService.getAlias(),
       owner: this.peerToPeerService.getId(),
-      isReady
-    });
-  }
+      ...data
+    };
+    if (nameOverride != null) {
+      message = {...message, name: nameOverride};
+    }
 
-  getEngineName(engineSettings: IEngineSettings) {
-    return `Stockfish (${engineSettings.elo}, ${(engineSettings.timeForMove ?? 0) / 1000}s)`;
-  }
-
-  setEngineSettings(playerId: string, engineSettings: IEngineSettings) {
-    this.peerToPeerService.broadcastAndToSelf({
-      command: 'INFO',
-      idOverride: playerId,
-      name: this.getEngineName({...this.getPlayerSync(playerId).engineSettings, ...engineSettings}),
-      owner: this.peerToPeerService.getId(),
-      engineSettings: engineSettings
-    });
+    this.peerToPeerService.broadcastAndToSelf(message);
   }
 }

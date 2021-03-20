@@ -25,11 +25,15 @@ export interface IMove extends ICommand {
   promotion?: Exclude<ChessJS.PieceType, 'p'>;
 }
 
-export interface IInfo extends ICommand {
+export interface IInfo extends ICommand, IInfoOptionals {
   command: 'INFO';
   name: string;
-  team?: Color;
   owner: string;
+  
+}
+
+export interface IInfoOptionals {
+  team?: Color;
   isReady?: boolean;
   idOverride?: string;
   engineSettings?: IEngineSettings;
