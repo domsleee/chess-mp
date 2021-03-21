@@ -107,7 +107,7 @@ export class ChessBoardComponent {
     return this.cg;
   }
 
-  moveHandler(orig: Key, dest: Key, promotion?: Exclude<ChessJS.PieceType, 'p'>) {
+  private moveHandler(orig: Key, dest: Key, promotion?: Exclude<ChessJS.PieceType, 'p'>) {
     this.movePieceWithPromotion(orig, dest, promotion);
 
     this.chessTimerService.setTurn(this.chessStatusService.getColor())
