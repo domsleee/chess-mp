@@ -6,7 +6,7 @@ import { ChessStatusService } from '../chess-status.service';
 import { ChessTimerFormatPipe } from '../chess-timer-format.pipe';
 import { ChessTimerService } from '../chess-timer.service';
 import { DEFAULT_ID, PeerToPeerService } from '../peer-to-peer.service';
-import { PlayerCollectorService } from '../player-collector.service';
+import { SharedDataService } from '../shared-data.service';
 
 
 @Component({
@@ -34,18 +34,18 @@ export class ChessTimerComponent {
   constructor(private chessTimerService: ChessTimerService,
     private ChessStatusService: ChessStatusService,
     private peerToPeerService: PeerToPeerService,
-    private playerCollectorService: PlayerCollectorService) {
+    private sharedDataService: SharedDataService) {
     this.whiteTime = this.chessTimerService.whiteTime;
     this.blackTime = this.chessTimerService.blackTime;
     this.currentStatus = this.ChessStatusService.currentStatus;
-    this.whiteNames = this.playerCollectorService.whiteNames;
-    this.blackNames = this.playerCollectorService.blackNames;
+    this.whiteNames = this.sharedDataService.whiteNames;
+    this.blackNames = this.sharedDataService.blackNames;
 
     this.currentId = this.ChessStatusService.currentTurn.asObservable().pipe(map(([key, value]) => key));
     this.nextId = this.ChessStatusService.nextTurn.asObservable().pipe(map(([key, value]) => key));
     this.currentTurn = this.ChessStatusService.currentTurn.asObservable().pipe(map(([key, value]) => value?.name ?? key));
     this.myId = this.peerToPeerService.getId();
-    this.myName = this.playerCollectorService.names.pipe(map(t => t[this.peerToPeerService.getId()]?.name ?? DEFAULT_ID));
+    this.myName = this.sharedDataService.names.pipe(map(t => t[this.peerToPeerService.getId()]?.name ?? DEFAULT_ID));
   }
 
   ngOnInit() {

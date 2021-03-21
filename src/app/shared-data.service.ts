@@ -9,7 +9,7 @@ import { IInfo, IInfoOptionals, IMessage, MessageData } from './peer-to-peer/def
 @Injectable({
   providedIn: 'root'
 })
-export class PlayerCollectorService {
+export class SharedDataService {
   messageSubscription: Subscription;
   names: BehaviorSubject<PlayerTeamDict> = new BehaviorSubject({});
   newName: Subject<string> = new Subject();

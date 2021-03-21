@@ -3,7 +3,7 @@ import { Color } from 'chessground/types';
 import { Observable } from 'rxjs';
 import { Key } from 'selenium-webdriver';
 import { IPlayerTeam, PlayerTeamDict } from 'src/app/chess-board/helpers/PlayerTeamHelper';
-import { PlayerCollectorService } from 'src/app/player-collector.service';
+import { SharedDataService } from 'src/app/shared-data.service';
 
 @Component({
   selector: 'app-team-selection-panel',
@@ -14,13 +14,13 @@ export class TeamSelectionPanelComponent implements OnInit {
   @Input() team: Color = 'white';
   teamDict$: Observable<PlayerTeamDict>;
 
-  constructor(private playerCollectorService: PlayerCollectorService) {
-    this.teamDict$ = this.team == 'white' ? this.playerCollectorService.whiteNames : this.playerCollectorService.blackNames;
+  constructor(private sharedDataService: SharedDataService) {
+    this.teamDict$ = this.team == 'white' ? this.sharedDataService.whiteNames : this.sharedDataService.blackNames;
   }
 
   ngOnInit(): void {
     console.log("team selection init...");
-    this.teamDict$ = this.team == 'white' ? this.playerCollectorService.whiteNames : this.playerCollectorService.blackNames;
+    this.teamDict$ = this.team == 'white' ? this.sharedDataService.whiteNames : this.sharedDataService.blackNames;
   }
 
   onDestroy() {
@@ -37,11 +37,11 @@ export class TeamSelectionPanelComponent implements OnInit {
   }
 
   setTeam() {
-    this.playerCollectorService.setTeam(this.team);
+    this.sharedDataService.setTeam(this.team);
   }
 
   addCPU() {
-    this.playerCollectorService.addCPU(this.team);
+    this.sharedDataService.addCPU(this.team);
   }
 
 }

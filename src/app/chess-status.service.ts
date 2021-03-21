@@ -3,7 +3,7 @@ import * as ChessJS from 'chess.js';
 import { Color } from 'chessground/types';
 import { BehaviorSubject } from 'rxjs';
 import { IPlayerTeam } from './chess-board/helpers/PlayerTeamHelper';
-import { PlayerCollectorService } from './player-collector.service';
+import { SharedDataService } from './shared-data.service';
 import { toColor } from './util/play';
 import { PlayersTurnInfo } from './util/PlayersTurnInfo';
 export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
@@ -18,11 +18,11 @@ export class ChessStatusService {
   chess: ChessJS.ChessInstance;
   playersTurnInfo: PlayersTurnInfo;
 
-  constructor(private playerCollectorService: PlayerCollectorService) {
+  constructor(private sharedDataService: SharedDataService) {
     this.chess = new Chess();
-    this.playersTurnInfo = new PlayersTurnInfo(this.playerCollectorService.names.getValue());
-    this.playerCollectorService.newName.subscribe(() => {
-      this.playersTurnInfo = new PlayersTurnInfo(this.playerCollectorService.names.getValue());
+    this.playersTurnInfo = new PlayersTurnInfo(this.sharedDataService.names.getValue());
+    this.sharedDataService.newName.subscribe(() => {
+      this.playersTurnInfo = new PlayersTurnInfo(this.sharedDataService.names.getValue());
     });
     this.updateCurrentTurn();
   }
@@ -47,7 +47,7 @@ export class ChessStatusService {
 
   private getTupleForMoveNumber(moveNumber: number): [string, IPlayerTeam] {
     const playerId = this.playersTurnInfo.getPlayer(moveNumber);
-    const playerTeamDict = this.playerCollectorService.names.getValue()[playerId] || null;
+    const playerTeamDict = this.sharedDataService.names.getValue()[playerId] || null;
     return [playerId, playerTeamDict];
   }
 

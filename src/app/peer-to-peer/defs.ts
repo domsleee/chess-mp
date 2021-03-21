@@ -29,7 +29,6 @@ export interface IInfo extends ICommand, IInfoOptionals {
   command: 'INFO';
   name: string;
   owner: string;
-  
 }
 
 export interface IInfoOptionals {

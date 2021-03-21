@@ -9,7 +9,7 @@ import { Color, Key, Piece, PiecesDiff } from 'chessground/types';
 import { ChessTimerService } from '../chess-timer.service';
 import { ChessStatusService } from '../chess-status.service';
 import { DEFAULT_ID, PeerToPeerService } from '../peer-to-peer.service';
-import { PlayerCollectorService } from '../player-collector.service';
+import { SharedDataService } from '../shared-data.service';
 import { MoveHandlerResolver } from './helpers/MoveHandlerResolver';
 import { PlayerTeamDict } from './helpers/PlayerTeamHelper';
 import { AudioService } from '../audio.service';
@@ -30,7 +30,7 @@ export class ChessBoardComponent {
   constructor(private chessTimerService: ChessTimerService,
     private chessStatusService: ChessStatusService,
     private peerToPeerService: PeerToPeerService,
-    private playerCollectorService: PlayerCollectorService,
+    private sharedDataService: SharedDataService,
     private audioService: AudioService) {
       
     this.updateMoveHandlerResolver();
@@ -41,8 +41,8 @@ export class ChessBoardComponent {
   }
 
   private updateMoveHandlerResolver() {
-    const whiteTeamDict = this.playerCollectorService.getColorNames('white');
-    const blackTeamDict = this.playerCollectorService.getColorNames('black');
+    const whiteTeamDict = this.sharedDataService.getColorNames('white');
+    const blackTeamDict = this.sharedDataService.getColorNames('black');
     this.moveHandlerResolver = new MoveHandlerResolver(whiteTeamDict, blackTeamDict);
   }
 

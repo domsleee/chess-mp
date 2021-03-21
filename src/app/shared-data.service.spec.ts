@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { AudioService } from './audio.service';
+import { SharedDataService } from './shared-data.service';
 
-describe('AudioServiceService', () => {
-  let service: AudioService;
+describe('sharedDataService', () => {
+  let service: SharedDataService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(AudioService);
+    service = TestBed.inject(SharedDataService);
   });
 
   it('should be created', () => {

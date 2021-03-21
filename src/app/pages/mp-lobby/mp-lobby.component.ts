@@ -5,14 +5,14 @@ import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { PlayerTeamDict } from 'src/app/chess-board/helpers/PlayerTeamHelper';
 import { PeerToPeerService } from 'src/app/peer-to-peer.service';
 import { IMessage, ISendNames } from 'src/app/peer-to-peer/defs';
-import { PlayerCollectorService } from 'src/app/player-collector.service';
+import { SharedDataService } from 'src/app/shared-data.service';
 import { RouteNames } from '../routes';
 
 @Component({
   selector: 'app-mp-lobby',
   templateUrl: './mp-lobby.component.html',
   styleUrls: ['./mp-lobby.component.scss'],
-  providers: [PlayerCollectorService]
+  providers: [SharedDataService]
 })
 export class MpLobbyComponent implements OnInit {
   url: string;
@@ -24,22 +24,22 @@ export class MpLobbyComponent implements OnInit {
 
   constructor(private peerToPeerService: PeerToPeerService,
     private router: Router,
-    private playerCollectorService: PlayerCollectorService) {
+    private sharedDataService: SharedDataService) {
     this.hostUrl = '/join/' + this.peerToPeerService.getHostId();
     this.url = window.location.host + this.router.parseUrl(this.hostUrl).toString();
 
-    this.connectedSubscription = this.playerCollectorService.newName.subscribe((id) => {
+    this.connectedSubscription = this.sharedDataService.newName.subscribe((id) => {
       if (this.peerToPeerService.isHost) {
         const message: ISendNames = {
           command: 'SET_NAMES',
-          names: this.playerCollectorService.names.getValue()
+          names: this.sharedDataService.names.getValue()
         };
         this.peerToPeerService.sendSingleMessage(id, message);
       }
 
-      this.setTeam(this.playerCollectorService.getPlayerSync(this.peerToPeerService.getId()).team);
+      this.setTeam(this.sharedDataService.getPlayerSync(this.peerToPeerService.getId()).team);
     })
-    this.playerCollectorService.names.subscribe((names) => {
+    this.sharedDataService.names.subscribe((names) => {
       this.numberReady = Object.values(names).filter(t => t.isReady).length;
     })
     this.peerToPeerService.messageSubject.subscribe((message) => {
@@ -59,13 +59,13 @@ export class MpLobbyComponent implements OnInit {
   }
 
   setTeam(team: Color) {
-    this.playerCollectorService.setTeam(team);
+    this.sharedDataService.setTeam(team);
   }
 
   readyClick() {
     console.log('ready click')
     this.readyString = this.readyString == 'ready' ? 'not ready' : 'ready';
-    this.playerCollectorService.setIsReady(this.readyString == 'not ready');
+    this.sharedDataService.setIsReady(this.readyString == 'not ready');
   }
 
   startGame() {
