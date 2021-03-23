@@ -31,11 +31,16 @@ export class ChessTimerService {
 
   private paused = false;
   private myTimer = timer(10, -1);
+  private whiteIncrement = 0;
+  private blackIncrement = 0;
 
   public setStartingTime(totalTimeSeconds: number, startingTurn: Color = 'white', whiteIncrement = 20*1000, blackIncrement = 0) {
+    console.log("set starting time", totalTimeSeconds);
     this.whiteTime.next(totalTimeSeconds);
     this.blackTime.next(totalTimeSeconds);
     this.timerState.turn = startingTurn;
+    this.whiteIncrement = whiteIncrement;
+    this.blackIncrement = blackIncrement;
   }
 
   public startTimer() {
@@ -66,7 +71,7 @@ export class ChessTimerService {
 
   public setTurn(turn: Color) {
     if (turn == this.timerState.turn) return;
-    if (this.timerState.turn == 'white') this.incrementTimer(this.timerState.turn, 2);
+    this.incrementTimer(this.timerState.turn, this.timerState.turn == 'white' ? this.whiteIncrement : this.blackIncrement);
     this.timerState.turn = turn;
   }
 

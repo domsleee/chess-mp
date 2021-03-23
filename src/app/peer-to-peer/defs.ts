@@ -1,10 +1,11 @@
 import { Color, Key } from "chessground/types";
 import * as ChessJS from 'chess.js';
 import { IEngineSettings, PlayerTeamDict } from "../chess-board/helpers/PlayerTeamHelper";
+import { ISharedData } from "./shared-data";
 export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
 
 
-export type MessageData = IMove | IInfo | IReady | IStart | IDisconnectNotification | ISendNames;
+export type MessageData = IMove | IInfo | IReady | IStart | IDisconnectNotification | ISendNames | IUpdateShared;
 
 export interface IMessage {
   type: 'BROADCAST' | 'SINGLE';
@@ -38,6 +39,12 @@ export interface IInfoOptionals {
   engineSettings?: IEngineSettings;
 }
 
+
+export interface IUpdateShared extends ICommand {
+  command: 'UPDATE_SHARED';
+  sharedData: ISharedData;
+}
+
 export interface IReady extends ICommand {
   command: 'READY';
   isReady: boolean;
@@ -52,8 +59,9 @@ export interface IDisconnectNotification extends ICommand {
   name: string;
 }
 
-
 export interface ISendNames extends ICommand {
   command: 'SET_NAMES';
   names: PlayerTeamDict;
+  sharedData: ISharedData;
 }
+

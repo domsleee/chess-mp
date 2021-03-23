@@ -5,7 +5,8 @@ import { map } from 'rxjs/operators';
 import { createPlayerTeam, getDefaultEngineSettings, getDefaultNames, IEngineSettings, IPlayerTeam, PlayerTeamDict } from './chess-board/helpers/PlayerTeamHelper';
 import { DEFAULT_ID, PeerToPeerService } from './peer-to-peer.service';
 import { IInfo, IInfoOptionals, IMessage, MessageData } from './peer-to-peer/defs';
-
+import { getDefaultSharedData, ISharedData } from './peer-to-peer/shared-data';
+import { merge } from './util/helpers';
 @Injectable({
   providedIn: 'root'
 })
@@ -15,14 +16,17 @@ export class SharedDataService {
   newName: Subject<string> = new Subject();
   whiteNames: Observable<PlayerTeamDict>;
   blackNames: Observable<PlayerTeamDict>;
+  sharedData: BehaviorSubject<ISharedData> = new BehaviorSubject({});
 
   constructor(private peerToPeerService: PeerToPeerService) {
+    console.log("SHARED DATA CONSTRUCTED");
     this.messageSubscription = this.peerToPeerService.messageSubject.subscribe(this.processMessage.bind(this));
     this.whiteNames = this.names.pipe(map(t => this.keyValueFilter(t, "white")));
     this.blackNames = this.names.pipe(map(t => this.keyValueFilter(t, "black")));
+    this.sharedData.next(getDefaultSharedData());
 
     if (!this.peerToPeerService.isConnected) {
-      this.names.next(getDefaultNames())
+      this.names.next(getDefaultNames());
     }
   }
 
@@ -36,6 +40,7 @@ export class SharedDataService {
 
   ngOnDestroy() {
     this.messageSubscription.unsubscribe();
+    console.log("SHARED DATA DESTROYED");
   }
 
   private processMessage(message: IMessage) {
@@ -78,7 +83,18 @@ export class SharedDataService {
       const currNames = this.names.getValue();
       const newNames = {...currNames, ...message.data.names}
       this.names.next(newNames);
+      this.sharedData.next(message.data.sharedData);
     }
+    else if (message.data.command === 'UPDATE_SHARED') {
+      this.sharedData.next(merge(this.sharedData.getValue(), message.data.sharedData));
+    }
+  }
+
+  setSharedData(sharedData: ISharedData) {
+    this.peerToPeerService.broadcastAndToSelf({
+      command: 'UPDATE_SHARED',
+      sharedData: sharedData
+    });
   }
 
   filterDict<T>(dict: T, fn: (entry: [string, any]) => boolean) {

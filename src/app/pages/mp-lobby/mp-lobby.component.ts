@@ -5,14 +5,14 @@ import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { PlayerTeamDict } from 'src/app/chess-board/helpers/PlayerTeamHelper';
 import { PeerToPeerService } from 'src/app/peer-to-peer.service';
 import { IMessage, ISendNames } from 'src/app/peer-to-peer/defs';
+import { ISharedData } from 'src/app/peer-to-peer/shared-data';
 import { SharedDataService } from 'src/app/shared-data.service';
 import { RouteNames } from '../routes';
 
 @Component({
   selector: 'app-mp-lobby',
   templateUrl: './mp-lobby.component.html',
-  styleUrls: ['./mp-lobby.component.scss'],
-  providers: [SharedDataService]
+  styleUrls: ['./mp-lobby.component.scss']
 })
 export class MpLobbyComponent implements OnInit {
   url: string;
@@ -21,6 +21,11 @@ export class MpLobbyComponent implements OnInit {
   numberReady = 0;
   readyString = 'ready';
   hostUrl: string;
+  sharedData: Observable<ISharedData>;
+
+  updateWhiteTime = (val: number) => this.sharedDataService.setSharedData({timerSettings: {whiteTime: val}});
+  updateWhiteIncrement = (val: number) => this.sharedDataService.setSharedData({timerSettings: {whiteIncrement: val}});
+
 
   constructor(private peerToPeerService: PeerToPeerService,
     private router: Router,
@@ -28,11 +33,14 @@ export class MpLobbyComponent implements OnInit {
     this.hostUrl = '/join/' + this.peerToPeerService.getHostId();
     this.url = window.location.host + this.router.parseUrl(this.hostUrl).toString();
 
+    this.sharedData = this.sharedDataService.sharedData.asObservable();
+
     this.connectedSubscription = this.sharedDataService.newName.subscribe((id) => {
       if (this.peerToPeerService.isHost) {
         const message: ISendNames = {
           command: 'SET_NAMES',
-          names: this.sharedDataService.names.getValue()
+          names: this.sharedDataService.names.getValue(),
+          sharedData: this.sharedDataService.sharedData.getValue()
         };
         this.peerToPeerService.sendSingleMessage(id, message);
       }

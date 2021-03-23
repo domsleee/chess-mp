@@ -20,6 +20,25 @@
 <h1>MP Lobby</h1>
 <p><a [routerLink]="hostUrl">{{url}}</a></p>
 
+
+<app-snap-slider
+label="White time"
+[min]="15"
+[max]="3600"
+[value]="(sharedData | async)?.timerSettings?.whiteTime"
+
+[updateModel]="updateWhiteTime"
+></app-snap-slider>
+
+<app-snap-slider
+label="White increment"
+[min]="0"
+[max]="30"
+[value]="(sharedData | async)?.timerSettings?.whiteIncrement"
+
+[updateModel]="updateWhiteIncrement"
+></app-snap-slider>
+
 <div class="flex-container">
   <div class="flex-child">
     <app-team-selection-panel [team]="'white'"></app-team-selection-panel>

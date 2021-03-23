@@ -51,9 +51,27 @@ export class ChessBoardComponent {
   // @ts-ignore
   cg: Api;
 
-  ngAfterViewInit(): void {
-    this.chessTimerService.setStartingTime(60);
+  ngOnInit() {
+    const sharedData = this.sharedDataService.sharedData.getValue();
+    const timerSettings = sharedData.timerSettings;
+
+    if (timerSettings == undefined) throw new Error('timer settings shoudl not be undefined');
+
+    console.log("timer settings", timerSettings);
+    if (!timerSettings.asymmetric) {
+      this.chessTimerService.setStartingTime(timerSettings.whiteTime!, 'white',
+        timerSettings.whiteIncrement!,
+        timerSettings.whiteIncrement!);
+    } else {
+      this.chessTimerService.setStartingTime(timerSettings.whiteTime!, 'white',
+        timerSettings.whiteIncrement!,
+        timerSettings.blackIncrement!);
+    }
+    
     this.chessTimerService.startTimer();
+  }
+
+  ngAfterViewInit(): void {
 
     this.ngxChessgroundComponent.runFn = this.run.bind(this);
 

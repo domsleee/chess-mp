@@ -3,7 +3,7 @@
   <!-- <p style="font-size:1em">I AM: {{myName | async}}</p>
   <p style="font-size:1em">CurrentTurn: {{currentTurn | async}}</p> -->
   <p>{{blackTime | async | chessTimerFormat}}</p>
-  <p style="font-size:20px">{{currentStatus | async}}</p>
+  <p class="final-result">{{currentStatus | async}}</p>
   <p>{{whiteTime | async | chessTimerFormat}}</p>
   <app-player-list [currentId]="currentId | async | replaceNullWithEmpty" [players]="whiteNames | async" [nextId]="nextId | async | replaceNullWithEmpty"></app-player-list>
 </div>
