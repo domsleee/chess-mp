@@ -14,7 +14,7 @@ import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform
 import { MatMenuModule } from '@angular/material/menu';
 
 import { MatButtonModule } from '@angular/material/button';
-import { LoadingButtonComponent } from './loading-button/loading-button.component';
+import { LoadingButtonComponent } from './components/loading-button/loading-button.component';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
@@ -29,6 +29,7 @@ import {MatCardModule} from '@angular/material/card';
 import { TeamSelectionPanelComponent } from './mp-lobby/team-selection-panel/team-selection-panel.component';
 import { PlayerConfigComponent } from './mp-lobby/player-config/player-config.component';
 import { SnapSliderComponent } from './snap-slider/snap-slider.component';
+import { TimerConfigComponent } from './components/timer-config/timer-config.component';
 
 
 
@@ -47,7 +48,8 @@ import { SnapSliderComponent } from './snap-slider/snap-slider.component';
     ReplaceNullWithEmptyPipe,
     TeamSelectionPanelComponent,
     PlayerConfigComponent,
-    SnapSliderComponent
+    SnapSliderComponent,
+    TimerConfigComponent
   ],
   imports: [
     BrowserModule,

@@ -19,7 +19,6 @@ export class SharedDataService {
   sharedData: BehaviorSubject<ISharedData> = new BehaviorSubject({});
 
   constructor(private peerToPeerService: PeerToPeerService) {
-    console.log("SHARED DATA CONSTRUCTED");
     this.messageSubscription = this.peerToPeerService.messageSubject.subscribe(this.processMessage.bind(this));
     this.whiteNames = this.names.pipe(map(t => this.keyValueFilter(t, "white")));
     this.blackNames = this.names.pipe(map(t => this.keyValueFilter(t, "black")));

@@ -23,10 +23,6 @@ export class MpLobbyComponent implements OnInit {
   hostUrl: string;
   sharedData: Observable<ISharedData>;
 
-  updateWhiteTime = (val: number) => this.sharedDataService.setSharedData({timerSettings: {whiteTime: val}});
-  updateWhiteIncrement = (val: number) => this.sharedDataService.setSharedData({timerSettings: {whiteIncrement: val}});
-
-
   constructor(private peerToPeerService: PeerToPeerService,
     private router: Router,
     private sharedDataService: SharedDataService) {

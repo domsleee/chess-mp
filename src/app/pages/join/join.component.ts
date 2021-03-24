@@ -4,7 +4,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { first } from 'rxjs/operators';
-import { LoadingButtonComponent } from 'src/app/loading-button/loading-button.component';
+import { LoadingButtonComponent } from 'src/app/components/loading-button/loading-button.component';
 import { PeerToPeerService } from 'src/app/peer-to-peer.service';
 import { environment } from 'src/environments/environment';
 import { RouteNames } from '../routes';
