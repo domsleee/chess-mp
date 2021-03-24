@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { IPlayerTeam } from 'src/app/chess-board/helpers/PlayerTeamHelper';
-import { SharedDataService } from 'src/app/shared-data.service';
+import { IPlayerTeam } from 'src/app/components/chess-board/helpers/PlayerTeamHelper';
+import { SharedDataService } from 'src/app/services/shared-data.service';
 
 @Component({
   selector: 'app-player-config',

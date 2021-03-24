@@ -1,5 +1,5 @@
 import { Color } from "chessground/types";
-import { DEFAULT_ID } from "src/app/peer-to-peer.service";
+import { DEFAULT_ID } from "src/app/services/peer-to-peer.service";
 
 export function createPlayerTeam(name: string, color: Color = 'white', engineSettings: IEngineSettings | undefined = undefined): IPlayerTeam {
   return {

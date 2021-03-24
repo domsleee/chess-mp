@@ -4,7 +4,7 @@ import Peer, { PeerJSOption } from 'peerjs';
 import { interval, ReplaySubject, Subject } from 'rxjs';
 import { timeout } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { ICommand, IInfo, IMessage, IMove, MessageData } from './peer-to-peer/defs';
+import { IMessage, MessageData } from '../shared/peer-to-peer/defs';
 
 const debug = console.log;
 const TIMEOUT_MS = 5000;

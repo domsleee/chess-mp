@@ -2,10 +2,10 @@ import { Injectable } from '@angular/core';
 import * as ChessJS from 'chess.js';
 import { Color } from 'chessground/types';
 import { BehaviorSubject } from 'rxjs';
-import { IPlayerTeam } from './chess-board/helpers/PlayerTeamHelper';
+import { IPlayerTeam } from '../components/chess-board/helpers/PlayerTeamHelper';
+import { toColor } from '../shared/util/play';
+import { PlayersTurnInfo } from '../shared/util/PlayersTurnInfo';
 import { SharedDataService } from './shared-data.service';
-import { toColor } from './util/play';
-import { PlayersTurnInfo } from './util/PlayersTurnInfo';
 export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
 
 @Injectable()

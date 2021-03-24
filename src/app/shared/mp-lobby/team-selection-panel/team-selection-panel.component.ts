@@ -2,8 +2,8 @@ import { Component, Input, OnInit } from '@angular/core';
 import { Color } from 'chessground/types';
 import { Observable } from 'rxjs';
 import { Key } from 'selenium-webdriver';
-import { IPlayerTeam, PlayerTeamDict } from 'src/app/chess-board/helpers/PlayerTeamHelper';
-import { SharedDataService } from 'src/app/shared-data.service';
+import { IPlayerTeam, PlayerTeamDict } from 'src/app/components/chess-board/helpers/PlayerTeamHelper';
+import { SharedDataService } from 'src/app/services/shared-data.service';
 
 @Component({
   selector: 'app-team-selection-panel',

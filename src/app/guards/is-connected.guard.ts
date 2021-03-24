@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree, Router } from '@angular/router';
 import { Observable } from 'rxjs';
-import { RouteNames } from './pages/routes';
-import { PeerToPeerService } from './peer-to-peer.service';
+import { RouteNames } from '../pages/routes';
+import { PeerToPeerService } from '../services/peer-to-peer.service';
 
 @Injectable({
   providedIn: 'root'

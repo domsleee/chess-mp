@@ -5,9 +5,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { NgxChessgroundModule } from 'ngx-chessground';
 import {APP_BASE_HREF} from '@angular/common';
-import { ChessBoardComponent } from './chess-board/chess-board.component';
-import { ChessTimerComponent } from './chess-timer/chess-timer.component';
-import { ChessTimerFormatPipe } from './chess-timer-format.pipe';
+import { ChessBoardComponent } from './components/chess-board/chess-board.component';
 import { MpLobbyComponent } from './pages/mp-lobby/mp-lobby.component';
 import { HomeComponent } from './pages/home/home.component';
 import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -21,15 +19,17 @@ import {MatInputModule} from '@angular/material/input';
 import { JoinComponent } from './pages/join/join.component';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatGridListModule} from '@angular/material/grid-list';
-import { PlayerListComponent } from './player-list/player-list.component';
-import { ReplaceNullWithEmptyPipe } from './replace-null-with-empty.pipe';
+import { PlayerListComponent } from './components/player-list/player-list.component';
 import {MatSliderModule} from '@angular/material/slider';
 import {MatExpansionModule} from '@angular/material/expansion';
 import {MatCardModule} from '@angular/material/card';
-import { TeamSelectionPanelComponent } from './mp-lobby/team-selection-panel/team-selection-panel.component';
-import { PlayerConfigComponent } from './mp-lobby/player-config/player-config.component';
-import { SnapSliderComponent } from './snap-slider/snap-slider.component';
+import { TeamSelectionPanelComponent } from './shared/mp-lobby/team-selection-panel/team-selection-panel.component';
+import { PlayerConfigComponent } from './shared/mp-lobby/player-config/player-config.component';
+import { SnapSliderComponent } from './components/snap-slider/snap-slider.component';
 import { TimerConfigComponent } from './components/timer-config/timer-config.component';
+import { ChessTimerFormatPipe } from './services/chess-timer-format.pipe';
+import { ChessTimerComponent } from './components/chess-timer/chess-timer.component';
+import { ReplaceNullWithEmptyPipe } from './pipes/replace-null-with-empty.pipe';
 
 
 

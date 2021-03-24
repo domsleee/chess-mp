@@ -2,11 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Color } from 'chessground/types';
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
-import { PlayerTeamDict } from 'src/app/chess-board/helpers/PlayerTeamHelper';
-import { PeerToPeerService } from 'src/app/peer-to-peer.service';
-import { IMessage, ISendNames } from 'src/app/peer-to-peer/defs';
-import { ISharedData } from 'src/app/peer-to-peer/shared-data';
-import { SharedDataService } from 'src/app/shared-data.service';
+import { PlayerTeamDict } from 'src/app/components/chess-board/helpers/PlayerTeamHelper';
+import { IMessage, ISendNames } from 'src/app/shared/peer-to-peer/defs';
+import { ISharedData } from 'src/app/shared/peer-to-peer/shared-data';
+import { PeerToPeerService } from 'src/app/services/peer-to-peer.service';
+import { SharedDataService } from 'src/app/services/shared-data.service';
 import { RouteNames } from '../routes';
 
 @Component({

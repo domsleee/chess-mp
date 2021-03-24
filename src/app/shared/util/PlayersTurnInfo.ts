@@ -1,6 +1,6 @@
 
 import { Color } from 'chessground/types';
-import { PlayerTeamDict } from '../chess-board/helpers/PlayerTeamHelper';
+import { PlayerTeamDict } from '../../components/chess-board/helpers/PlayerTeamHelper';
 
 export class PlayersTurnInfo {
   readonly players: {

@@ -6,13 +6,13 @@ import { OnePlayerBoardChanger } from './helpers/OnePlayerBoardChanger';
 import { Square } from 'chess.js';
 import { Api } from 'chessground/api';
 import { Color, Key, Piece, PiecesDiff } from 'chessground/types';
-import { ChessTimerService } from '../chess-timer.service';
-import { ChessStatusService } from '../chess-status.service';
-import { DEFAULT_ID, PeerToPeerService } from '../peer-to-peer.service';
-import { SharedDataService } from '../shared-data.service';
 import { MoveHandlerResolver } from './helpers/MoveHandlerResolver';
 import { PlayerTeamDict } from './helpers/PlayerTeamHelper';
-import { AudioService } from '../audio.service';
+import { ChessTimerService } from 'src/app/services/chess-timer.service';
+import { ChessStatusService } from 'src/app/services/chess-status.service';
+import { PeerToPeerService } from 'src/app/services/peer-to-peer.service';
+import { SharedDataService } from 'src/app/services/shared-data.service';
+import { AudioService } from 'src/app/services/audio.service';
 export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
 
 @Component({

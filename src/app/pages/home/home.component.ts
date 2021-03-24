@@ -4,7 +4,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 import { LoadingButtonComponent } from 'src/app/components/loading-button/loading-button.component';
-import { PeerToPeerService } from 'src/app/peer-to-peer.service';
+import { PeerToPeerService } from 'src/app/services/peer-to-peer.service';
 import { RouteNames } from '../routes';
 
 @Component({
@@ -19,8 +19,7 @@ export class HomeComponent implements OnInit {
   @ViewChild('myButton', {static: false}) button: LoadingButtonComponent | null = null;
 
   constructor(private peerToPeerService: PeerToPeerService,
-    private router: Router,
-    private matSnackBar: MatSnackBar) {
+    private router: Router) {
     this.control = new FormGroup({
       name: new FormControl('')
     });

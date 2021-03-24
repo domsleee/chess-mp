@@ -2,11 +2,11 @@ import { Injectable } from '@angular/core';
 import { Color } from 'chessground/types';
 import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { createPlayerTeam, getDefaultEngineSettings, getDefaultNames, IEngineSettings, IPlayerTeam, PlayerTeamDict } from './chess-board/helpers/PlayerTeamHelper';
+import { createPlayerTeam, getDefaultEngineSettings, getDefaultNames, IEngineSettings, IPlayerTeam, PlayerTeamDict } from '../components/chess-board/helpers/PlayerTeamHelper';
+import { IInfo, IInfoOptionals, IMessage, MessageData } from '../shared/peer-to-peer/defs';
+import { getDefaultSharedData, ISharedData } from '../shared/peer-to-peer/shared-data';
+import { merge } from '../shared/util/helpers';
 import { DEFAULT_ID, PeerToPeerService } from './peer-to-peer.service';
-import { IInfo, IInfoOptionals, IMessage, MessageData } from './peer-to-peer/defs';
-import { getDefaultSharedData, ISharedData } from './peer-to-peer/shared-data';
-import { merge } from './util/helpers';
 @Injectable({
   providedIn: 'root'
 })

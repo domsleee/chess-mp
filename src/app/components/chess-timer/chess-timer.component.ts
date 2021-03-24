@@ -1,12 +1,12 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { BehaviorSubject, Observable, timer } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { ChessTimerFormatPipe } from 'src/app/services/chess-timer-format.pipe';
+import { ChessTimerService } from 'src/app/services/chess-timer.service';
+import { DEFAULT_ID, PeerToPeerService } from 'src/app/services/peer-to-peer.service';
+import { SharedDataService } from 'src/app/services/shared-data.service';
 import { PlayerTeamDict } from '../chess-board/helpers/PlayerTeamHelper';
-import { ChessStatusService } from '../chess-status.service';
-import { ChessTimerFormatPipe } from '../chess-timer-format.pipe';
-import { ChessTimerService } from '../chess-timer.service';
-import { DEFAULT_ID, PeerToPeerService } from '../peer-to-peer.service';
-import { SharedDataService } from '../shared-data.service';
+import { ChessStatusService } from 'src/app/services/chess-status.service';
 
 
 @Component({
