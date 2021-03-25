@@ -48,8 +48,9 @@ export class StockfishGetNextMove implements IGetNextMove {
     const t = timer(this.movetime);
     t.pipe()
     await this.doInit();
+    console.log(cg.fen());
     this.sf.postMessage(`position fen ${cg.fen()}`);
-    this.sf.postMessage(`go depth 1 movetime ${this.movetime}`);
+    this.sf.postMessage(`go movetime ${this.movetime}`);
 
     const bestMovePromise = this.sfEmitter.pipe(
       filter(val => val.startsWith("bestmove")),

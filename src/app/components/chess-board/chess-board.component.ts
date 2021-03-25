@@ -7,12 +7,12 @@ import { Square } from 'chess.js';
 import { Api } from 'chessground/api';
 import { Color, Key, Piece, PiecesDiff } from 'chessground/types';
 import { MoveHandlerResolver } from './helpers/MoveHandlerResolver';
-import { PlayerTeamDict } from './helpers/PlayerTeamHelper';
 import { ChessTimerService } from 'src/app/services/chess-timer.service';
 import { ChessStatusService } from 'src/app/services/chess-status.service';
 import { PeerToPeerService } from 'src/app/services/peer-to-peer.service';
 import { SharedDataService } from 'src/app/services/shared-data.service';
 import { AudioService } from 'src/app/services/audio.service';
+import { enPassantFen } from 'src/app/shared/fen';
 export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
 
 @Component({
@@ -72,7 +72,6 @@ export class ChessBoardComponent {
   }
 
   ngAfterViewInit(): void {
-
     this.ngxChessgroundComponent.runFn = this.run.bind(this);
 
     this.chessTimerService.timeout.subscribe(color => {
@@ -88,16 +87,18 @@ export class ChessBoardComponent {
   }
 
   ngDestroy() {
-    // this.cg.destroy();
+    this.cg.destroy();
   }
 
   private run(el: any) {
     this.cg = Chessground(el, {
       turnColor: 'white',
+      animation: {
+        enabled: false
+      },
       movable: {
         free: false,
       },
-      animation: { enabled: false },
       draggable: {
         showGhost: true,
       },
@@ -106,16 +107,18 @@ export class ChessBoardComponent {
       },
     });
 
+    const fen = enPassantFen;
+    this.setFen(fen);
+
+    this.cg.set({animation: {enabled: true}});
+
     if (this.myTeam === 'black') {
       this.cg.toggleOrientation();
     }
+    
+    this.setupDebug();
 
-    // @ts-ignore
-    window.chess = this.chessStatusService.chess;
-    // @ts-ignore
-    window.cg = this.cg;
-
-    this.getAndApplyNextMove();
+    this.getAndApplyCPUMove();
 
     this.setBoardMouseEvents();
     this.cg.set({
@@ -125,8 +128,19 @@ export class ChessBoardComponent {
     return this.cg;
   }
 
+  private setupDebug() {
+    const anyWindow = window as any;
+    anyWindow['cg'] = this.cg;
+    anyWindow['chess'] = this.chessStatusService.chess;
+  }
+
+  private setFen(fen: string) {
+    this.cg.set({fen});
+    this.chessStatusService.setFen(fen);
+  }
+
   private moveHandler(orig: Key, dest: Key, promotion?: Exclude<ChessJS.PieceType, 'p'>) {
-    this.movePieceWithPromotion(orig, dest, promotion);
+    this.movePieceWithEnPassantAndPromotion(orig, dest, promotion);
 
     this.chessTimerService.setTurn(this.chessStatusService.getColor())
     this.cg.set({
@@ -139,10 +153,10 @@ export class ChessBoardComponent {
       this.onGameOver();
     }
 
-    this.getAndApplyNextMove();
+    this.getAndApplyCPUMove();
   }
 
-  private movePieceWithPromotion(orig: Key, dest: Key, promotion?: Exclude<ChessJS.PieceType, 'p'>) {
+  private movePieceWithEnPassantAndPromotion(orig: Key, dest: Key, promotion?: Exclude<ChessJS.PieceType, 'p'>) {
     const oldColor = this.chessStatusService.getColor();
 
     if (!this.isSinglePlayer && this.chessStatusService.didMoveBelongToPlayer(this.peerToPeerService.getId())) {
@@ -166,6 +180,13 @@ export class ChessBoardComponent {
       this.cg.setPieces(m);
     }
 
+    if (res!.flags.includes(this.chessStatusService.chess.FLAGS.EP_CAPTURE)) {
+      const enPassantSquare: Key = dest[0] + orig[1];
+      let m: PiecesDiff = new Map();
+      m.set(enPassantSquare, undefined);
+      this.cg.setPieces(m);
+    }
+
     if (res!.captured != null) {
       this.audioService.capture.play();
     } else {
@@ -183,7 +204,7 @@ export class ChessBoardComponent {
 
   private setBoardMouseEvents() {
     if (this.chessStatusService.isPlayersMove(this.peerToPeerService.getId())) {
-      OnePlayerBoardChanger.setMovablezz(this.chessStatusService.chess, this.cg);
+      OnePlayerBoardChanger.setMovable(this.chessStatusService.chess, this.cg);
     }
     else if (this.chessStatusService.isPlayersMoveNext(this.peerToPeerService.getId())) {
       OnePlayerBoardChanger.setPremovable(this.chessStatusService.chess, this.cg);
@@ -193,7 +214,7 @@ export class ChessBoardComponent {
     }
   }
 
-  private async getAndApplyNextMove() {
+  private async getAndApplyCPUMove() {
     const move = await this.moveHandlerResolver.getMoveHander(this.chessStatusService.getNumMoves()).getMove(this.chessStatusService.chess);
     if (this.chessStatusService.isGameOver()) return;
     if (move != null) {

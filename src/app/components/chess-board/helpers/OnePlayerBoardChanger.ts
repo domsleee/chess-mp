@@ -6,7 +6,7 @@ export class OnePlayerBoardChanger {
   constructor() {
   }
 
-  static setMovablezz(chess: ChessInstance, cg: Api) {
+  static setMovable(chess: ChessInstance, cg: Api) {
     cg.set({
       turnColor: toColor(chess),
       movable: {

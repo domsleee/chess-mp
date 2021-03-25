@@ -77,6 +77,7 @@ export class SharedDataService {
       }
 
       this.names.next(newNames);
+      console.log("NEXT NAMES after dc...", newNames);
     }
     else if (message.data.command === 'SET_NAMES') {
       const currNames = this.names.getValue();

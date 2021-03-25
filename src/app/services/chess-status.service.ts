@@ -38,6 +38,10 @@ export class ChessStatusService {
     return toColor(this.chess);
   }
 
+  setFen(fen: string) {
+    this.chess = new Chess(fen);
+  }
+
   private updateCurrentTurn() {
     console.log(this.playersTurnInfo.getPlayer(this.getNumMoves()));
     this.previousTurn.next(this.currentTurn.getValue());
