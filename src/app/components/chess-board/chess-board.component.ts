@@ -3,7 +3,6 @@ import { Chessground } from 'chessground';
 import { NgxChessgroundComponent, NgxChessgroundModule } from 'ngx-chessground';
 import * as ChessJS from 'chess.js';
 import { OnePlayerBoardChanger } from './helpers/OnePlayerBoardChanger';
-import { Square } from 'chess.js';
 import { Api } from 'chessground/api';
 import { Color, Key, Piece, PiecesDiff } from 'chessground/types';
 import { MoveHandlerResolver } from './helpers/MoveHandlerResolver';
@@ -12,8 +11,7 @@ import { ChessStatusService } from 'src/app/services/chess-status.service';
 import { PeerToPeerService } from 'src/app/services/peer-to-peer.service';
 import { SharedDataService } from 'src/app/services/shared-data.service';
 import { AudioService } from 'src/app/services/audio.service';
-import { enPassantFen } from 'src/app/shared/fen';
-import { Stack } from 'stack-typescript';
+import { promoteIfNecessary, removeEnPassantIfNecessary } from './helpers/ChessgroundHelpers';
 export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
 
 @Component({
@@ -25,9 +23,14 @@ export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
 export class ChessBoardComponent {
   readonly myTeam: Color;
 
-  private moveHandlerResolver: MoveHandlerResolver;
+  private moveHandlerResolver: MoveHandlerResolver; // todo: service?
   private readonly isSinglePlayer;
   private historicalMoveNumber = 0;
+
+  @ViewChild('chess') ngxChessgroundComponent!: NgxChessgroundComponent;
+
+  // @ts-ignore
+  cg: Api;
 
   constructor(private chessTimerService: ChessTimerService,
     private chessStatusService: ChessStatusService,
@@ -48,28 +51,12 @@ export class ChessBoardComponent {
     return this.moveHandlerResolver = new MoveHandlerResolver(whiteTeamDict, blackTeamDict);
   }
 
-  @ViewChild('chess') ngxChessgroundComponent!: NgxChessgroundComponent;
-
-  // @ts-ignore
-  cg: Api;
-
   ngOnInit() {
     const sharedData = this.sharedDataService.sharedData.getValue();
     const timerSettings = sharedData.timerSettings;
-
     if (timerSettings == undefined) throw new Error('timer settings shoudl not be undefined');
 
-    console.log("timer settings", timerSettings);
-    if (!timerSettings.asymmetric) {
-      this.chessTimerService.setStartingTime(timerSettings.whiteTime!, 'white',
-        timerSettings.whiteIncrement!,
-        timerSettings.whiteIncrement!);
-    } else {
-      this.chessTimerService.setStartingTime(timerSettings.whiteTime!, 'white',
-        timerSettings.whiteIncrement!,
-        timerSettings.blackIncrement!);
-    }
-    
+    this.chessTimerService.setupTimer(timerSettings);
     this.chessTimerService.startTimer();
   }
 
@@ -132,12 +119,11 @@ export class ChessBoardComponent {
     }
     
     this.setupDebug();
-
     this.getAndApplyCPUMove();
-
     this.setBoardMouseEvents();
+    
     this.cg.set({
-      events: { move: (orig, dest) => this.moveHandler(orig, dest, 'q') },
+      events: { move: (orig, dest) => this.cgMoveHandler(orig, dest, 'q') },
     });
 
     return this.cg;
@@ -154,7 +140,7 @@ export class ChessBoardComponent {
     this.chessStatusService.setFen(fen);
   }
 
-  private moveHandler(orig: Key, dest: Key, promotion?: Exclude<ChessJS.PieceType, 'p'>) {
+  private cgMoveHandler(orig: Key, dest: Key, promotion?: Exclude<ChessJS.PieceType, 'p'>) {
     this.movePieceWithEnPassantAndPromotion({from: orig, to: dest, promotion});
 
     this.chessTimerService.setTurn(this.chessStatusService.getColor())  
@@ -182,31 +168,18 @@ export class ChessBoardComponent {
       })
     }
 
-    const res = this.chessStatusService.move(move);
-    if (res!.promotion != undefined) {
-      let m: PiecesDiff = new Map();
-      const piece: Piece = {
-        role: 'queen',
-        color: oldColor
-      };
-      m.set(res!.to, piece);
-      this.cg.setPieces(m);
-    }
+    const resMove = this.chessStatusService.move(move);
 
-    if (res!.flags.includes(this.chessStatusService.chess.FLAGS.EP_CAPTURE)) {
-      const enPassantSquare: Key = move.to[0] + move.from[1];
-      let m: PiecesDiff = new Map();
-      m.set(enPassantSquare, undefined);
-      this.cg.setPieces(m);
-    }
+    promoteIfNecessary(resMove!, this.cg, oldColor);
+    removeEnPassantIfNecessary(resMove!, this.cg);
 
-    this.playMoveSound(res!.captured != null);
+    this.playMoveSound(resMove!.captured != null);
    
     this.cg.set({
       check: this.chessStatusService.chess.in_check() ? this.chessStatusService.getColor() : false,
     });
 
-    return res;
+    return move;
   }
 
   private playMoveSound(captured: boolean) {
@@ -225,14 +198,12 @@ export class ChessBoardComponent {
 
   private setBoardMouseEvents() {
     if (this.chessStatusService.isPlayersMove(this.peerToPeerService.getId())) {
-      OnePlayerBoardChanger.setMovable(this.chessStatusService.chess, this.cg);
+      return OnePlayerBoardChanger.setMovable(this.chessStatusService.chess, this.cg);
     }
     else if (this.chessStatusService.isPlayersMoveNext(this.peerToPeerService.getId())) {
-      OnePlayerBoardChanger.setPremovable(this.chessStatusService.chess, this.cg);
+      return OnePlayerBoardChanger.setPremovable(this.chessStatusService.chess, this.cg);
     }
-    else {
-      OnePlayerBoardChanger.setUnmovable(this.chessStatusService.chess, this.cg);
-    }
+    return OnePlayerBoardChanger.setUnmovable(this.cg);
   }
 
   private async getAndApplyCPUMove() {
@@ -252,7 +223,7 @@ export class ChessBoardComponent {
     if (offset < 0 && this.historicalMoveNumber + offset >= 0) {
       this.historicalMoveNumber += offset;
       this.setCgForHistoricalMove(this.historicalMoveNumber);
-      OnePlayerBoardChanger.setUnmovable(this.chessStatusService.chess, this.cg);
+      OnePlayerBoardChanger.setUnmovable(this.cg);
     }
     else if (offset > 0 && this.historicalMoveNumber + offset <= this.chessStatusService.getNumMoves()) {
       this.historicalMoveNumber += offset;
@@ -289,5 +260,4 @@ export class ChessBoardComponent {
       this.cg.set({animation: {enabled: oldAnimation}});
     }
   }
-
 }

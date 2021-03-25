@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Color } from 'chessground/types';
 import { BehaviorSubject, Subject, timer } from 'rxjs';
+import { ITimerSettings } from '../shared/peer-to-peer/shared-data';
 
 interface ITimerState {
   turn: Color;
@@ -41,6 +42,18 @@ export class ChessTimerService {
     this.timerState.turn = startingTurn;
     this.whiteIncrement = whiteIncrement;
     this.blackIncrement = blackIncrement;
+  }
+
+  public setupTimer(timerSettings: ITimerSettings) {
+    if (!timerSettings.asymmetric) {
+      this.setStartingTime(timerSettings.whiteTime!, 'white',
+        timerSettings.whiteIncrement!,
+        timerSettings.whiteIncrement!);
+    } else {
+      this.setStartingTime(timerSettings.whiteTime!, 'white',
+        timerSettings.whiteIncrement!,
+        timerSettings.blackIncrement!);
+    }
   }
 
   public startTimer() {

@@ -30,9 +30,9 @@ export class OnePlayerBoardChanger {
     });
   }
 
-  static setUnmovable(chess: ChessInstance, cg: Api) {
+  static setUnmovable(cg: Api) {
     cg.set({
-      turnColor: toColor(chess),
+      turnColor: undefined,
       movable: {
         color: undefined,
         dests: new Map(),
