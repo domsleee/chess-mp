@@ -1,8 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Key } from 'chessground/types';
 import Peer, { PeerJSOption } from 'peerjs';
 import { interval, ReplaySubject, Subject } from 'rxjs';
-import { timeout } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { IMessage, MessageData } from '../shared/peer-to-peer/defs';
 
@@ -15,7 +13,6 @@ export const DEFAULT_ID = 'default';
 })
 export class PeerToPeerService {
   messageSubject: Subject<IMessage> = new ReplaySubject(100);
-  newConnection: Subject<void> = new Subject();
   isHost = false;
   isConnected = false;
   alias = '';
@@ -51,7 +48,6 @@ export class PeerToPeerService {
 
     this.peer!.on('connection', (conn) => {
       this.connections[conn.peer] = conn;
-      this.newConnection.next();
       conn.on('data', this.messageHandler.bind(this));
       this.attachErrorAndCloseConnEvents(conn);
     });

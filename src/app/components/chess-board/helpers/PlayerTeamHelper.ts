@@ -1,17 +1,6 @@
 import { Color } from "chessground/types";
 import { DEFAULT_ID } from "src/app/services/peer-to-peer.service";
 
-export function createPlayerTeam(name: string, color: Color = 'white', engineSettings: IEngineSettings | undefined = undefined): IPlayerTeam {
-  return {
-    name,
-    team: color,
-    owner: 'zzz',
-    isOwnedByMe: false,
-    isReady: true,
-    engineSettings
-  }
-}
-
 export function getDefaultNames() {
   const engineSettings: IEngineSettings = getDefaultEngineSettings();
   const engineSettings2: IEngineSettings = {
@@ -32,6 +21,17 @@ export function getDefaultEngineSettings(): IEngineSettings {
     timeForMove: 700,
     elo: 3600
   };
+}
+
+function createPlayerTeam(name: string, color: Color = 'white', engineSettings: IEngineSettings | undefined = undefined): IPlayerTeam {
+  return {
+    name,
+    team: color,
+    owner: 'zzz',
+    isOwnedByMe: false,
+    isReady: true,
+    engineSettings
+  }
 }
 
 export interface IEngineSettings {

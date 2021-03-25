@@ -30,7 +30,7 @@ export class ChessBoardComponent {
   @ViewChild('chess') ngxChessgroundComponent!: NgxChessgroundComponent;
 
   // @ts-ignore
-  cg: Api;
+  private cg: Api;
 
   constructor(private chessTimerService: ChessTimerService,
     private chessStatusService: ChessStatusService,
