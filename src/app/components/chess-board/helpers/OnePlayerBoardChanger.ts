@@ -12,7 +12,8 @@ export class OnePlayerBoardChanger {
       movable: {
         color: toColor(chess),
         dests: toDests(chess),
-        free: false
+        free: false,
+        showDests: true
       },
     });
   }
@@ -33,9 +34,10 @@ export class OnePlayerBoardChanger {
     cg.set({
       turnColor: toColor(chess),
       movable: {
-        color: 'white',
+        color: undefined,
         dests: new Map(),
-        free: false
+        free: false,
+        showDests: false
       },
     });
   }

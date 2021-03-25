@@ -15,6 +15,9 @@ export class ChessStatusService {
   previousTurn = new BehaviorSubject<[string, IPlayerTeam|null]>(['', null]);
   nextTurn = new BehaviorSubject<[string, IPlayerTeam|null]>(['', null]);
 
+  private moveToFen: {[key: number]: string} = {};
+  private moveToPreviousMove: {[key: number]: ChessJS.Move} = {};
+
   chess: ChessJS.ChessInstance;
   playersTurnInfo: PlayersTurnInfo;
 
@@ -25,12 +28,14 @@ export class ChessStatusService {
       this.playersTurnInfo = new PlayersTurnInfo(this.sharedDataService.names.getValue());
     });
     this.updateCurrentTurn();
+    this.updateMoveForFen();
   }
 
   move(move: string | ChessJS.ShortMove): ChessJS.Move | null {
     const res = this.chess.move(move);
     this.updateStatusFromGame(this.chess);
     this.updateCurrentTurn();
+    this.updateMoveForFen(res!);
     return res;
   }
 
@@ -40,6 +45,22 @@ export class ChessStatusService {
 
   setFen(fen: string) {
     this.chess = new Chess(fen);
+    this.updateMoveForFen();
+  }
+
+  getFenForMove(moveNumber: number) {
+    return this.moveToFen[moveNumber];
+  }
+
+  getPreviousMoveForMove(moveNumber: number) {
+    return this.moveToPreviousMove[moveNumber];
+  }
+
+  private updateMoveForFen(move?: ChessJS.Move) {
+    this.moveToFen[this.getNumMoves()] = this.chess.fen();
+    if (move) {
+      this.moveToPreviousMove[this.getNumMoves()] = move;
+    }
   }
 
   private updateCurrentTurn() {
