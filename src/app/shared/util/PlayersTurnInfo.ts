@@ -8,7 +8,7 @@ export class PlayersTurnInfo {
     'black': string[]
   };
 
-  constructor(private names: PlayerTeamDict) {
+  constructor(private names: PlayerTeamDict, private blackWentFirst = false) {
     if (names != null && Object.keys(names).length > 0) {
       this.players = {
         'white': Object.keys(names).filter(t => names[t].team == 'white').sort(),
@@ -29,7 +29,7 @@ export class PlayersTurnInfo {
   }
 
   isPlayersTurn(moveNumber: number, playerId: string) {
-    return this.getPlayer(moveNumber) == playerId;
+    return this.getPlayer(moveNumber + (this.blackWentFirst ? 1 : 0)) == playerId;
   }
 
   getPlayer(moveNumber: number) {

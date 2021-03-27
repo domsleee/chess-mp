@@ -1,3 +1,4 @@
+import { mateInTwoFen } from "../fen";
 
 export interface ISharedData {
   timerSettings?: ITimerSettings;
@@ -20,6 +21,7 @@ export function getDefaultSharedData(): ISharedData {
       asymmetric: true,
       blackTime: 60,
       blackIncrement: 0
-    }
+    },
+    startFen: mateInTwoFen
   }
 }

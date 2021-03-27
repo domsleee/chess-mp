@@ -17,6 +17,7 @@ export class ChessStatusService {
 
   private moveToFen: {[key: number]: string} = {};
   private moveToPreviousMove: {[key: number]: ChessJS.Move} = {};
+  private blackWentFirst = false;
 
   chess: ChessJS.ChessInstance;
   playersTurnInfo: PlayersTurnInfo;
@@ -24,11 +25,16 @@ export class ChessStatusService {
   constructor(private sharedDataService: SharedDataService) {
     this.chess = new Chess();
     this.playersTurnInfo = new PlayersTurnInfo(this.sharedDataService.names.getValue());
+    this.resetPlayersTurnInfo();
     this.sharedDataService.newName.subscribe(() => {
-      this.playersTurnInfo = new PlayersTurnInfo(this.sharedDataService.names.getValue());
+      this.resetPlayersTurnInfo();
     });
     this.updateCurrentTurn();
     this.updateMoveForFen();
+  }
+
+  private resetPlayersTurnInfo() {
+    this.playersTurnInfo = new PlayersTurnInfo(this.sharedDataService.names.getValue(), this.blackWentFirst);
   }
 
   move(move: string | ChessJS.ShortMove): ChessJS.Move | null {
@@ -46,6 +52,8 @@ export class ChessStatusService {
   setFen(fen: string) {
     this.chess = new Chess(fen);
     this.updateMoveForFen();
+    this.blackWentFirst = this.getColor() === 'black';
+    this.resetPlayersTurnInfo();
   }
 
   getFenForMove(moveNumber: number) {
@@ -61,6 +69,38 @@ export class ChessStatusService {
     if (move) {
       this.moveToPreviousMove[this.getNumMoves()] = move;
     }
+  }
+
+  isGameOver() {
+    return this.currentStatus.getValue() != '';
+  }
+
+  setTimeout(color: Color) {
+    this.currentStatus.next(`timeout ${color}`);
+  }
+
+  getNumMoves() {
+    return this.chess.history().length;
+  }
+
+  getNumMovesConsideringIfBlackWentFirst() {
+    return this.getNumMoves() + (this.blackWentFirst ? 1 : 0);
+  }
+
+  isInCheck(moveNumber: number): boolean {
+    return (new Chess(this.moveToFen[moveNumber])).in_check();
+  }
+
+  isPlayersMove(playersId: string) {
+    return this.playersTurnInfo.isPlayersTurn(this.getNumMoves(), playersId)
+  }
+
+  didMoveBelongToPlayer(playersId: string) {
+    return this.playersTurnInfo.didMoveBelongToPlayer(this.getNumMoves(), playersId)
+  }
+
+  isPlayersMoveNext(playersId: string) {
+    return this.playersTurnInfo.isPlayersTurnNext(this.getNumMoves(), playersId);
   }
 
   private updateCurrentTurn() {
@@ -84,29 +124,5 @@ export class ChessStatusService {
     } else if (chess.in_draw()) {
       this.currentStatus.next('draw');
     }
-  }
-
-  isGameOver() {
-    return this.currentStatus.getValue() != '';
-  }
-
-  setTimeout(color: Color) {
-    this.currentStatus.next(`timeout ${color}`);
-  }
-
-  getNumMoves() {
-    return this.chess.history().length;
-  }
-
-  isPlayersMove(playersId: string) {
-    return this.playersTurnInfo.isPlayersTurn(this.getNumMoves(), playersId)
-  }
-
-  didMoveBelongToPlayer(playersId: string) {
-    return this.playersTurnInfo.didMoveBelongToPlayer(this.getNumMoves(), playersId)
-  }
-
-  isPlayersMoveNext(playersId: string) {
-    return this.playersTurnInfo.isPlayersTurnNext(this.getNumMoves(), playersId);
   }
 }

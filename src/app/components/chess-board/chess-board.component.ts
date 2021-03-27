@@ -176,7 +176,7 @@ export class ChessBoardComponent {
     this.playMoveSound(resMove!.captured != null);
    
     this.cg.set({
-      check: this.chessStatusService.chess.in_check() ? this.chessStatusService.getColor() : false,
+      check: this.chessStatusService.chess.in_check() ? this.chessStatusService.getColor() : undefined,
     });
 
     return move;
@@ -191,23 +191,32 @@ export class ChessBoardComponent {
   }
 
   private onGameOver() {
-    this.cg.stop();
     this.audioService.genericNotify.play();
     this.chessTimerService.pauseTimer();
   }
 
   private setBoardMouseEvents() {
-    if (this.chessStatusService.isPlayersMove(this.peerToPeerService.getId())) {
-      return OnePlayerBoardChanger.setMovable(this.chessStatusService.chess, this.cg);
+    if (this.chessStatusService.isGameOver()) {
+      return OnePlayerBoardChanger.setUnmovable(this.cg);
     }
-    else if (this.chessStatusService.isPlayersMoveNext(this.peerToPeerService.getId())) {
+    if (this.chessStatusService.isPlayersMove(this.peerToPeerService.getId())) {
+      return this.setBoardMouseEventMovable();
+    }
+    if (this.chessStatusService.isPlayersMoveNext(this.peerToPeerService.getId())) {
       return OnePlayerBoardChanger.setPremovable(this.chessStatusService.chess, this.cg);
     }
     return OnePlayerBoardChanger.setUnmovable(this.cg);
   }
 
+  private setBoardMouseEventMovable() {
+    if (this.chessStatusService.isGameOver()) {
+      return OnePlayerBoardChanger.setUnmovable(this.cg);
+    }
+    return OnePlayerBoardChanger.setMovable(this.chessStatusService.chess, this.cg);
+  }
+
   private async getAndApplyCPUMove() {
-    const move = await this.moveHandlerResolver.getMoveHander(this.chessStatusService.getNumMoves()).getMove(this.chessStatusService.chess);
+    const move = await this.moveHandlerResolver.getMoveHander(this.chessStatusService.getNumMovesConsideringIfBlackWentFirst()).getMove(this.chessStatusService.chess);
     if (this.chessStatusService.isGameOver()) return;
     if (move != null) {
       this.processMoveFromExternal(move);
@@ -222,33 +231,40 @@ export class ChessBoardComponent {
   private navigatePosition(offset: number) {
     if (offset < 0 && this.historicalMoveNumber + offset >= 0) {
       this.historicalMoveNumber += offset;
-      this.setCgForHistoricalMove(this.historicalMoveNumber);
+      this.setCgForHistoricalMove(this.historicalMoveNumber, true);
       OnePlayerBoardChanger.setUnmovable(this.cg);
     }
     else if (offset > 0 && this.historicalMoveNumber + offset <= this.chessStatusService.getNumMoves()) {
       this.historicalMoveNumber += offset;
       this.setCgForHistoricalMove(this.historicalMoveNumber);
       if (this.historicalMoveNumber == this.chessStatusService.getNumMoves()) {
-        OnePlayerBoardChanger.setMovable(this.chessStatusService.chess, this.cg);
+        this.setBoardMouseEventMovable();
       }
     }
   }
 
-  private setCgForHistoricalMove(moveNumber: number) {
-    this.cg.set({
-      fen: this.chessStatusService.getFenForMove(moveNumber),
-    });
+  private setCgForHistoricalMove(moveNumber: number, movingBackward: boolean = false) {
+    const fen = this.chessStatusService.getFenForMove(moveNumber);
+    this.cg.set({fen});
     if (moveNumber == 0) {
       this.cg.set({lastMove: undefined});
-      this.playMoveSound(false);
     } else {
       const lastMove = this.chessStatusService.getPreviousMoveForMove(moveNumber);
       this.cg.set({
         lastMove: [lastMove.from, lastMove.to],
-        highlight: {lastMove: true}
+        highlight: {lastMove: true},
       });
-      this.playMoveSound(lastMove.captured != null);
     }
+    this.cg.set({
+      check: this.chessStatusService.isInCheck(moveNumber) ? this.chessStatusService.getColor() : false
+    })
+    this.playSoundForMoveNumber(moveNumber + (movingBackward ? 1 : 0));
+  }
+
+  private playSoundForMoveNumber(moveNumber: number) {
+    if (moveNumber <= 0) return;
+    const lastMove = this.chessStatusService.getPreviousMoveForMove(moveNumber);
+    this.playMoveSound(lastMove.captured != null);
   }
 
   private resetHistoryIfRequired() {
