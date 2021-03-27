@@ -29,11 +29,11 @@ export class PlayersTurnInfo {
   }
 
   isPlayersTurn(moveNumber: number, playerId: string) {
-    return this.getPlayer(moveNumber + (this.blackWentFirst ? 1 : 0)) == playerId;
+    return this.getPlayer(moveNumber) == playerId;
   }
 
   getPlayer(moveNumber: number) {
-    const moveColour: Color = moveNumber % 2 == 0 ? 'white' : 'black';
+    const moveColour: Color = (moveNumber + + (this.blackWentFirst ? 1 : 0)) % 2 == 0 ? 'white' : 'black';
     const teamsTurn = moveColour;
     const playersInTeam = this.players[teamsTurn].length;
     return this.players[teamsTurn][Math.floor(moveNumber/2) % playersInTeam];
