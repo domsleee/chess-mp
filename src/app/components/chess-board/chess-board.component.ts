@@ -18,46 +18,31 @@ export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
   selector: 'app-chess-board',
   templateUrl: './chess-board.component.html',
   styleUrls: ['./chess-board.component.scss'],
-  providers: [ChessStatusService]
+  providers: [ChessStatusService, ChessTimerService]
 })
 export class ChessBoardComponent {
   readonly myTeam: Color;
 
-  private moveHandlerResolver: MoveHandlerResolver; // todo: service?
+  private moveHandlerResolver!: MoveHandlerResolver; // todo: service?
   private readonly isSinglePlayer;
-  private historicalMoveNumber = 0;
+  private historicalMoveNumber!: number;
 
   @ViewChild('chess') ngxChessgroundComponent!: NgxChessgroundComponent;
 
-  // @ts-ignore
-  private cg: Api;
+  private cg!: Api;
 
   constructor(private chessTimerService: ChessTimerService,
     private chessStatusService: ChessStatusService,
     private peerToPeerService: PeerToPeerService,
     private sharedDataService: SharedDataService,
     private audioService: AudioService) {
-    console.log("INIT");
-    this.moveHandlerResolver = this.updateMoveHandlerResolver();
-
     this.isSinglePlayer = !this.peerToPeerService.isConnected;
-    this.chessTimerService.setStartingTime(60);
     this.myTeam = this.chessStatusService.playersTurnInfo.getTeam(this.peerToPeerService.getId());
   }
 
-  private updateMoveHandlerResolver() {
-    const whiteTeamDict = this.sharedDataService.getColorNames('white');
-    const blackTeamDict = this.sharedDataService.getColorNames('black');
-    return this.moveHandlerResolver = new MoveHandlerResolver(whiteTeamDict, blackTeamDict);
-  }
-
   ngOnInit() {
-    const sharedData = this.sharedDataService.sharedData.getValue();
-    const timerSettings = sharedData.timerSettings;
-    if (timerSettings == undefined) throw new Error('timer settings shoudl not be undefined');
-
-    this.chessTimerService.setupTimer(timerSettings);
-    this.chessTimerService.startTimer();
+    this.updateMoveHandlerResolver();
+    this.historicalMoveNumber = 0;
   }
 
   ngAfterViewInit(): void {
@@ -112,7 +97,12 @@ export class ChessBoardComponent {
       this.setFen(sharedData.startFen);
     }
 
-    this.cg.set({animation: {enabled: true}});
+    this.cg.set({
+      animation: {enabled: true},
+      events: { move: (orig, dest) => this.cgMoveHandler(orig, dest, 'q') },
+    });
+
+    this.setupTimer();
 
     if (this.myTeam === 'black') {
       this.cg.toggleOrientation();
@@ -122,11 +112,15 @@ export class ChessBoardComponent {
     this.getAndApplyCPUMove();
     this.setBoardMouseEvents();
 
-    this.cg.set({
-      events: { move: (orig, dest) => this.cgMoveHandler(orig, dest, 'q') },
-    });
-
     return this.cg;
+  }
+
+  private setupTimer() {
+    const sharedData = this.sharedDataService.sharedData.getValue();
+    const timerSettings = sharedData.timerSettings;
+    if (timerSettings == undefined) throw new Error('timer settings shoudl not be undefined');
+    this.chessTimerService.setupTimer(timerSettings, this.chessStatusService.getColor());
+    this.chessTimerService.startTimer();
   }
 
   private setupDebug() {
@@ -174,7 +168,7 @@ export class ChessBoardComponent {
     removeEnPassantIfNecessary(resMove!, this.cg);
 
     this.playMoveSound(resMove!.captured != null);
-   
+
     this.cg.set({
       check: this.chessStatusService.chess.in_check() ? this.chessStatusService.getColor() : undefined,
     });
@@ -275,5 +269,11 @@ export class ChessBoardComponent {
       this.cg.set({fen: this.chessStatusService.getFenForMove(this.historicalMoveNumber)});
       this.cg.set({animation: {enabled: oldAnimation}});
     }
+  }
+
+  private updateMoveHandlerResolver() {
+    const whiteTeamDict = this.sharedDataService.getColorNames('white');
+    const blackTeamDict = this.sharedDataService.getColorNames('black');
+    return this.moveHandlerResolver = new MoveHandlerResolver(whiteTeamDict, blackTeamDict);
   }
 }

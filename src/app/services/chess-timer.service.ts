@@ -8,9 +8,7 @@ interface ITimerState {
   msWhenLastChanged: number;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class ChessTimerService {
   whiteTime: BehaviorSubject<number>;
   blackTime: BehaviorSubject<number>;
@@ -25,18 +23,18 @@ export class ChessTimerService {
     msWhenLastChanged: -1
   };
 
-  constructor() {
-    this.whiteTime = this.timers.white;
-    this.blackTime = this.timers.black;
-  }
-
   private paused = false;
   private myTimer = timer(10, -1);
   private whiteIncrement = 0;
   private blackIncrement = 0;
 
-  public setStartingTime(totalTimeSeconds: number, startingTurn: Color = 'white', whiteIncrement = 20*1000, blackIncrement = 0) {
-    console.log("set starting time", totalTimeSeconds);
+  constructor() {
+    this.whiteTime = this.timers.white;
+    this.blackTime = this.timers.black;
+  }
+
+  private setStartingTime(totalTimeSeconds: number, startingTurn: Color = 'white', whiteIncrement = 20*1000, blackIncrement = 0) {
+    console.log("set starting time", totalTimeSeconds, startingTurn);
     this.whiteTime.next(totalTimeSeconds);
     this.blackTime.next(totalTimeSeconds);
     this.timerState.turn = startingTurn;
@@ -44,13 +42,13 @@ export class ChessTimerService {
     this.blackIncrement = blackIncrement;
   }
 
-  public setupTimer(timerSettings: ITimerSettings) {
+  public setupTimer(timerSettings: ITimerSettings, startingColor: Color) {
     if (!timerSettings.asymmetric) {
-      this.setStartingTime(timerSettings.whiteTime!, 'white',
+      this.setStartingTime(timerSettings.whiteTime!, startingColor,
         timerSettings.whiteIncrement!,
         timerSettings.whiteIncrement!);
     } else {
-      this.setStartingTime(timerSettings.whiteTime!, 'white',
+      this.setStartingTime(timerSettings.whiteTime!, startingColor,
         timerSettings.whiteIncrement!,
         timerSettings.blackIncrement!);
     }

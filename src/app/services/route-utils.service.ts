@@ -1,5 +1,7 @@
 import { DOCUMENT } from '@angular/common';
 import { Inject, Injectable } from '@angular/core';
+import { Router } from '@angular/router';
+import { RouteNames } from '../pages/routes';
 
 @Injectable({
   providedIn: 'root'
@@ -7,10 +9,11 @@ import { Inject, Injectable } from '@angular/core';
 export class RouteUtilsService {
 
   constructor(
-    @Inject(DOCUMENT) private _document: Document
+    private router: Router
   ) { }
 
   resetCurrentRoute() {
-    this._document.defaultView?.location.reload();
-  }
+    this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+      this.router.navigate([RouteNames.PLAY]);
+  });   }
 }
