@@ -6,6 +6,7 @@ import { getDefaultEngineSettings, getDefaultNames, IEngineSettings, IPlayerTeam
 import { IInfo, IInfoOptionals, IMessage, MessageData } from '../shared/peer-to-peer/defs';
 import { getDefaultSharedData, ISharedData } from '../shared/peer-to-peer/shared-data';
 import { merge } from '../shared/util/helpers';
+import { invertColor } from '../shared/util/play';
 import { DEFAULT_ID, PeerToPeerService } from './peer-to-peer.service';
 @Injectable({
   providedIn: 'root'
@@ -136,6 +137,15 @@ export class SharedDataService {
       infoOptionals,
       this.getEngineName({...this.getPlayerSync(playerId)?.engineSettings ?? {}, ...engineSettings})
     );
+  }
+
+  swapAllTeams() {
+    const names = this.names.getValue();
+    for (const key of Object.keys(names)) {
+      console.log(key);
+      names[key].team = invertColor(names[key].team);
+    }
+    this.names.next(names);
   }
 
   private getEngineName(engineSettings: IEngineSettings) {

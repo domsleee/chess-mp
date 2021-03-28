@@ -55,9 +55,11 @@ export class ChessStatusService {
 
   setFen(fen: string) {
     this.chess = new Chess(fen);
-    this.updateMoveForFen();
     this.blackWentFirst = this.getColor() === 'black';
+
     this.resetPlayersTurnInfo();
+    this.updateCurrentTurn();
+    this.updateMoveForFen();
   }
 
   getFenForMove(moveNumber: number) {
@@ -108,7 +110,7 @@ export class ChessStatusService {
   }
 
   private updateCurrentTurn() {
-    console.log(this.playersTurnInfo.getPlayer(this.getNumMoves()));
+    console.log(this.getNumMoves(), this.playersTurnInfo.getPlayer(this.getNumMoves()));
     this.previousTurn.next(this.currentTurn.getValue());
     this.currentTurn.next(this.getTupleForMoveNumber(this.getNumMoves()));
     this.nextTurn.next(this.getTupleForMoveNumber(this.getNumMoves() + 1));

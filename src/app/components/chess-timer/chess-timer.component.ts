@@ -40,6 +40,8 @@ export class ChessTimerComponent {
     private peerToPeerService: PeerToPeerService,
     private sharedDataService: SharedDataService,
     private chessBoardResetService: ChessBoardResetService) {
+
+    console.log("CONSTRUCT??");
     this.whiteTime = this.chessTimerService.whiteTime;
     this.blackTime = this.chessTimerService.blackTime;
     this.currentStatus = this.ChessStatusService.currentStatus;
@@ -51,13 +53,15 @@ export class ChessTimerComponent {
     this.currentTurn = this.ChessStatusService.currentTurn.asObservable().pipe(map(([key, value]) => value?.name ?? key));
     this.myId = this.peerToPeerService.getId();
     this.myName = this.sharedDataService.names.pipe(map(t => t[this.peerToPeerService.getId()]?.name ?? DEFAULT_ID));
+    
   }
 
   ngOnInit() {
     this.flexDirection = !this.inverted ? 'column' : 'column-reverse';
   }
 
-  resetBoard() {
+  rematch() {
+    this.sharedDataService.swapAllTeams();
     this.chessBoardResetService.doReset();
   }
 }

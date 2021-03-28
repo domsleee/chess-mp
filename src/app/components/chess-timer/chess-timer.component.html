@@ -5,7 +5,7 @@
   <p>{{blackTime | async | chessTimerFormat}}</p>
   <p class="final-result">{{currentStatus | async}}</p>
   <app-analyse-button *ngIf="(currentStatus | async) != ''"></app-analyse-button>
-  <button (click)="resetBoard()">Reset</button>
+  <button (click)="rematch()">Rematch</button>
   <p>{{whiteTime | async | chessTimerFormat}}</p>
   <app-player-list [currentId]="currentId | async | replaceNullWithEmpty" [players]="whiteNames | async" [nextId]="nextId | async | replaceNullWithEmpty"></app-player-list>
 </div>

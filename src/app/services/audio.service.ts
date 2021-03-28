@@ -14,6 +14,8 @@ export class AudioService {
   ngOnDestroy() {
     // @ts-ignore: temporary workaround
     this.capture = null;
+    // @ts-ignore
+    this.genericNotify = null;
   }
 
 }
@@ -30,7 +32,6 @@ class Multiplay implements IPlayable {
 
   async play() {
     this.audios[this.ct].play();
-    console.log("PLAY");
     this.ct = (this.ct+1) % this.audios.length;
   }
 }

@@ -16,5 +16,6 @@ export class PlayerListComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.players == null) throw new Error('players is required');
+    console.log(this.players);
   }
 }
