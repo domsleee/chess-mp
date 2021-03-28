@@ -32,6 +32,9 @@ import { ChessTimerComponent } from './components/chess-timer/chess-timer.compon
 import { ReplaceNullWithEmptyPipe } from './pipes/replace-null-with-empty.pipe';
 import { AnalyseButtonComponent } from './components/analyse-button/analyse-button.component';
 import { HttpClientModule } from '@angular/common/http';
+import { ChessBoardContainerComponent } from './components/chess-board-container/chess-board-container.component';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
 
 
 
@@ -52,7 +55,8 @@ import { HttpClientModule } from '@angular/common/http';
     PlayerConfigComponent,
     SnapSliderComponent,
     TimerConfigComponent,
-    AnalyseButtonComponent
+    AnalyseButtonComponent,
+    ChessBoardContainerComponent
   ],
   imports: [
     BrowserModule,
@@ -70,8 +74,8 @@ import { HttpClientModule } from '@angular/common/http';
     MatSliderModule,
     MatExpansionModule,
     MatCardModule,
-    HttpClientModule
-
+    HttpClientModule,
+    MatProgressSpinnerModule
   ],
   providers: [
     {provide: APP_BASE_HREF, useValue: '/'}

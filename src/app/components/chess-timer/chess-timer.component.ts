@@ -10,6 +10,7 @@ import { ChessStatusService } from 'src/app/services/chess-status.service';
 import { Router } from '@angular/router';
 import { RouteNames } from 'src/app/pages/routes';
 import { RouteUtilsService } from 'src/app/services/route-utils.service';
+import { ChessBoardResetService } from 'src/app/services/chess-board-reset.service';
 
 
 @Component({
@@ -38,7 +39,7 @@ export class ChessTimerComponent {
     private ChessStatusService: ChessStatusService,
     private peerToPeerService: PeerToPeerService,
     private sharedDataService: SharedDataService,
-    private routeUtilsService: RouteUtilsService) {
+    private chessBoardResetService: ChessBoardResetService) {
     this.whiteTime = this.chessTimerService.whiteTime;
     this.blackTime = this.chessTimerService.blackTime;
     this.currentStatus = this.ChessStatusService.currentStatus;
@@ -57,7 +58,6 @@ export class ChessTimerComponent {
   }
 
   resetBoard() {
-    this.routeUtilsService.resetCurrentRoute();
-
+    this.chessBoardResetService.doReset();
   }
 }

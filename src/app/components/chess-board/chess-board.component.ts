@@ -1,4 +1,4 @@
-import { Component, HostListener, Inject, ViewChild } from '@angular/core';
+import { Component, HostListener, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Chessground } from 'chessground';
 import { NgxChessgroundComponent, NgxChessgroundModule } from 'ngx-chessground';
 import * as ChessJS from 'chess.js';
@@ -12,6 +12,7 @@ import { PeerToPeerService } from 'src/app/services/peer-to-peer.service';
 import { SharedDataService } from 'src/app/services/shared-data.service';
 import { AudioService } from 'src/app/services/audio.service';
 import { promoteIfNecessary, removeEnPassantIfNecessary } from './helpers/ChessgroundHelpers';
+import { Subscription } from 'rxjs';
 export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
 
 @Component({
@@ -20,12 +21,14 @@ export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
   styleUrls: ['./chess-board.component.scss'],
   providers: [ChessStatusService, ChessTimerService]
 })
-export class ChessBoardComponent {
+export class ChessBoardComponent implements OnInit, OnDestroy {
   readonly myTeam: Color;
 
   private moveHandlerResolver!: MoveHandlerResolver; // todo: service?
   private readonly isSinglePlayer;
   private historicalMoveNumber!: number;
+  private chessTimerSubscription!: Subscription;
+  private peerToPeerSubscription!: Subscription;
 
   @ViewChild('chess') ngxChessgroundComponent!: NgxChessgroundComponent;
 
@@ -48,20 +51,22 @@ export class ChessBoardComponent {
   ngAfterViewInit(): void {
     this.ngxChessgroundComponent.runFn = this.run.bind(this);
 
-    this.chessTimerService.timeout.subscribe(color => {
+    this.chessTimerSubscription = this.chessTimerService.timeout.subscribe(color => {
       this.chessStatusService.setTimeout(color);
       this.onGameOver();
     });
 
-    this.peerToPeerService.messageSubject.subscribe(message => {
+    this.peerToPeerSubscription = this.peerToPeerService.messageSubject.subscribe(message => {
       if (message.data.command === 'MOVE') {
         this.processMoveFromExternal({from: message.data.orig, to: message.data.dest, promotion: message.data.promotion});
       }
     });
   }
 
-  ngDestroy() {
+  ngOnDestroy() {
     this.cg.destroy();
+    this.chessTimerSubscription.unsubscribe();
+    this.peerToPeerSubscription.unsubscribe();
   }
 
   @HostListener('window:keydown', ['$event'])
@@ -76,6 +81,7 @@ export class ChessBoardComponent {
   }
 
   private run(el: any) {
+    console.log("RUN");
     this.cg = Chessground(el, {
       turnColor: 'white',
       animation: {
@@ -98,7 +104,7 @@ export class ChessBoardComponent {
     }
 
     this.cg.set({
-      animation: {enabled: true},
+      animation: { enabled: true },
       events: { move: (orig, dest) => this.cgMoveHandler(orig, dest, 'q') },
     });
 
@@ -213,6 +219,7 @@ export class ChessBoardComponent {
     const move = await this.moveHandlerResolver.getMoveHander(this.chessStatusService.getNumMovesConsideringIfBlackWentFirst()).getMove(this.chessStatusService.chess);
     if (this.chessStatusService.isGameOver()) return;
     if (move != null) {
+      console.log("APPLY CPU MOVE");
       this.processMoveFromExternal(move);
     }
   }

@@ -1,0 +1,4 @@
+<app-chess-board *ngIf="visible; else loading"></app-chess-board>
+<ng-template #loading>
+  <mat-spinner style="margin:auto"></mat-spinner>
+</ng-template>
