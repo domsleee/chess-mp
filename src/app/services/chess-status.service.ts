@@ -49,6 +49,10 @@ export class ChessStatusService {
     return toColor(this.chess);
   }
 
+  getPgn() {
+    return this.chess.pgn();
+  }
+
   setFen(fen: string) {
     this.chess = new Chess(fen);
     this.updateMoveForFen();

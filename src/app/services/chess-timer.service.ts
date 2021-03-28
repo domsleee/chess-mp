@@ -17,7 +17,7 @@ export class ChessTimerService {
   timers = {
     white: new BehaviorSubject(10),
     black: new BehaviorSubject(10)
-  }
+  };
   timeout: Subject<Color> = new Subject();
 
   private timerState: ITimerState = {

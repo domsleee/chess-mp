@@ -30,6 +30,8 @@ import { TimerConfigComponent } from './components/timer-config/timer-config.com
 import { ChessTimerFormatPipe } from './services/chess-timer-format.pipe';
 import { ChessTimerComponent } from './components/chess-timer/chess-timer.component';
 import { ReplaceNullWithEmptyPipe } from './pipes/replace-null-with-empty.pipe';
+import { AnalyseButtonComponent } from './components/analyse-button/analyse-button.component';
+import { HttpClientModule } from '@angular/common/http';
 
 
 
@@ -49,7 +51,8 @@ import { ReplaceNullWithEmptyPipe } from './pipes/replace-null-with-empty.pipe';
     TeamSelectionPanelComponent,
     PlayerConfigComponent,
     SnapSliderComponent,
-    TimerConfigComponent
+    TimerConfigComponent,
+    AnalyseButtonComponent
   ],
   imports: [
     BrowserModule,
@@ -66,7 +69,8 @@ import { ReplaceNullWithEmptyPipe } from './pipes/replace-null-with-empty.pipe';
     MatGridListModule,
     MatSliderModule,
     MatExpansionModule,
-    MatCardModule
+    MatCardModule,
+    HttpClientModule
 
   ],
   providers: [

@@ -1,3 +1,8 @@
 <div style="text-align:center">
-  <button mat-raised-button color="primary" [class.spinner]="loading" [disabled]="loading || disabled">{{ text }}</button>
+  <button
+    mat-button
+    [ngClass]="buttonClass"
+    color="primary"
+    [class.spinner]="loading"
+    [disabled]="loading || disabled">{{ text }}</button>
 </div>
