@@ -7,6 +7,9 @@ import { DEFAULT_ID, PeerToPeerService } from 'src/app/services/peer-to-peer.ser
 import { SharedDataService } from 'src/app/services/shared-data.service';
 import { PlayerTeamDict } from '../chess-board/helpers/PlayerTeamHelper';
 import { ChessStatusService } from 'src/app/services/chess-status.service';
+import { Router } from '@angular/router';
+import { RouteNames } from 'src/app/pages/routes';
+import { RouteUtilsService } from 'src/app/services/route-utils.service';
 
 
 @Component({
@@ -34,7 +37,8 @@ export class ChessTimerComponent {
   constructor(private chessTimerService: ChessTimerService,
     private ChessStatusService: ChessStatusService,
     private peerToPeerService: PeerToPeerService,
-    private sharedDataService: SharedDataService) {
+    private sharedDataService: SharedDataService,
+    private routeUtilsService: RouteUtilsService) {
     this.whiteTime = this.chessTimerService.whiteTime;
     this.blackTime = this.chessTimerService.blackTime;
     this.currentStatus = this.ChessStatusService.currentStatus;
@@ -50,5 +54,10 @@ export class ChessTimerComponent {
 
   ngOnInit() {
     this.flexDirection = !this.inverted ? 'column' : 'column-reverse';
+  }
+
+  resetBoard() {
+    this.routeUtilsService.resetCurrentRoute();
+
   }
 }

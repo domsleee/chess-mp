@@ -1,4 +1,4 @@
-import { Component, HostListener, ViewChild } from '@angular/core';
+import { Component, HostListener, Inject, ViewChild } from '@angular/core';
 import { Chessground } from 'chessground';
 import { NgxChessgroundComponent, NgxChessgroundModule } from 'ngx-chessground';
 import * as ChessJS from 'chess.js';
@@ -37,7 +37,7 @@ export class ChessBoardComponent {
     private peerToPeerService: PeerToPeerService,
     private sharedDataService: SharedDataService,
     private audioService: AudioService) {
-      
+    console.log("INIT");
     this.moveHandlerResolver = this.updateMoveHandlerResolver();
 
     this.isSinglePlayer = !this.peerToPeerService.isConnected;
@@ -69,10 +69,10 @@ export class ChessBoardComponent {
     });
 
     this.peerToPeerService.messageSubject.subscribe(message => {
-      if (message.data.command == 'MOVE') {
+      if (message.data.command === 'MOVE') {
         this.processMoveFromExternal({from: message.data.orig, to: message.data.dest, promotion: message.data.promotion});
       }
-    })
+    });
   }
 
   ngDestroy() {
@@ -117,11 +117,11 @@ export class ChessBoardComponent {
     if (this.myTeam === 'black') {
       this.cg.toggleOrientation();
     }
-    
+
     this.setupDebug();
     this.getAndApplyCPUMove();
     this.setBoardMouseEvents();
-    
+
     this.cg.set({
       events: { move: (orig, dest) => this.cgMoveHandler(orig, dest, 'q') },
     });
