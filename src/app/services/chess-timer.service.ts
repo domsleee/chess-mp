@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { Color } from 'chessground/types';
-import { BehaviorSubject, Subject, timer } from 'rxjs';
+import { BehaviorSubject, Subject, Subscription, timer } from 'rxjs';
 import { ITimerSettings } from '../shared/peer-to-peer/shared-data';
 
 interface ITimerState {
@@ -9,7 +9,7 @@ interface ITimerState {
 }
 
 @Injectable()
-export class ChessTimerService {
+export class ChessTimerService implements OnDestroy {
   whiteTime: BehaviorSubject<number>;
   blackTime: BehaviorSubject<number>;
   timers = {
@@ -27,10 +27,15 @@ export class ChessTimerService {
   private myTimer = timer(10, -1);
   private whiteIncrement = 0;
   private blackIncrement = 0;
+  private myTimerSubscription?: Subscription;
 
   constructor() {
     this.whiteTime = this.timers.white;
     this.blackTime = this.timers.black;
+  }
+
+  ngOnDestroy() {
+    this.destroyTimerIfExists();
   }
 
   private setStartingTime(totalTimeSeconds: number, startingTurn: Color = 'white', whiteIncrement = 20*1000, blackIncrement = 0) {
@@ -56,6 +61,7 @@ export class ChessTimerService {
 
   public startTimer() {
     this.timerState.msWhenLastChanged = Date.now();
+    this.destroyTimerIfExists();
     this.myTimer.subscribe(t => {
       if (this.paused) return;
       const currentMs = Date.now();
@@ -74,6 +80,12 @@ export class ChessTimerService {
       }
       this.timerState.msWhenLastChanged = currentMs;
     })
+  }
+
+  private destroyTimerIfExists() {
+    if (this.myTimerSubscription !== undefined) {
+      this.myTimerSubscription.unsubscribe();
+    }
   }
 
   public pauseTimer() {
