@@ -41,10 +41,6 @@ export class ChessBoardComponent implements OnInit, OnDestroy {
     private audioService: AudioService) {
     this.isSinglePlayer = !this.peerToPeerService.isConnected;
     this.myTeam = this.chessStatusService.playersTurnInfo.getTeam(this.peerToPeerService.getId());
-
-    if (this.isSinglePlayer) {
-      this.peerToPeerService.setAlias(DEFAULT_ID);
-    }
   }
 
   ngOnInit() {

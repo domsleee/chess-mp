@@ -15,7 +15,7 @@ export class PeerToPeerService {
   messageSubject: Subject<IMessage> = new ReplaySubject(100);
   isHost = false;
   isConnected = false;
-  alias = '';
+  alias = DEFAULT_ID;
 
   private peer: Peer | null = null;
   private connections: {[key: string]: Peer.DataConnection} = {};
@@ -25,18 +25,6 @@ export class PeerToPeerService {
 
   getId() {
     return this.peer?.id ?? DEFAULT_ID;
-  }
-
-  getPeerConfig(): PeerJSOption {
-    if (!environment.production) {
-      return {
-        host: 'localhost',
-        path: '/myapp',
-        port: 9000,
-        key: 'peerjs'
-      };
-    }
-    return {};
   }
 
   async setupAsHost() {
@@ -87,6 +75,59 @@ export class PeerToPeerService {
     })
   }
 
+  setAlias(alias: string) {
+    this.alias = alias;
+  }
+
+  getAlias() {
+    return this.alias
+  }
+
+  getHostId() {
+    if (this.isHost) return this.peer!.id;
+    return Object.keys(this.connections)[0];
+  }
+
+  broadcastAndToSelf(data: MessageData, from: string | null = null) {
+    const message = this.broadcast(data, from);
+    this.messageSubject.next(message);
+    return message;
+  }
+
+  broadcast(data: MessageData, from: string | null = null) {
+    const message: IMessage = {
+      from: from ?? this.peer?.id ?? DEFAULT_ID,
+      type: 'BROADCAST',
+      data: data
+    };
+    for (const key in this.connections) {
+      this.sendMessage(key, message);
+    }
+    return message;
+  }
+
+  sendSingleMessage(to: string, data: MessageData) {
+    if (!(to in this.connections)) return;
+    const message: IMessage = {
+      from: this.peer!.id,
+      type: 'SINGLE',
+      data: data
+    }
+    this.sendMessage(to, message);
+  }
+  
+  private getPeerConfig(): PeerJSOption {
+    if (!environment.production) {
+      return {
+        host: 'localhost',
+        path: '/myapp',
+        port: 9000,
+        key: 'peerjs'
+      };
+    }
+    return {};
+  }
+
   private connectToPeerServer() {
     return new Promise((resolve, reject) => {
       this.peer!.on('open', (id: string) => {
@@ -131,19 +172,6 @@ export class PeerToPeerService {
     });
   }
 
-  setAlias(alias: string) {
-    this.alias = alias;
-  }
-
-  getAlias() {
-    return this.alias
-  }
-
-  getHostId() {
-    if (this.isHost) return this.peer!.id;
-    return Object.keys(this.connections)[0];
-  }
-
   private destroy() {
     this.peer?.destroy();
     this.isConnected = false;
@@ -154,34 +182,6 @@ export class PeerToPeerService {
       this.broadcast(message.data, message.from);
     }
     this.messageSubject.next(message);
-  }
-
-  broadcastAndToSelf(data: MessageData, from: string | null = null) {
-    const message = this.broadcast(data, from);
-    this.messageSubject.next(message);
-    return message;
-  }
-
-  broadcast(data: MessageData, from: string | null = null) {
-    const message: IMessage = {
-      from: from ?? this.peer?.id ?? DEFAULT_ID,
-      type: 'BROADCAST',
-      data: data
-    };
-    for (const key in this.connections) {
-      this.sendMessage(key, message);
-    }
-    return message;
-  }
-
-  sendSingleMessage(to: string, data: MessageData) {
-    if (!(to in this.connections)) return;
-    const message: IMessage = {
-      from: this.peer!.id,
-      type: 'SINGLE',
-      data: data
-    }
-    this.sendMessage(to, message);
   }
 
   private sendMessage(to: string, message: IMessage) {

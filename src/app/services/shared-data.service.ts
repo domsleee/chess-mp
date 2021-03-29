@@ -7,7 +7,7 @@ import { IInfo, IInfoOptionals, IMessage, MessageData } from '../shared/peer-to-
 import { getDefaultSharedData, ISharedData, ISharedDataOptionals } from '../shared/peer-to-peer/shared-data';
 import { merge } from '../shared/util/helpers';
 import { invertColor } from '../shared/util/play';
-import { DEFAULT_ID, PeerToPeerService } from './peer-to-peer.service';
+import { PeerToPeerService } from './peer-to-peer.service';
 @Injectable({
   providedIn: 'root'
 })
@@ -16,18 +16,31 @@ export class SharedDataService {
   names: BehaviorSubject<PlayerTeamDict> = new BehaviorSubject({});
   numNames = new BehaviorSubject<number>(0);
   newName: Subject<string> = new Subject();
-  whiteNames: Observable<PlayerTeamDict>;
-  blackNames: Observable<PlayerTeamDict>;
   sharedData: BehaviorSubject<ISharedData> = new BehaviorSubject(getDefaultSharedData());
+
+  private nameByTeamObservable: {
+    white: Observable<PlayerTeamDict>,
+    black: Observable<PlayerTeamDict>
+  };
 
   constructor(private peerToPeerService: PeerToPeerService) {
     this.messageSubscription = this.peerToPeerService.messageSubject.subscribe(this.processMessage.bind(this));
-    this.whiteNames = this.names.pipe(map(t => this.keyValueFilter(t, "white")));
-    this.blackNames = this.names.pipe(map(t => this.keyValueFilter(t, "black")));
+    this.nameByTeamObservable = {
+      white: this.names.pipe(map(t => this.keyValueFilter(t, "white"))),
+      black: this.names.pipe(map(t => this.keyValueFilter(t, "black")))
+    }
 
     if (!this.peerToPeerService.isConnected) {
       this.names.next(getDefaultNames());
     }
+  }
+
+  ngOnDestroy() {
+    this.messageSubscription.unsubscribe();
+  }
+
+  getNameObservable(color: Color) {
+    return this.nameByTeamObservable[color];
   }
 
   getColorNames(color: Color): PlayerTeamDict {
@@ -38,9 +51,6 @@ export class SharedDataService {
     return Object.fromEntries(Object.entries(names).filter(([k, v]) => v.team == teamName));
   }
 
-  ngOnDestroy() {
-    this.messageSubscription.unsubscribe();
-  }
 
   private processMessage(message: IMessage) {
     if (message.data.command === 'INFO') {
@@ -147,7 +157,6 @@ export class SharedDataService {
 
   swapAllTeamsAndRematch() {
     const names = this.names.getValue();
-    console.log(names);
     for (const key of Object.keys(names)) {
       names[key].team = invertColor(names[key].team);
       names[key].rematchRequested = undefined;
