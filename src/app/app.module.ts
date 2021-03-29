@@ -34,6 +34,7 @@ import { AnalyseButtonComponent } from './components/analyse-button/analyse-butt
 import { HttpClientModule } from '@angular/common/http';
 import { ChessBoardContainerComponent } from './components/chess-board-container/chess-board-container.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { RematchButtonComponent } from './components/rematch-button/rematch-button.component';
 
 
 
@@ -56,7 +57,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     SnapSliderComponent,
     TimerConfigComponent,
     AnalyseButtonComponent,
-    ChessBoardContainerComponent
+    ChessBoardContainerComponent,
+    RematchButtonComponent
   ],
   imports: [
     BrowserModule,

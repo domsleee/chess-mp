@@ -164,7 +164,7 @@ export class PeerToPeerService {
 
   broadcast(data: MessageData, from: string | null = null) {
     const message: IMessage = {
-      from: from ?? this.peer!.id,
+      from: from ?? this.peer?.id ?? DEFAULT_ID,
       type: 'BROADCAST',
       data: data
     };

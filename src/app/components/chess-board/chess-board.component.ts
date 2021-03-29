@@ -8,7 +8,7 @@ import { Color, Key, Piece, PiecesDiff } from 'chessground/types';
 import { MoveHandlerResolver } from './helpers/MoveHandlerResolver';
 import { ChessTimerService } from 'src/app/services/chess-timer.service';
 import { ChessStatusService } from 'src/app/services/chess-status.service';
-import { PeerToPeerService } from 'src/app/services/peer-to-peer.service';
+import { DEFAULT_ID, PeerToPeerService } from 'src/app/services/peer-to-peer.service';
 import { SharedDataService } from 'src/app/services/shared-data.service';
 import { AudioService } from 'src/app/services/audio.service';
 import { promoteIfNecessary, removeEnPassantIfNecessary } from './helpers/ChessgroundHelpers';
@@ -41,6 +41,10 @@ export class ChessBoardComponent implements OnInit, OnDestroy {
     private audioService: AudioService) {
     this.isSinglePlayer = !this.peerToPeerService.isConnected;
     this.myTeam = this.chessStatusService.playersTurnInfo.getTeam(this.peerToPeerService.getId());
+
+    if (this.isSinglePlayer) {
+      this.peerToPeerService.setAlias(DEFAULT_ID);
+    }
   }
 
   ngOnInit() {
@@ -58,6 +62,9 @@ export class ChessBoardComponent implements OnInit, OnDestroy {
 
     this.peerToPeerSubscription = this.peerToPeerService.messageSubject.subscribe(message => {
       if (message.data.command === 'MOVE') {
+        if (message.data.matchId !== this.sharedDataService.sharedData.getValue().matchCount) {
+          return;
+        }
         this.processMoveFromExternal({from: message.data.orig, to: message.data.dest, promotion: message.data.promotion});
       }
     });
@@ -164,6 +171,7 @@ export class ChessBoardComponent implements OnInit, OnDestroy {
         numMoves: this.chessStatusService.getNumMoves(),
         orig: move.from,
         dest: move.to,
+        matchId: this.sharedDataService.sharedData.getValue().matchCount,
         promotion: move.promotion
       })
     }

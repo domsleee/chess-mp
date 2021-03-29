@@ -1,3 +1,15 @@
 :host {
   width: 100%;
 }
+
+main {
+  display: flex;
+  flex-direction: row;
+  max-height: 893px;
+}
+
+main > div {
+  width: 100%;
+  height: 100%;
+  max-width: 80vh
+}

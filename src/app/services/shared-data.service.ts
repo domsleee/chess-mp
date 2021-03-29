@@ -4,7 +4,7 @@ import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { getDefaultEngineSettings, getDefaultNames, IEngineSettings, IPlayerTeam, PlayerTeamDict } from '../components/chess-board/helpers/PlayerTeamHelper';
 import { IInfo, IInfoOptionals, IMessage, MessageData } from '../shared/peer-to-peer/defs';
-import { getDefaultSharedData, ISharedData } from '../shared/peer-to-peer/shared-data';
+import { getDefaultSharedData, ISharedData, ISharedDataOptionals } from '../shared/peer-to-peer/shared-data';
 import { merge } from '../shared/util/helpers';
 import { invertColor } from '../shared/util/play';
 import { DEFAULT_ID, PeerToPeerService } from './peer-to-peer.service';
@@ -14,16 +14,16 @@ import { DEFAULT_ID, PeerToPeerService } from './peer-to-peer.service';
 export class SharedDataService {
   messageSubscription: Subscription;
   names: BehaviorSubject<PlayerTeamDict> = new BehaviorSubject({});
+  numNames = new BehaviorSubject<number>(0);
   newName: Subject<string> = new Subject();
   whiteNames: Observable<PlayerTeamDict>;
   blackNames: Observable<PlayerTeamDict>;
-  sharedData: BehaviorSubject<ISharedData> = new BehaviorSubject({});
+  sharedData: BehaviorSubject<ISharedData> = new BehaviorSubject(getDefaultSharedData());
 
   constructor(private peerToPeerService: PeerToPeerService) {
     this.messageSubscription = this.peerToPeerService.messageSubject.subscribe(this.processMessage.bind(this));
     this.whiteNames = this.names.pipe(map(t => this.keyValueFilter(t, "white")));
     this.blackNames = this.names.pipe(map(t => this.keyValueFilter(t, "black")));
-    this.sharedData.next(getDefaultSharedData());
 
     if (!this.peerToPeerService.isConnected) {
       this.names.next(getDefaultNames());
@@ -40,7 +40,6 @@ export class SharedDataService {
 
   ngOnDestroy() {
     this.messageSubscription.unsubscribe();
-    console.log("SHARED DATA DESTROYED");
   }
 
   private processMessage(message: IMessage) {
@@ -66,7 +65,10 @@ export class SharedDataService {
 
       this.names.next(currNames);
       console.log("new names", currNames);
-      if (isNewName) this.newName.next(nameId);
+      if (isNewName) {
+        this.newName.next(nameId);
+        this.numNames.next(Object.keys(currNames).length);
+      }
     }
     else if (message.data.command === 'DISCONNECTED') {
       const currNames = this.names.getValue();
@@ -91,7 +93,7 @@ export class SharedDataService {
     }
   }
 
-  setSharedData(sharedData: ISharedData) {
+  setSharedData(sharedData: ISharedData | ISharedDataOptionals) {
     this.peerToPeerService.broadcastAndToSelf({
       command: 'UPDATE_SHARED',
       sharedData: sharedData
@@ -139,12 +141,18 @@ export class SharedDataService {
     );
   }
 
-  swapAllTeams() {
+  setRematchRequested(rematchRequested: boolean) {
+    this.broadcastNamesMessage({rematchRequested});
+  }
+
+  swapAllTeamsAndRematch() {
     const names = this.names.getValue();
+    console.log(names);
     for (const key of Object.keys(names)) {
-      console.log(key);
       names[key].team = invertColor(names[key].team);
+      names[key].rematchRequested = undefined;
     }
+    this.setSharedData({matchCount: this.sharedData.getValue().matchCount + 1});
     this.names.next(names);
   }
 

@@ -2,10 +2,12 @@
   <app-player-list [currentId]="currentId | async | replaceNullWithEmpty" [players]="blackNames | async" [nextId]="nextId | async | replaceNullWithEmpty"></app-player-list>
   <!-- <p style="font-size:1em">I AM: {{myName | async}}</p>
   <p style="font-size:1em">CurrentTurn: {{currentTurn | async}}</p> -->
-  <p>{{blackTime | async | chessTimerFormat}}</p>
-  <p class="final-result">{{currentStatus | async}}</p>
-  <app-analyse-button *ngIf="(currentStatus | async) != ''"></app-analyse-button>
-  <button (click)="rematch()">Rematch</button>
-  <p>{{whiteTime | async | chessTimerFormat}}</p>
+  <p class="time">{{blackTime | async | chessTimerFormat}}</p>
+  <div *ngIf="(currentStatus | async) != ''" class="result-container">
+    <p class="final-result" style="width:100%">{{currentStatus | async}}</p>
+    <app-analyse-button style="width:100%"></app-analyse-button>
+    <app-rematch-button style="width:100%"></app-rematch-button>
+  </div>
+  <p class="time">{{whiteTime | async | chessTimerFormat}}</p>
   <app-player-list [currentId]="currentId | async | replaceNullWithEmpty" [players]="whiteNames | async" [nextId]="nextId | async | replaceNullWithEmpty"></app-player-list>
 </div>

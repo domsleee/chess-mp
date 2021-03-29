@@ -27,7 +27,7 @@ function createPlayerTeam(name: string, color: Color = 'white', engineSettings: 
   return {
     name,
     team: color,
-    owner: 'zzz',
+    owner: DEFAULT_ID,
     isOwnedByMe: false,
     isReady: true,
     engineSettings
@@ -46,6 +46,7 @@ export interface IPlayerTeam {
   isOwnedByMe: boolean;
   isReady: boolean;
   engineSettings?: IEngineSettings;
+  rematchRequested?: boolean;
 };
 
 export type PlayerTeamDict = {[id: string]: IPlayerTeam};

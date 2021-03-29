@@ -1,8 +1,19 @@
 p {
-  font-size: 50px;
   margin: 0;
-  line-height: 50px;
   min-width: 18rem;
+}
+
+p.time {
+  line-height: 50px;
+  font-size: 50px;
+}
+
+.result-container {
+  margin-bottom: 1em;
+}
+
+.result-container p {
+  line-height: 30px;
 }
 
 p.final-result {

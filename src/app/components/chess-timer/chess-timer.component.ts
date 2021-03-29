@@ -7,10 +7,6 @@ import { DEFAULT_ID, PeerToPeerService } from 'src/app/services/peer-to-peer.ser
 import { SharedDataService } from 'src/app/services/shared-data.service';
 import { PlayerTeamDict } from '../chess-board/helpers/PlayerTeamHelper';
 import { ChessStatusService } from 'src/app/services/chess-status.service';
-import { Router } from '@angular/router';
-import { RouteNames } from 'src/app/pages/routes';
-import { RouteUtilsService } from 'src/app/services/route-utils.service';
-import { ChessBoardResetService } from 'src/app/services/chess-board-reset.service';
 
 
 @Component({
@@ -29,8 +25,8 @@ export class ChessTimerComponent {
   myName: Observable<string>;
   myId: string;
 
-  whiteNames: Observable<PlayerTeamDict>;
-  blackNames: Observable<PlayerTeamDict>;
+  whiteNames!: Observable<PlayerTeamDict>;
+  blackNames!: Observable<PlayerTeamDict>;
 
   @Input() inverted = false;
   flexDirection = 'column';
@@ -38,30 +34,22 @@ export class ChessTimerComponent {
   constructor(private chessTimerService: ChessTimerService,
     private ChessStatusService: ChessStatusService,
     private peerToPeerService: PeerToPeerService,
-    private sharedDataService: SharedDataService,
-    private chessBoardResetService: ChessBoardResetService) {
+    private sharedDataService: SharedDataService) {
 
-    console.log("CONSTRUCT??");
     this.whiteTime = this.chessTimerService.whiteTime;
     this.blackTime = this.chessTimerService.blackTime;
     this.currentStatus = this.ChessStatusService.currentStatus;
-    this.whiteNames = this.sharedDataService.whiteNames;
-    this.blackNames = this.sharedDataService.blackNames;
 
     this.currentId = this.ChessStatusService.currentTurn.asObservable().pipe(map(([key, value]) => key));
     this.nextId = this.ChessStatusService.nextTurn.asObservable().pipe(map(([key, value]) => key));
     this.currentTurn = this.ChessStatusService.currentTurn.asObservable().pipe(map(([key, value]) => value?.name ?? key));
     this.myId = this.peerToPeerService.getId();
     this.myName = this.sharedDataService.names.pipe(map(t => t[this.peerToPeerService.getId()]?.name ?? DEFAULT_ID));
-    
   }
 
   ngOnInit() {
     this.flexDirection = !this.inverted ? 'column' : 'column-reverse';
-  }
-
-  rematch() {
-    this.sharedDataService.swapAllTeams();
-    this.chessBoardResetService.doReset();
+    this.whiteNames = this.sharedDataService.whiteNames;
+    this.blackNames = this.sharedDataService.blackNames;
   }
 }
