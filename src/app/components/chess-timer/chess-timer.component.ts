@@ -36,8 +36,8 @@ export class ChessTimerComponent {
     private peerToPeerService: PeerToPeerService,
     private sharedDataService: SharedDataService) {
 
-    this.whiteTime = this.chessTimerService.whiteTime;
-    this.blackTime = this.chessTimerService.blackTime;
+    this.whiteTime = this.chessTimerService.getTimerObservable('white');
+    this.blackTime = this.chessTimerService.getTimerObservable('black');
     this.currentStatus = this.ChessStatusService.currentStatus;
 
     this.currentId = this.ChessStatusService.currentTurn.asObservable().pipe(map(([key, value]) => key));

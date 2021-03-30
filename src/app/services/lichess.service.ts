@@ -18,7 +18,7 @@ export class LichessService {
   constructor(private http: HttpClient) { }
 
   async importGame(pgn: string): Promise<string> {
-    if (!environment.production) {
+    if (false && !environment.production) {
       return this.fakeImportGame();
     }
     const res = await this.http.post<IImportResult>(this.getUrl('/api/import'), {
