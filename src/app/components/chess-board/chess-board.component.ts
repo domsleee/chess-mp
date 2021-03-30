@@ -146,7 +146,7 @@ export class ChessBoardComponent implements OnInit, OnDestroy {
   private cgMoveHandler(orig: Key, dest: Key, promotion?: Exclude<ChessJS.PieceType, 'p'>) {
     this.movePieceWithEnPassantAndPromotion({from: orig, to: dest, promotion});
 
-    this.chessTimerService.setTurn(this.chessStatusService.getColor())  
+    this.chessTimerService.setTurn(this.chessStatusService.getColor());
     this.setBoardMouseEvents();
     this.cg.playPremove();
 
@@ -195,6 +195,7 @@ export class ChessBoardComponent implements OnInit, OnDestroy {
   }
 
   private onGameOver() {
+    OnePlayerBoardChanger.setUnmovable(this.cg);
     this.audioService.genericNotify.play();
     this.chessTimerService.pauseTimer();
   }
