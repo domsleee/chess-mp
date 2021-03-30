@@ -206,7 +206,7 @@ cg-board piece.fading {
 }
 
 
-@media screen and (min-width: 900px) {
+@media screen and (min-width: 900px) and (min-height: 450px) {
   .cg-wrap coords {
     font-size: 12px;
   }
