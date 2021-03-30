@@ -13,14 +13,7 @@ export class AudioService {
   genericNotify = new Audio(this.getAsset('audio/GenericNotify.mp3'));
 
   private getAsset(assetDir: string) {
-    return `${this.baseHref}assets/${assetDir}`
-  }
-
-  ngOnDestroy() {
-    // @ts-ignore: temporary workaround
-    this.capture = null;
-    // @ts-ignore
-    this.genericNotify = null;
+    return `${this.baseHref}assets/${assetDir}`;
   }
 
 }

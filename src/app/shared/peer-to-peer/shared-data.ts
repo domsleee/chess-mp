@@ -26,7 +26,7 @@ export function getDefaultSharedData(): ISharedData {
       blackTime: 60,
       blackIncrement: 0
     },
-    // startFen: mateInTwoFen
+    // startFen: mateInTwoFen,
     matchCount: 1
-  }
+  };
 }

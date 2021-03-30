@@ -63,15 +63,15 @@ export class ChessTimerService implements OnDestroy {
   startTimer() {
     this.timerState.msWhenLastChanged = Date.now();
     this.destroyTimerIfExists();
-    this.myTimer.subscribe(t => {
+    this.myTimerSubscription = this.myTimer.subscribe(t => {
       if (this.paused) return;
       const currentMs = Date.now();
       const diff = currentMs - this.timerState.msWhenLastChanged;
 
       const timerBehaviourSubject = this.timers[this.timerState.turn];
-      if (timerBehaviourSubject.getValue() != 0) {
+      if (timerBehaviourSubject.getValue() !== 0) {
         timerBehaviourSubject.next(Math.max(0, timerBehaviourSubject.getValue() - diff / 1000));
-        if (timerBehaviourSubject.getValue() == 0) {
+        if (timerBehaviourSubject.getValue() === 0) {
           this.timeout.next(this.timerState.turn);
         }
       }
