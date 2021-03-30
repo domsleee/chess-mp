@@ -6,6 +6,7 @@ import { IMessage, MessageData } from '../shared/peer-to-peer/defs';
 
 const debug = console.log;
 const TIMEOUT_MS = 5000;
+const HEROKU_HOST = 'heroku-chess-123.herokuapp.com';
 export const DEFAULT_ID = 'default';
 
 @Injectable({
@@ -117,7 +118,7 @@ export class PeerToPeerService {
   }
   
   private getPeerConfig(): PeerJSOption {
-    if (!environment.production) {
+    if (false && !environment.production) {
       return {
         host: 'localhost',
         path: '/myapp',
@@ -125,7 +126,11 @@ export class PeerToPeerService {
         key: 'peerjs'
       };
     }
-    return {};
+    return {
+      host: HEROKU_HOST,
+      port: 443,
+      secure: true
+    };
   }
 
   private connectToPeerServer() {
