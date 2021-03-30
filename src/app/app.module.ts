@@ -4,7 +4,7 @@ import { NgModule } from '@angular/core';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { NgxChessgroundModule } from 'ngx-chessground';
-import {APP_BASE_HREF} from '@angular/common';
+import {APP_BASE_HREF, PlatformLocation} from '@angular/common';
 import { ChessBoardComponent } from './components/chess-board/chess-board.component';
 import { MpLobbyComponent } from './pages/mp-lobby/mp-lobby.component';
 import { HomeComponent } from './pages/home/home.component';
@@ -80,7 +80,12 @@ import { RematchButtonComponent } from './components/rematch-button/rematch-butt
     MatProgressSpinnerModule
   ],
   providers: [
-    {provide: APP_BASE_HREF, useValue: '/'}
+    {
+      provide: APP_BASE_HREF,
+      useFactory: (s: PlatformLocation) => s.getBaseHrefFromDOM(),
+      deps: [PlatformLocation]
+    }
+    // {provide: APP_BASE_HREF, useValue: '/chess-mp/'}
   ],
   bootstrap: [AppComponent]
 })

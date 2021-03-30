@@ -1,9 +1,9 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import sleep from 'sleep-promise';
 import { environment } from 'src/environments/environment';
 
-const BASE_URL = environment.production ? 'https://lichess.org' : '';
+const BASE_URL = 'https://lichess.org';
 
 interface IImportResult {
   id: string;
@@ -21,10 +21,9 @@ export class LichessService {
     if (false && !environment.production) {
       return this.fakeImportGame();
     }
-    const res = await this.http.post<IImportResult>(this.getUrl('/api/import'), {
-      pgn
-    }).toPromise();
-    console.log(res);
+    const body = new HttpParams().set('pgn', pgn);
+    const headers = new HttpHeaders().set('Content-Type','application/x-www-form-urlencoded');
+    const res = await this.http.post<IImportResult>(this.getUrl('/api/import'), body, {headers: headers}).toPromise();
     return res.url;
   }
 

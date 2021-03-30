@@ -10,7 +10,7 @@
     "e2e": "ng e2e",
     "postinstall": "ngcc",
     "peer": "peerjs --port 9000 --key peerjs --path /myapp",
-    "deploy": "ng deploy --base-href"
+    "deploy": "ng deploy"
   },
   "browser": {
     "fs": false,

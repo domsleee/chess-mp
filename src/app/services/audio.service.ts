@@ -1,15 +1,20 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
+import { APP_BASE_HREF } from '@angular/common'; 
 
 @Injectable({
   providedIn: 'root'
 })
 export class AudioService {
 
-  constructor() { }
+  constructor(@Inject(APP_BASE_HREF) private baseHref: string) { }
 
-  capture = new Multiplay('/assets/audio/Capture.mp3', 3);
-  move = new Multiplay('/assets/audio/Move.mp3', 3);
-  genericNotify = new Audio('/assets/audio/GenericNotify.mp3');
+  capture = new Multiplay(this.getAsset('audio/Capture.mp3'), 3);
+  move = new Multiplay(this.getAsset('audio/Move.mp3'), 3);
+  genericNotify = new Audio(this.getAsset('audio/GenericNotify.mp3'));
+
+  private getAsset(assetDir: string) {
+    return `${this.baseHref}assets/${assetDir}`
+  }
 
   ngOnDestroy() {
     // @ts-ignore: temporary workaround
