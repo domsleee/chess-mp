@@ -7,6 +7,7 @@ import { JoinComponent } from './pages/join/join.component';
 import { MpLobbyComponent } from './pages/mp-lobby/mp-lobby.component';
 import { RouteNames } from './pages/routes';
 import { ChessBoardContainerComponent } from './components/chess-board-container/chess-board-container.component';
+import { APP_BASE_HREF } from '@angular/common';
 
 const routes: Routes = [
   { path: RouteNames.HOME, component: HomeComponent },
@@ -17,6 +18,6 @@ const routes: Routes = [
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
 export class AppRoutingModule { }
