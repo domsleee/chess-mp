@@ -211,3 +211,8 @@ cg-board piece.fading {
     font-size: 12px;
   }
 }
+
+
+svg.cg-custom-svgs {
+  display: none;
+}
