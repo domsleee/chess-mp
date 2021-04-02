@@ -212,6 +212,6 @@ cg-board piece.fading {
   }
 }
 
-.cg-custom-svgs {
+svg.cg-custom-svgs {
   display: none;
 }
