@@ -23,7 +23,7 @@ export class PlayersTurnInfo {
     console.log(this.players, playerId);
     return this.players['white'].filter(t => t == playerId).length === 1 ? 'white' : 'black';
   }
-  
+
   isPlayersTurnNext(moveNumber: number, playerId: string) {
     return this.isPlayersTurn(moveNumber + 1, playerId);
   }
@@ -33,7 +33,7 @@ export class PlayersTurnInfo {
   }
 
   getPlayer(moveNumber: number) {
-    const moveColour: Color = (moveNumber + + (this.blackWentFirst ? 1 : 0)) % 2 == 0 ? 'white' : 'black';
+    const moveColour: Color = (moveNumber + (this.blackWentFirst ? 1 : 0)) % 2 == 0 ? 'white' : 'black';
     const teamsTurn = moveColour;
     const playersInTeam = this.players[teamsTurn].length;
     return this.players[teamsTurn][Math.floor(moveNumber/2) % playersInTeam];

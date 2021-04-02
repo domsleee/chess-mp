@@ -5,7 +5,8 @@ import { ISharedData, ISharedDataOptionals } from "./shared-data";
 export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
 
 
-export type MessageData = IMove | IInfo | IReady | IStart | IDisconnectNotification | ISendNames | IUpdateShared;
+export type MessageData = IMove | IInfo | IReady | IStart | IDisconnectNotification | ISendNames | IUpdateShared |
+                          IDeclareTimeout;
 
 export interface IMessage {
   type: 'BROADCAST' | 'SINGLE';
@@ -24,6 +25,7 @@ export interface IMove extends ICommand {
   orig: Key;
   dest: Key;
   matchId: number;
+  claimedTime: number;
   promotion?: Exclude<ChessJS.PieceType, 'p'>;
 }
 
@@ -67,3 +69,8 @@ export interface ISendNames extends ICommand {
   sharedData: ISharedData;
 }
 
+export interface IDeclareTimeout extends ICommand {
+  command: 'DECLARE_TIMEOUT';
+  matchId: number;
+  color: Color;
+}

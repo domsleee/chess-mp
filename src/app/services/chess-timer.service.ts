@@ -16,14 +16,14 @@ export class ChessTimerService implements OnDestroy {
     white: new BehaviorSubject(10),
     black: new BehaviorSubject(10)
   };
-  
+
   private timerState: ITimerState = {
     turn: 'white',
     msWhenLastChanged: -1
   };
 
   private paused = false;
-  private myTimer = timer(10, -1);
+  private myTimer = timer(33, -1);
   private whiteIncrement = 0;
   private blackIncrement = 0;
   private myTimerSubscription?: Subscription;
@@ -36,7 +36,15 @@ export class ChessTimerService implements OnDestroy {
   }
 
   getTimerObservable(color: Color) {
-    return this.timers[color];
+    return this.timers[color].asObservable();
+  }
+
+  getTimeoutObservable() {
+    return this.timeout.asObservable();
+  }
+
+  getCurrentTime() {
+    return this.timers[this.timerState.turn].getValue();
   }
 
   private setStartingTime(totalTimeSeconds: number, startingTurn: Color = 'white', whiteIncrement = 20*1000, blackIncrement = 0) {
@@ -80,23 +88,28 @@ export class ChessTimerService implements OnDestroy {
     })
   }
 
+  setTimeForCurrentTurn(time: number) {
+    const timerBehaviourSubject = this.timers[this.timerState.turn];
+    timerBehaviourSubject.next(time);
+    this.timerState.msWhenLastChanged = Date.now();
+  }
+
   pauseTimer() {
     this.paused = true;
   }
 
   setTurn(turn: Color) {
     if (turn == this.timerState.turn) return;
-    this.incrementTimer(this.timerState.turn, this.timerState.turn == 'white' ? this.whiteIncrement : this.blackIncrement);
+    this.incrementTimerForCurrentTurn(this.timerState.turn === 'white' ? this.whiteIncrement : this.blackIncrement);
     this.timerState.turn = turn;
   }
 
   private destroyTimerIfExists() {
-    if (this.myTimerSubscription !== undefined) {
-      this.myTimerSubscription.unsubscribe();
-    }
+    this.myTimerSubscription?.unsubscribe();
   }
 
-  private incrementTimer(color: Color, ms: number) {
-    this.timers[color].next(this.timers[color].getValue() + ms);
+  private incrementTimerForCurrentTurn(ms: number) {
+    const color = this.timerState.turn;
+    this.setTimeForCurrentTurn(this.timers[color].getValue() + ms);
   }
 }

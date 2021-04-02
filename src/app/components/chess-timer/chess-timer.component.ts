@@ -16,8 +16,8 @@ import { ChessStatusService } from 'src/app/services/chess-status.service';
   providers: [ChessTimerFormatPipe]
 })
 export class ChessTimerComponent {
-  whiteTime: BehaviorSubject<number>;
-  blackTime: BehaviorSubject<number>;
+  whiteTime: Observable<number>;
+  blackTime: Observable<number>;
   currentStatus: BehaviorSubject<string>;
   currentTurn: Observable<string>;
   currentId: Observable<string>;

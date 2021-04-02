@@ -13,13 +13,14 @@ import { SharedDataService } from 'src/app/services/shared-data.service';
 import { AudioService } from 'src/app/services/audio.service';
 import { promoteIfNecessary, removeEnPassantIfNecessary } from './helpers/ChessgroundHelpers';
 import { Subscription } from 'rxjs';
+import { ChessTimeoutService } from 'src/app/services/chess-timeout.service';
 export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
 
 @Component({
   selector: 'app-chess-board',
   templateUrl: './chess-board.component.html',
   styleUrls: ['./chess-board.component.scss'],
-  providers: [ChessStatusService, ChessTimerService]
+  providers: [ChessStatusService, ChessTimerService, ChessTimeoutService]
 })
 export class ChessBoardComponent implements OnInit, OnDestroy {
   readonly myTeam: Color;
@@ -38,7 +39,8 @@ export class ChessBoardComponent implements OnInit, OnDestroy {
     private chessStatusService: ChessStatusService,
     private peerToPeerService: PeerToPeerService,
     private sharedDataService: SharedDataService,
-    private audioService: AudioService) {
+    private audioService: AudioService,
+    private chessTimeoutService: ChessTimeoutService) {
     this.isSinglePlayer = !this.peerToPeerService.isConnected;
     this.myTeam = this.chessStatusService.playersTurnInfo.getTeam(this.peerToPeerService.getId());
   }
@@ -51,7 +53,7 @@ export class ChessBoardComponent implements OnInit, OnDestroy {
   ngAfterViewInit(): void {
     this.ngxChessgroundComponent.runFn = this.run.bind(this);
 
-    this.chessTimerSubscription = this.chessTimerService.timeout.subscribe(color => {
+    this.chessTimerSubscription = this.chessTimeoutService.getTimeoutObservable().subscribe(color => {
       this.chessStatusService.setTimeout(color);
       this.onGameOver();
     });
@@ -61,7 +63,13 @@ export class ChessBoardComponent implements OnInit, OnDestroy {
         if (message.data.matchId !== this.sharedDataService.sharedData.getValue().matchCount) {
           return;
         }
-        this.processMoveFromExternal({from: message.data.orig, to: message.data.dest, promotion: message.data.promotion});
+        this.processMoveFromExternal({from: message.data.orig, to: message.data.dest, promotion: message.data.promotion}, message.data.claimedTime);
+      }
+      else if (message.data.command === 'DECLARE_TIMEOUT') {
+        if (message.data.matchId !== this.sharedDataService.sharedData.getValue().matchCount) {
+          return;
+        }
+        this.chessStatusService.setTimeout(message.data.color);
       }
     });
   }
@@ -147,6 +155,7 @@ export class ChessBoardComponent implements OnInit, OnDestroy {
     this.movePieceWithEnPassantAndPromotion({from: orig, to: dest, promotion});
 
     this.chessTimerService.setTurn(this.chessStatusService.getColor());
+    this.chessTimeoutService.cancelHostTimeoutDeclaration();
     this.setBoardMouseEvents();
     this.cg.playPremove();
 
@@ -168,7 +177,8 @@ export class ChessBoardComponent implements OnInit, OnDestroy {
         orig: move.from,
         dest: move.to,
         matchId: this.sharedDataService.sharedData.getValue().matchCount,
-        promotion: move.promotion
+        promotion: move.promotion,
+        claimedTime: this.chessTimerService.getCurrentTime()
       })
     }
 
@@ -229,7 +239,10 @@ export class ChessBoardComponent implements OnInit, OnDestroy {
     }
   }
 
-  private processMoveFromExternal(move: ChessJS.ShortMove) {
+  private processMoveFromExternal(move: ChessJS.ShortMove, claimedTime?: number) {
+    if (claimedTime !== undefined) {
+      this.chessTimerService.setTimeForCurrentTurn(claimedTime);
+    }
     this.resetHistoryIfRequired();
     this.cg.move(move.from, move.to);
   }
