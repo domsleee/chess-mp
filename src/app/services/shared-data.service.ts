@@ -3,6 +3,7 @@ import { Color } from 'chessground/types';
 import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { getDefaultEngineSettings, getDefaultNames, IEngineSettings, IPlayerTeam, PlayerTeamDict } from '../components/chess-board/helpers/PlayerTeamHelper';
+import { getEngineName } from '../shared/engine/engine-helpers';
 import { IInfo, IInfoOptionals, IMessage, MessageData } from '../shared/peer-to-peer/defs';
 import { getDefaultSharedData, ISharedData, ISharedDataOptionals } from '../shared/peer-to-peer/shared-data';
 import { merge } from '../shared/util/helpers';
@@ -72,7 +73,7 @@ export class SharedDataService {
         currNames[nameId].engineSettings = {...currEngineSettings, ...message.data.engineSettings};
         const engineSettings = currNames[nameId]!.engineSettings;
         if (engineSettings) {
-          currNames[nameId].name = this.getEngineName(engineSettings);
+          currNames[nameId].name = getEngineName(engineSettings);
         }
       }
 
@@ -150,7 +151,7 @@ export class SharedDataService {
    
     return this.broadcastNamesMessage(
       infoOptionals,
-      this.getEngineName({...this.getPlayerSync(playerId)?.engineSettings ?? {}, ...engineSettings})
+      getEngineName({...this.getPlayerSync(playerId)?.engineSettings ?? {}, ...engineSettings})
     );
   }
 
@@ -166,10 +167,6 @@ export class SharedDataService {
     }
     this.setSharedData({matchCount: this.sharedData.getValue().matchCount + 1});
     this.names.next(names);
-  }
-
-  private getEngineName(engineSettings: IEngineSettings) {
-    return `Stockfish (${engineSettings.elo}, ${(engineSettings.timeForMove ?? 0) / 1000}s)`;
   }
 
   private getNewCPUId() {

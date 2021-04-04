@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Color } from 'chessground/types';
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
@@ -8,6 +8,7 @@ import { ISharedData } from 'src/app/shared/peer-to-peer/shared-data';
 import { PeerToPeerService } from 'src/app/services/peer-to-peer.service';
 import { SharedDataService } from 'src/app/services/shared-data.service';
 import { RouteNames } from '../routes';
+import { APP_BASE_HREF } from '@angular/common';
 
 @Component({
   selector: 'app-mp-lobby',
@@ -17,28 +18,28 @@ import { RouteNames } from '../routes';
 export class MpLobbyComponent implements OnInit {
   url: string;
 
-  connectedSubscription: Subscription;
+  readonly connectedSubscription: Subscription;
   numberReady = 0;
   readyString = 'ready';
-  hostUrl: string;
-  sharedData: Observable<ISharedData>;
+  readonly hostUrl: string;
+  readonly sharedData: Observable<ISharedData>;
 
   constructor(private peerToPeerService: PeerToPeerService,
     private router: Router,
-    private sharedDataService: SharedDataService) {
-    this.hostUrl = '/join/' + this.peerToPeerService.getHostId();
-    this.url = window.location.host + this.router.parseUrl(this.hostUrl).toString();
+    private sharedDataService: SharedDataService,
+    @Inject(APP_BASE_HREF) private baseHref: string) {
+    this.hostUrl = `/join/${this.peerToPeerService.getHostId()}`;
+    this.url = `${window.location.origin}${this.baseHref}${this.hostUrl.substring(1)}`;
 
     this.sharedData = this.sharedDataService.sharedData.asObservable();
 
     this.connectedSubscription = this.sharedDataService.newName.subscribe((id) => {
       if (this.peerToPeerService.isHost) {
-        const message: ISendNames = {
+        this.peerToPeerService.sendSingleMessage(id, {
           command: 'SET_NAMES',
           names: this.sharedDataService.names.getValue(),
           sharedData: this.sharedDataService.sharedData.getValue()
-        };
-        this.peerToPeerService.sendSingleMessage(id, message);
+        });
       }
 
       this.setTeam(this.sharedDataService.getPlayerSync(this.peerToPeerService.getId()).team);
@@ -73,8 +74,7 @@ export class MpLobbyComponent implements OnInit {
   }
 
   startGame() {
-    this.startGameNoBroadcast();
-    this.peerToPeerService.broadcast({
+    this.peerToPeerService.broadcastAndToSelf({
       command: 'START'
     });
   }

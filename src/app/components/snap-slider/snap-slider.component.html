@@ -1,5 +1,9 @@
 <div style="text-align: center">
-  <p style="text-align: center; margin:0">{{label}}: {{myValue}}</p>
+  <p style="text-align: center; margin:0">{{label}}: <span #span
+    contenteditable
+    (blur)="onValueChange($event)"
+    (keypress)="onKeyPress($event)"
+  >{{myValue}}</span></p>
   <mat-slider
   style="width:100%"
   [min]="min"

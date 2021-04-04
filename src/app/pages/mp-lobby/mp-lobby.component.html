@@ -18,7 +18,9 @@
 </style>
 
 <h1>MP Lobby</h1>
-<p><a [routerLink]="hostUrl">{{url}}</a></p>
+<app-textarea-selectall [text]="url"></app-textarea-selectall>
+
+<!-- <p><a [routerLink]="hostUrl">{{url}}</a></p> -->
 
 <app-timer-config></app-timer-config>
 

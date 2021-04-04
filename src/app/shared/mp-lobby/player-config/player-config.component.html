@@ -9,10 +9,19 @@
 
   <app-snap-slider
   label="elo"
-  [min]="100"
-  [max]="3600"
+  [min]="1350"
+  [max]="2850"
   [value]="(this.player)?.engineSettings?.elo"
   [roundFn]="roundTo50"
 
   [updateModel]="updateElo"
+  ></app-snap-slider>
+
+  <app-snap-slider
+  label="Skill Level"
+  [min]="0"
+  [max]="20"
+  [value]="(this.player)?.engineSettings?.skillLevel"
+
+  [updateModel]="updateSkillLevel"
   ></app-snap-slider>

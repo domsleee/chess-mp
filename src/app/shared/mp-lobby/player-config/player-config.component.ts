@@ -13,6 +13,8 @@ export class PlayerConfigComponent implements OnInit {
   
   updateTimeForMove = (val: number) => this.sharedDataService.setEngineSettings(this.playerId, {timeForMove: val});
   updateElo = (val: number) => this.sharedDataService.setEngineSettings(this.playerId, {elo: val});
+  updateSkillLevel = (val: number) => this.sharedDataService.setEngineSettings(this.playerId, {skillLevel: val});
+
   roundTo100 = (val: number) => Math.round(val/100) * 100;
   roundTo50 = (val: number) => Math.round(val/50) * 50;
 

@@ -35,6 +35,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { ChessBoardContainerComponent } from './components/chess-board-container/chess-board-container.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RematchButtonComponent } from './components/rematch-button/rematch-button.component';
+import { TextareaSelectallComponent } from './components/textarea-selectall/textarea-selectall.component';
 
 
 
@@ -58,7 +59,8 @@ import { RematchButtonComponent } from './components/rematch-button/rematch-butt
     TimerConfigComponent,
     AnalyseButtonComponent,
     ChessBoardContainerComponent,
-    RematchButtonComponent
+    RematchButtonComponent,
+    TextareaSelectallComponent
   ],
   imports: [
     BrowserModule,

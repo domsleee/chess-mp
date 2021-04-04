@@ -29,11 +29,13 @@ export class StockfishGetNextMove implements IGetNextMove {
       sf.addMessageListener((line: any) => {
         this.sfEmitter.next(line);
 
-        // console.log(line);
+        console.log(line);
         if (line == "uciok") {
           console.log("OK!");
-          //sf.postMessage("setoption name UCI_LimitStrength value true");
-          //sf.postMessage("setoption name UCI_Elo value 1350");
+          sf.postMessage("setoption name UCI_LimitStrength value true");
+          sf.postMessage(`setoption name UCI_Elo value ${this.engineSettings.elo ?? 2850}`);
+          sf.postMessage(`setoption name Skill Level value ${this.engineSettings.skillLevel ?? 20}`);
+
           //sf.postMessage("setoption name MultiPV value 5");
 
           //sf.postMessage("setoption name Skill Level value 0");

@@ -1,5 +1,6 @@
 import { Color } from "chessground/types";
 import { DEFAULT_ID } from "src/app/services/peer-to-peer.service";
+import { getEngineName } from "src/app/shared/engine/engine-helpers";
 
 export function getDefaultNames() {
   const engineSettings: IEngineSettings = getDefaultEngineSettings();
@@ -10,16 +11,16 @@ export function getDefaultNames() {
 
   return {
     [DEFAULT_ID]: createPlayerTeam('default'),
-    'stockfish': createPlayerTeam('Stockfish (3600)', 'black', engineSettings),
-    'stockfish2': createPlayerTeam('Stockfish (1000)', 'black', engineSettings2)
-
+    'stockfish': createPlayerTeam(getEngineName(engineSettings), 'black', engineSettings),
+    'stockfish2': createPlayerTeam(getEngineName(engineSettings2), 'black', engineSettings2)
   }
 }
 
 export function getDefaultEngineSettings(): IEngineSettings {
   return {
     timeForMove: 700,
-    elo: 3600
+    elo: 2850,
+    skillLevel: 20
   };
 }
 
@@ -37,6 +38,7 @@ function createPlayerTeam(name: string, color: Color = 'white', engineSettings: 
 export interface IEngineSettings {
   timeForMove?: number;
   elo?: number;
+  skillLevel?: number;
 };
 
 export interface IPlayerTeam {
