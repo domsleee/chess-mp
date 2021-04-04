@@ -11,11 +11,11 @@ export class PlayerListComponent implements OnInit {
   constructor() { }
 
   @Input() players: PlayerTeamDict | null = null;
-  @Input() currentId = '';
+  @Input() currentId: string | null = '';
   @Input() nextId: string | null = '';
 
   ngOnInit(): void {
-    if (this.players == null) throw new Error('players is required');
+    //if (this.players == null) throw new Error('players is required');
     console.log(this.players);
   }
 }

@@ -8,6 +8,9 @@ import { getDefaultSharedData, ISharedData, ISharedDataOptionals } from '../shar
 import { merge } from '../shared/util/helpers';
 import { invertColor } from '../shared/util/play';
 import { PeerToPeerService } from './peer-to-peer.service';
+
+const debug = (...args: any[]) => {}//console.log;
+
 @Injectable({
   providedIn: 'root'
 })
@@ -55,7 +58,7 @@ export class SharedDataService {
   private processMessage(message: IMessage) {
     if (message.data.command === 'INFO') {
       let currNames = this.names.getValue();
-      console.log("new msg", message);
+      debug("NEW MSG RECEIVED", message);
       const nameId = message.data.idOverride ?? message.from;
 
       const isNewName = !(nameId in currNames);
@@ -74,7 +77,7 @@ export class SharedDataService {
       }
 
       this.names.next(currNames);
-      console.log("new names", currNames);
+      debug("new names", currNames);
       if (isNewName) {
         this.newName.next(nameId);
         this.numNames.next(Object.keys(currNames).length);
@@ -107,7 +110,7 @@ export class SharedDataService {
     this.peerToPeerService.broadcastAndToSelf({
       command: 'UPDATE_SHARED',
       sharedData: sharedData
-    });
+    }, {echo: true});
   }
 
   filterDict<T>(dict: T, fn: (entry: [string, any]) => boolean) {
@@ -192,6 +195,6 @@ export class SharedDataService {
       message = {...message, name: nameOverride};
     }
 
-    this.peerToPeerService.broadcastAndToSelf(message);
+    this.peerToPeerService.broadcastAndToSelf(message, {echo: true});
   }
 }

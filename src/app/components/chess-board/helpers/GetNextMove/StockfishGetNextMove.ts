@@ -18,6 +18,11 @@ export class StockfishGetNextMove implements IGetNextMove {
     // @ts-ignore
     this.movetime = engineSettings.timeForMove ?? 700;
 
+    if (!('Stockfish' in window)) {
+      this.initPromise = new Promise(resolve => resolve(1));
+      return;
+    };
+
     // @ts-ignore
     this.initPromise = Stockfish().then((sf: any) => {
       this.sf = sf;

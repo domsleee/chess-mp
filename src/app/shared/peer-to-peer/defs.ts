@@ -5,13 +5,14 @@ import { ISharedData, ISharedDataOptionals } from "./shared-data";
 export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
 
 
-export type MessageData = IMove | IInfo | IReady | IStart | IDisconnectNotification | ISendNames | IUpdateShared |
+export type MessageData = IMove | IInfo | IStart | IDisconnectNotification | ISendNames | IUpdateShared |
                           IDeclareTimeout;
 
 export interface IMessage {
   type: 'BROADCAST' | 'SINGLE';
   from: string;
   data: MessageData;
+  echoBroadcast?: boolean;
 }
 
 
@@ -47,11 +48,6 @@ export interface IInfoOptionals {
 export interface IUpdateShared extends ICommand {
   command: 'UPDATE_SHARED';
   sharedData: ISharedData | ISharedDataOptionals;
-}
-
-export interface IReady extends ICommand {
-  command: 'READY';
-  isReady: boolean;
 }
 
 export interface IStart extends ICommand {

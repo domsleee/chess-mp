@@ -4,10 +4,15 @@ import { interval, ReplaySubject, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { IMessage, MessageData } from '../shared/peer-to-peer/defs';
 
-const debug = console.log;
+const debug = (...args: any[]) => {}//console.log;
 const TIMEOUT_MS = 5000;
 const HEROKU_HOST = 'heroku-chess-123.herokuapp.com';
 export const DEFAULT_ID = 'default';
+
+interface IBroadcastOptions {
+  echo?: boolean;
+  from?: string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -19,7 +24,7 @@ export class PeerToPeerService {
   alias = DEFAULT_ID;
 
   private peer: Peer | null = null;
-  private connections: {[key: string]: Peer.DataConnection} = {};
+  protected connections: {[key: string]: Peer.DataConnection} = {};
 
   constructor() {
   }
@@ -89,19 +94,25 @@ export class PeerToPeerService {
     return Object.keys(this.connections)[0];
   }
 
-  broadcastAndToSelf(data: MessageData, from: string | null = null) {
-    const message = this.broadcast(data, from);
+  broadcastAndToSelf(data: MessageData, options?: IBroadcastOptions) {
+    const message = this.broadcast(data, options);
     this.messageSubject.next(message);
     return message;
   }
 
-  broadcast(data: MessageData, from: string | null = null) {
+  broadcast(data: MessageData, options?: IBroadcastOptions) {
+    const from = options?.from ?? this.getId();
     const message: IMessage = {
-      from: from ?? this.peer?.id ?? DEFAULT_ID,
+      from,
       type: 'BROADCAST',
       data: data
     };
+    if (options?.echo) {
+      message.echoBroadcast = true;
+    }
     for (const key in this.connections) {
+      console.log(`CONSIDER SENDING TO ${key}`, message)
+      if (key == from && !options?.echo) continue;
       this.sendMessage(key, message);
     }
     return message;
@@ -110,7 +121,7 @@ export class PeerToPeerService {
   sendSingleMessage(to: string, data: MessageData) {
     if (!(to in this.connections)) return;
     const message: IMessage = {
-      from: this.peer!.id,
+      from: this.getId(),
       type: 'SINGLE',
       data: data
     }
@@ -136,7 +147,7 @@ export class PeerToPeerService {
   private connectToPeerServer() {
     return new Promise((resolve, reject) => {
       this.peer!.on('open', (id: string) => {
-        debug(`I am connected to peer server as (${this.peer!.id})`);
+        debug(`I am connected to peer server as (${this.getId()})`);
         resolve(true);
       });
       this.peer!.on('error', (err) => {
@@ -182,16 +193,16 @@ export class PeerToPeerService {
     this.isConnected = false;
   }
 
-  private messageHandler(message: IMessage) {
+  protected messageHandler(message: IMessage) {
     if (this.isHost && message.type === 'BROADCAST') {
-      this.broadcast(message.data, message.from);
+      this.broadcast(message.data, {from: message.from, echo: message.echoBroadcast});
     }
     this.messageSubject.next(message);
   }
 
   private sendMessage(to: string, message: IMessage) {
     if (!(to in this.connections)) return;
-    console.log("SEND MESSAGE", message);
+    debug(`SEND MESSAGE TO ${to}`, message);
     this.connections[to].send(message);
   }
 }

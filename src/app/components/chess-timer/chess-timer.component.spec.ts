@@ -1,4 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ReplaceNullWithEmptyPipe } from 'src/app/pipes/replace-null-with-empty.pipe';
+import { ChessStatusService } from 'src/app/services/chess-status.service';
+import { ChessTimerFormatPipe } from 'src/app/services/chess-timer-format.pipe';
+import { ChessTimerService } from 'src/app/services/chess-timer.service';
 
 import { ChessTimerComponent } from './chess-timer.component';
 
@@ -8,7 +12,8 @@ describe('ChessTimerComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ChessTimerComponent ]
+      declarations: [ ChessTimerComponent, ReplaceNullWithEmptyPipe, ChessTimerFormatPipe ],
+      providers: [ChessTimerService, ChessStatusService]
     })
     .compileComponents();
   });
