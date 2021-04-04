@@ -3,7 +3,7 @@ import { Color } from 'chessground/types';
 import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { getDefaultEngineSettings, getDefaultNames, IEngineSettings, IPlayerTeam, PlayerTeamDict } from '../components/chess-board/helpers/PlayerTeamHelper';
-import { getEngineName } from '../shared/engine/engine-helpers';
+import { getEngineName, getNewCPUId } from '../shared/engine/engine-helpers';
 import { IInfo, IInfoOptionals, IMessage, MessageData } from '../shared/peer-to-peer/defs';
 import { getDefaultSharedData, ISharedData, ISharedDataOptionals } from '../shared/peer-to-peer/shared-data';
 import { merge } from '../shared/util/helpers';
@@ -131,7 +131,7 @@ export class SharedDataService {
   }
 
   addCPU(team: Color) {
-    return this.setEngineSettings(this.getNewCPUId(), getDefaultEngineSettings(), team);
+    return this.setEngineSettings(getNewCPUId(this.names.getValue(), this.peerToPeerService.getId()), getDefaultEngineSettings(), team);
   }
 
   setIsReady(isReady: boolean) {
@@ -167,18 +167,6 @@ export class SharedDataService {
     }
     this.setSharedData({matchCount: this.sharedData.getValue().matchCount + 1});
     this.names.next(names);
-  }
-
-  private getNewCPUId() {
-    const keys = Object.keys(this.names.getValue());
-    console.log(keys);
-    let id = this.peerToPeerService.getId();
-    let ct = 0;
-    while (keys.includes(id)) {
-      id = `${this.peerToPeerService.getId()}_sf${ct}`;
-      ct++;
-    }
-    return id;
   }
 
   private broadcastNamesMessage(data: IInfoOptionals, nameOverride: string | null = null) {
