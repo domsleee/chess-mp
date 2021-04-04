@@ -4,7 +4,7 @@ import { interval, ReplaySubject, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { IMessage, MessageData } from '../shared/peer-to-peer/defs';
 
-const debug = (...args: any[]) => {}//console.log;
+const debug = /*(...args: any[]) => {}*/console.log;
 const TIMEOUT_MS = 5000;
 const HEROKU_HOST = 'heroku-chess-123.herokuapp.com';
 export const DEFAULT_ID = 'default';
@@ -111,7 +111,6 @@ export class PeerToPeerService {
       message.echoBroadcast = true;
     }
     for (const key in this.connections) {
-      console.log(`CONSIDER SENDING TO ${key}`, message)
       if (key == from && !options?.echo) continue;
       this.sendMessage(key, message);
     }

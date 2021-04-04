@@ -11,7 +11,7 @@ export class ChessTimerFormatPipe implements PipeTransform {
     if (val == undefined) return value;
 
     if (val > 10) {
-      return Duration.fromMillis(val*1000).toFormat('mm:ss');
+      return Duration.fromMillis((val+0.99)*1000).toFormat('mm:ss');
     }
     return Duration.fromMillis(Math.round(val*100)*10).toFormat('mm:ss.SS').slice(0, 8);
   }

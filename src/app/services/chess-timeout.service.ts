@@ -11,7 +11,7 @@ const HOST_TIMEOUT_DELAY = 1000;
 
 @Injectable()
 export class ChessTimeoutService implements OnDestroy {
-  private timerSubscription;
+  private timerSubscription: Subscription;
   private hostTimeoutDeclSubscription?: Subscription;
   private timeout = new Subject<Color>();
 
@@ -35,6 +35,7 @@ export class ChessTimeoutService implements OnDestroy {
 
   ngOnDestroy() {
     this.timerSubscription.unsubscribe();
+    this.hostTimeoutDeclSubscription?.unsubscribe();
   }
 
   cancelHostTimeoutDeclaration() {

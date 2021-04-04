@@ -74,6 +74,10 @@ export class ChessBoardComponent implements OnInit, OnDestroy {
     });
   }
 
+  ngAfterContentInit() {
+    this.setupTimer();
+  }
+
   ngOnDestroy() {
     this.cg.destroy();
     this.chessTimerSubscription.unsubscribe();
@@ -119,8 +123,6 @@ export class ChessBoardComponent implements OnInit, OnDestroy {
       events: { move: (orig, dest) => this.cgMoveHandler(orig, dest, 'q') },
     });
 
-    this.setupTimer();
-
     if (this.myTeam === 'black') {
       this.cg.toggleOrientation();
     }
@@ -137,7 +139,6 @@ export class ChessBoardComponent implements OnInit, OnDestroy {
     const timerSettings = sharedData.timerSettings;
     if (timerSettings == undefined) throw new Error('timer settings shoudl not be undefined');
     this.chessTimerService.setupTimer(timerSettings, this.chessStatusService.getColor());
-    this.chessTimerService.startTimer();
   }
 
   private setupDebug() {
@@ -153,6 +154,10 @@ export class ChessBoardComponent implements OnInit, OnDestroy {
 
   private cgMoveHandler(orig: Key, dest: Key, promotion?: Exclude<ChessJS.PieceType, 'p'>) {
     this.movePieceWithEnPassantAndPromotion({from: orig, to: dest, promotion});
+
+    if (this.chessStatusService.getNumMoves() === 2) {
+      this.chessTimerService.startTimer();
+    }
 
     this.chessTimerService.setTurn(this.chessStatusService.getColor());
     this.chessTimeoutService.cancelHostTimeoutDeclaration();
@@ -242,6 +247,7 @@ export class ChessBoardComponent implements OnInit, OnDestroy {
   private processMoveFromExternal(move: ChessJS.ShortMove, claimedTime?: number) {
     if (claimedTime !== undefined) {
       this.chessTimerService.setTimeForCurrentTurn(claimedTime);
+      this.chessTimerService.pauseTimer();
     }
     this.resetHistoryIfRequired();
     this.cg.move(move.from, move.to);

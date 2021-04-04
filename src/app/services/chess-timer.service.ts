@@ -22,7 +22,7 @@ export class ChessTimerService implements OnDestroy {
     msWhenLastChanged: -1
   };
 
-  private paused = false;
+  private paused = true;
   private myTimer = timer(33, -1);
   private whiteIncrement = 0;
   private blackIncrement = 0;
@@ -32,7 +32,7 @@ export class ChessTimerService implements OnDestroy {
   }
 
   ngOnDestroy() {
-    this.destroyTimerIfExists();
+    this.myTimerSubscription?.unsubscribe();
   }
 
   getTimerObservable(color: Color) {
@@ -70,22 +70,8 @@ export class ChessTimerService implements OnDestroy {
 
   startTimer() {
     this.timerState.msWhenLastChanged = Date.now();
-    this.destroyTimerIfExists();
-    this.myTimerSubscription = this.myTimer.subscribe(t => {
-      if (this.paused) return;
-      const currentMs = Date.now();
-      const diff = currentMs - this.timerState.msWhenLastChanged;
-
-      const timerBehaviourSubject = this.timers[this.timerState.turn];
-      if (timerBehaviourSubject.getValue() !== 0) {
-        timerBehaviourSubject.next(Math.max(0, timerBehaviourSubject.getValue() - diff / 1000));
-        if (timerBehaviourSubject.getValue() === 0) {
-          this.timeout.next(this.timerState.turn);
-        }
-      }
-
-      this.timerState.msWhenLastChanged = currentMs;
-    })
+    this.unpauseTimer();
+    this.resetTimer();
   }
 
   setTimeForCurrentTurn(time: number) {
@@ -98,14 +84,39 @@ export class ChessTimerService implements OnDestroy {
     this.paused = true;
   }
 
-  setTurn(turn: Color) {
-    if (turn == this.timerState.turn) return;
-    this.incrementTimerForCurrentTurn(this.timerState.turn === 'white' ? this.whiteIncrement : this.blackIncrement);
-    this.timerState.turn = turn;
+  unpauseTimer() {
+    this.paused = false;
   }
 
-  private destroyTimerIfExists() {
+  setTurn(turn: Color) {
+    if (this.timerState.turn == turn) {
+      throw new Error('Tried to set the same turn?');
+    }
+    if (!this.paused) {
+      this.incrementTimerForCurrentTurn(this.timerState.turn === 'white' ? this.whiteIncrement : this.blackIncrement);
+    }
+    this.timerState.turn = turn;
+    this.resetTimer();
+  }
+
+  private resetTimer() {
     this.myTimerSubscription?.unsubscribe();
+    this.myTimerSubscription = this.myTimer.subscribe(this.tickHandler.bind(this));
+  }
+
+  private tickHandler() {
+    if (this.paused) return;
+    const currentMs = Date.now();
+    const diff = currentMs - this.timerState.msWhenLastChanged;
+
+    const timerBehaviourSubject = this.timers[this.timerState.turn];
+    if (timerBehaviourSubject.getValue() !== 0) {
+      timerBehaviourSubject.next(Math.max(0, timerBehaviourSubject.getValue() - diff / 1000));
+      if (timerBehaviourSubject.getValue() === 0) {
+        this.timeout.next(this.timerState.turn);
+      }
+    }
+    this.timerState.msWhenLastChanged = currentMs;
   }
 
   private incrementTimerForCurrentTurn(ms: number) {
