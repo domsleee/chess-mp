@@ -1,4 +1,5 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { IPlayerTeam } from 'src/app/components/chess-board/helpers/PlayerTeamHelper';
 import { SharedDataService } from 'src/app/services/shared-data.service';
 
@@ -7,10 +8,13 @@ import { SharedDataService } from 'src/app/services/shared-data.service';
   templateUrl: './player-config.component.html',
   styleUrls: ['./player-config.component.scss']
 })
-export class PlayerConfigComponent implements OnInit {
+export class PlayerConfigComponent implements OnInit, OnDestroy {
   @Input() playerId: string = '';
-  @Input() player: IPlayerTeam | null = null;
-  
+  @Input() playerz: IPlayerTeam | null = null;
+  player: IPlayerTeam | null = null;
+
+  namesSubscription: Subscription;
+
   updateTimeForMove = (val: number) => this.sharedDataService.setEngineSettings(this.playerId, {timeForMove: val});
   updateElo = (val: number) => this.sharedDataService.setEngineSettings(this.playerId, {elo: val});
   updateSkillLevel = (val: number) => this.sharedDataService.setEngineSettings(this.playerId, {skillLevel: val});
@@ -18,8 +22,16 @@ export class PlayerConfigComponent implements OnInit {
   roundTo100 = (val: number) => Math.round(val/100) * 100;
   roundTo50 = (val: number) => Math.round(val/50) * 50;
 
-  constructor(private sharedDataService: SharedDataService) { }
+  constructor(private sharedDataService: SharedDataService) {
+    this.namesSubscription = this.sharedDataService.getNameObservable().subscribe(names => {
+      this.player = names[this.playerId];
+    })
+  }
 
   ngOnInit(): void {
+  }
+
+  ngOnDestroy() {
+    this.namesSubscription.unsubscribe();
   }
 }

@@ -43,7 +43,10 @@ export class SharedDataService {
     this.messageSubscription.unsubscribe();
   }
 
-  getNameObservable(color: Color) {
+  getNameObservable(color?: Color) {
+    if (color == undefined) {
+      return this.names.asObservable();
+    }
     return this.nameByTeamObservable[color];
   }
 
@@ -54,7 +57,6 @@ export class SharedDataService {
   private keyValueFilter(names: PlayerTeamDict, teamName: Color): PlayerTeamDict {
     return Object.fromEntries(Object.entries(names).filter(([k, v]) => v.team == teamName));
   }
-
 
   private processMessage(message: IMessage) {
     if (message.data.command === 'INFO') {
