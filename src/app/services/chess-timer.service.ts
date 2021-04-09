@@ -23,7 +23,7 @@ export class ChessTimerService implements OnDestroy {
   };
 
   private paused = true;
-  private myTimer = timer(33, -1);
+  private myTimer = timer(33, 33);
   private whiteIncrement = 0;
   private blackIncrement = 0;
   private myTimerSubscription?: Subscription;
@@ -97,6 +97,7 @@ export class ChessTimerService implements OnDestroy {
     }
     this.timerState.turn = turn;
     this.resetTimer();
+    this.timerState.msWhenLastChanged = Date.now();
   }
 
   private resetTimer() {

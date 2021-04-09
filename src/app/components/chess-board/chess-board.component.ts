@@ -160,6 +160,9 @@ export class ChessBoardComponent implements OnInit, OnDestroy {
     }
 
     this.chessTimerService.setTurn(this.chessStatusService.getColor());
+    if (this.chessStatusService.getNumMoves() >= 2) {
+      this.chessTimerService.unpauseTimer();
+    }
     this.chessTimeoutService.cancelHostTimeoutDeclaration();
     this.setBoardMouseEvents();
     this.cg.playPremove();
