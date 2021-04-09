@@ -10,7 +10,6 @@ import { SharedDataService } from 'src/app/services/shared-data.service';
 })
 export class PlayerConfigComponent implements OnInit, OnDestroy {
   @Input() playerId: string = '';
-  @Input() playerz: IPlayerTeam | null = null;
   player: IPlayerTeam | null = null;
 
   namesSubscription: Subscription;
@@ -25,10 +24,11 @@ export class PlayerConfigComponent implements OnInit, OnDestroy {
   constructor(private sharedDataService: SharedDataService) {
     this.namesSubscription = this.sharedDataService.getNameObservable().subscribe(names => {
       this.player = names[this.playerId];
-    })
+    });
   }
 
   ngOnInit(): void {
+    this.player = this.sharedDataService.getPlayerSync(this.playerId);
   }
 
   ngOnDestroy() {

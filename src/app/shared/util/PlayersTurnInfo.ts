@@ -1,6 +1,6 @@
 
 import { Color } from 'chessground/types';
-import { PlayerTeamDict } from '../../components/chess-board/helpers/PlayerTeamHelper';
+import { getSortedTeamKeys, PlayerTeamDict } from '../../components/chess-board/helpers/PlayerTeamHelper';
 
 export class PlayersTurnInfo {
   readonly players: {
@@ -10,9 +10,10 @@ export class PlayersTurnInfo {
 
   constructor(private names: PlayerTeamDict, private blackWentFirst = false) {
     if (names != null && Object.keys(names).length > 0) {
+      const sortedKeys = getSortedTeamKeys(names);
       this.players = {
-        'white': Object.keys(names).filter(t => names[t].team == 'white').sort(),
-        'black': Object.keys(names).filter(t => names[t].team == 'black').sort(),
+        'white': sortedKeys.filter(t => names[t].team == 'white'),
+        'black': sortedKeys.filter(t => names[t].team == 'black'),
       }
     } else {
       throw new Error('can this happen?');

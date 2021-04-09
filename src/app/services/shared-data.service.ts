@@ -10,7 +10,7 @@ import { merge } from '../shared/util/helpers';
 import { invertColor } from '../shared/util/play';
 import { PeerToPeerService } from './peer-to-peer.service';
 
-const debug = (...args: any[]) => {}//console.log;
+const debug = console.log;
 
 @Injectable({
   providedIn: 'root'
@@ -132,6 +132,10 @@ export class SharedDataService {
     return this.broadcastNamesMessage({team: team});
   }
 
+  setSortNumber(playerId: string, sortNumber: number) {
+    return this.broadcastNamesMessage({sortNumber, idOverride: playerId}, this.getPlayerSync(playerId).name);
+  }
+
   addCPU(team: Color) {
     return this.setEngineSettings(getNewCPUId(this.names.getValue(), this.peerToPeerService.getId()), getDefaultEngineSettings(), team);
   }
@@ -145,6 +149,7 @@ export class SharedDataService {
   setEngineSettings(playerId: string, engineSettings: IEngineSettings, team: Color | null = null) {
     const infoOptionals: IInfoOptionals = {
       idOverride: playerId,
+      sortNumber: 0,
       engineSettings: engineSettings
     }
     if (team != null) {

@@ -57,6 +57,7 @@ export class MpLobbyComponent implements OnInit {
 
   ngOnInit(): void {
     this.setTeam('white');
+    this.sharedDataService.setSortNumber(this.peerToPeerService.getId(), 0);
   }
 
   ngOnDestroy() {

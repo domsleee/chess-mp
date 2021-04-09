@@ -1,7 +1,7 @@
 import { IGetNextMove } from "./GetNextMove/IGetNextMove";
 import { NullGetNextMove } from "./GetNextMove/NullGetNextMove";
 import { StockfishGetNextMove } from "./GetNextMove/StockfishGetNextMove";
-import { IPlayerTeam, PlayerTeamDict } from "./PlayerTeamHelper";
+import { getSortedTeamKeys, IPlayerTeam, PlayerTeamDict } from "./PlayerTeamHelper";
 
 export class MoveHandlerResolver {
   private moveHandlers: {
@@ -22,7 +22,7 @@ export class MoveHandlerResolver {
       return [new NullGetNextMove()];
     }
     
-    return keys.sort().map(key => this.buildMoveHandler(teamDict[key]));
+    return getSortedTeamKeys(teamDict).map(key => this.buildMoveHandler(teamDict[key]));
   }
 
   private buildMoveHandler(player: IPlayerTeam): IGetNextMove {

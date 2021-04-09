@@ -3,13 +3,19 @@
 <button mat-button (click)="addCPU()">Add CPU</button>
 
 <mat-accordion>
-  <mat-expansion-panel *ngFor="let item of (teamDict$ | async) | keyvalue; trackBy: trackByFn" hideToggle [disabled]="!item.value.engineSettings" (destroyed)="onDestroy()">
-    <mat-expansion-panel-header>
+  <mat-expansion-panel *ngFor="let key of sortedKeys" hideToggle [disabled]="!teamDict[key].engineSettings" (destroyed)="onDestroy()">
+    <mat-expansion-panel-header appPanelHeaderDisableEvents>
       <mat-panel-title>
-        {{item.value.name}}
+        {{teamDict[key].name}}
+
+      <app-editable-span
+        style="position:absolute;right:10px;"
+        [setNumber]="setSortNumberFns[key]"
+        [value]="teamDict[key].sortNumber"
+      ></app-editable-span>
       </mat-panel-title>
     </mat-expansion-panel-header>
 
-    <app-player-config [playerId]="item.key"></app-player-config>
+    <app-player-config [playerId]="key"></app-player-config>
   </mat-expansion-panel>
 </mat-accordion>

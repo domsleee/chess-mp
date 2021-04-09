@@ -36,6 +36,8 @@ import { ChessBoardContainerComponent } from './components/chess-board-container
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RematchButtonComponent } from './components/rematch-button/rematch-button.component';
 import { TextareaSelectallComponent } from './components/textarea-selectall/textarea-selectall.component';
+import { EditableSpanComponent } from './components/editable-span/editable-span.component';
+import { PanelHeaderDisableEventsDirective } from './directives/panel-header-disable-events.directive';
 
 
 
@@ -60,7 +62,9 @@ import { TextareaSelectallComponent } from './components/textarea-selectall/text
     AnalyseButtonComponent,
     ChessBoardContainerComponent,
     RematchButtonComponent,
-    TextareaSelectallComponent
+    TextareaSelectallComponent,
+    EditableSpanComponent,
+    PanelHeaderDisableEventsDirective
   ],
   imports: [
     BrowserModule,

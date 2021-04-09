@@ -42,6 +42,7 @@ export interface IInfoOptionals {
   idOverride?: string;
   engineSettings?: IEngineSettings;
   rematchRequested?: boolean;
+  sortNumber?: number;
 }
 
 
