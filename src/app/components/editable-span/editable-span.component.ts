@@ -39,14 +39,6 @@ export class EditableSpanComponent implements OnInit {
   onFocus(e: Event) {
     this.document.addEventListener('keydown', this.enterKeyHandler);
   }
-
-  onMouseDown(e: Event) {
-    this.document.addEventListener('mouseup', (e: MouseEvent) => {
-      e.preventDefault();
-      e.stopPropagation(); 
-    }, {once: true});
-  }
-
   
   private onSpanValueChange(v: any) {
     debug("SPAN VALUE CHANGE", v);
