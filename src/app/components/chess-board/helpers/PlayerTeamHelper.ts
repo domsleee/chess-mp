@@ -1,6 +1,7 @@
 import { Color } from "chessground/types";
 import { DEFAULT_ID } from "src/app/services/peer-to-peer.service";
 import { getEngineName } from "src/app/shared/engine/engine-helpers";
+import { environment } from "src/environments/environment";
 
 export function getDefaultNames() {
   const engineSettings: IEngineSettings = getDefaultEngineSettings();
@@ -8,6 +9,18 @@ export function getDefaultNames() {
     ...engineSettings,
     elo: 1350
   };
+
+  if (false && !environment.production) {
+    const d: any = {};
+    for (let i = 0; i < 20; ++i) {
+      const s = 'abc' + i.toString();
+      d[s] = createPlayerTeam(s, 'black', engineSettings)
+    }
+    return {
+      [DEFAULT_ID]: createPlayerTeam('default'),
+      ...d
+    }
+  }
 
   return {
     [DEFAULT_ID]: createPlayerTeam('default'),
