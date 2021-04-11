@@ -57,8 +57,8 @@ export function toDests(chess: ChessInstance): Map<Key, Key[]> {
 }
 
 export function playOtherSide(cg: Api, chess: ChessInstance) {
-  return (orig: Key, dest: Key) => {
-    chess.move({ from: orig as Square, to: dest as Square });
+  return (from: Key, to: Key) => {
+    chess.move({ from: from as Square, to: to as Square });
     setMovableForCurrentColour(cg, chess);
   };
 }

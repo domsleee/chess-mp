@@ -1,4 +1,4 @@
-import { Component, HostListener, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterContentInit, AfterViewInit, Component, HostListener, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Chessground } from 'chessground';
 import { NgxChessgroundComponent, NgxChessgroundModule } from 'ngx-chessground';
 import * as ChessJS from 'chess.js';
@@ -22,7 +22,7 @@ export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
   styleUrls: ['./chess-board.component.scss'],
   providers: [ChessStatusService, ChessTimerService, ChessTimeoutService]
 })
-export class ChessBoardComponent implements OnInit, OnDestroy {
+export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit, AfterViewInit {
   readonly myTeam: Color;
 
   private moveHandlerResolver!: MoveHandlerResolver; // todo: service?
@@ -35,12 +35,14 @@ export class ChessBoardComponent implements OnInit, OnDestroy {
 
   private cg!: Api;
 
-  constructor(private chessTimerService: ChessTimerService,
+  constructor(
+    private chessTimerService: ChessTimerService,
     private chessStatusService: ChessStatusService,
     private peerToPeerService: PeerToPeerService,
     private sharedDataService: SharedDataService,
     private audioService: AudioService,
-    private chessTimeoutService: ChessTimeoutService) {
+    private chessTimeoutService: ChessTimeoutService
+  ) {
     this.isSinglePlayer = !this.peerToPeerService.isConnected;
     this.myTeam = this.chessStatusService.playersTurnInfo.getTeam(this.peerToPeerService.getId());
   }
@@ -63,7 +65,11 @@ export class ChessBoardComponent implements OnInit, OnDestroy {
         if (message.data.matchId !== this.sharedDataService.getSharedDataSync().matchCount) {
           return;
         }
-        this.processMoveFromExternal({from: message.data.orig, to: message.data.dest, promotion: message.data.promotion}, message.data.claimedTime);
+        this.processMoveFromExternal({
+          from: message.data.from,
+          to: message.data.to,
+          promotion: message.data.promotion
+        }, message.data.claimedTime);
       }
       else if (message.data.command === 'DECLARE_TIMEOUT') {
         if (message.data.matchId !== this.sharedDataService.getSharedDataSync().matchCount) {
@@ -86,17 +92,16 @@ export class ChessBoardComponent implements OnInit, OnDestroy {
 
   @HostListener('window:keydown', ['$event'])
   keyEvent(event: KeyboardEvent) {
-    if (event.key === "ArrowLeft") {
+    if (event.key === 'ArrowLeft') {
       this.navigatePosition(-1);
     }
 
-    if (event.key === "ArrowRight") {
+    if (event.key === 'ArrowRight') {
       this.navigatePosition(1);
     }
   }
 
   private run(el: any) {
-    console.log("RUN");
     this.cg = Chessground(el, {
       turnColor: 'white',
       animation: {
@@ -137,7 +142,6 @@ export class ChessBoardComponent implements OnInit, OnDestroy {
   private setupTimer() {
     const sharedData = this.sharedDataService.getSharedDataSync();
     const timerSettings = sharedData.timerSettings;
-    if (timerSettings == undefined) throw new Error('timer settings shoudl not be undefined');
     this.chessTimerService.setupTimer(timerSettings, this.chessStatusService.getColor());
   }
 
@@ -152,8 +156,8 @@ export class ChessBoardComponent implements OnInit, OnDestroy {
     this.chessStatusService.setFen(fen);
   }
 
-  private cgMoveHandler(orig: Key, dest: Key, promotion?: Exclude<ChessJS.PieceType, 'p'>) {
-    this.movePieceWithEnPassantAndPromotion({from: orig, to: dest, promotion});
+  private cgMoveHandler(from: Key, to: Key, promotion?: Exclude<ChessJS.PieceType, 'p'>) {
+    this.movePieceWithEnPassantAndPromotion({from, to, promotion});
 
     if (this.chessStatusService.getNumMoves() === 2) {
       this.chessTimerService.startTimer();
@@ -182,8 +186,8 @@ export class ChessBoardComponent implements OnInit, OnDestroy {
       this.peerToPeerService.broadcast({
         command: 'MOVE',
         numMoves: this.chessStatusService.getNumMoves(),
-        orig: move.from,
-        dest: move.to,
+        from: move.from,
+        to: move.to,
         matchId: this.sharedDataService.getSharedDataSync().matchCount,
         promotion: move.promotion,
         claimedTime: this.chessTimerService.getCurrentTime()

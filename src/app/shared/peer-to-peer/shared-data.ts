@@ -2,7 +2,7 @@ import { mateInTwoFen } from "../fen";
 
 export interface ISharedData {
   matchCount: number;
-  timerSettings?: ITimerSettings;
+  timerSettings: ITimerSettings;
   startFen?: string;
 }
 

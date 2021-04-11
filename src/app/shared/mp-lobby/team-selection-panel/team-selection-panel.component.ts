@@ -23,8 +23,10 @@ export class TeamSelectionPanelComponent implements OnInit, OnDestroy {
   setSortNumberFns: {[n: string]: (n: number) => void} = {};
 
 
-  constructor(private sharedDataService: SharedDataService,
-    private peerToPeerService: PeerToPeerService) {
+  constructor(
+    private sharedDataService: SharedDataService,
+    private peerToPeerService: PeerToPeerService
+  ) {
   }
 
   ngOnInit(): void {
@@ -38,9 +40,9 @@ export class TeamSelectionPanelComponent implements OnInit, OnDestroy {
         this.setSortNumberFns[key] = (n: number) => {
           console.log("setSortNumberFns", key, n);
           this.sharedDataService.setSortNumber(key, n);
-        }
+        };
       }
-    })
+    });
   }
 
   ngOnDestroy() {

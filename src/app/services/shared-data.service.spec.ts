@@ -66,6 +66,8 @@ describe('sharedDataService', () => {
   });
 
   it('concurrency with multi-writer on PLAYER data', () => {
+    service1.broadcastNamesMessage({engineSettings: {timeForMove: 51}}, {id: 'client1Id'});
+    jasmine.clock().tick(BROADCAST_FINISH_DELAY);
     service1.setEngineSettings('client1Id', {timeForMove: 50});
     jasmine.clock().tick(BROADCAST_FINISH_DELAY);
 

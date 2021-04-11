@@ -1,7 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { Observable } from 'rxjs/internal/Observable';
-import { map } from 'rxjs/operators';
 import { ChessBoardResetService } from 'src/app/services/chess-board-reset.service';
 import { PeerToPeerService } from 'src/app/services/peer-to-peer.service';
 import { SharedDataService } from 'src/app/services/shared-data.service';
@@ -12,7 +10,7 @@ import { default as sleep } from 'sleep-promise';
   templateUrl: './rematch-button.component.html',
   styleUrls: ['./rematch-button.component.scss']
 })
-export class RematchButtonComponent implements OnInit {
+export class RematchButtonComponent implements OnInit, OnDestroy {
   private numNamesSubscription: Subscription;
   private namesSubscription: Subscription;
 
@@ -59,6 +57,4 @@ export class RematchButtonComponent implements OnInit {
       this.chessBoardResetService.doReset();
     }
   }
-
-
 }

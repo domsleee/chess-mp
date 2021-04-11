@@ -50,7 +50,7 @@ export class SharedDataService implements OnDestroy {
   }
 
   getNames(): Observable<PlayerTeamDict> {
-    return this.getNameObservable();
+    return this.names.asObservable();
   }
 
   getNamesSync(): ReadonlyDeep<PlayerTeamDict> {
@@ -62,9 +62,10 @@ export class SharedDataService implements OnDestroy {
   }
 
   getSharedDataSync(): ReadonlyDeep<ISharedData> {
-    return this.getSharedDataSync();
+    return this.sharedData.getValue();
   }
 
+  // todo: move these 3 functions
   getNameObservable(color?: Color): Readonly<Observable<PlayerTeamDict>> {
     if (color === undefined) {
       return this.names.asObservable();
@@ -145,15 +146,7 @@ export class SharedDataService implements OnDestroy {
     }, {echo: true});
   }
 
-  filterDict<T>(dict: T, fn: (entry: [string, any]) => boolean): Partial<T> {
-    return Object.fromEntries(Object.entries(dict).filter(fn)) as Partial<T>;
-  }
-
-  getPlayer(playerId: string): Observable<IPlayerTeam> {
-    return this.names.pipe(map(t => t[playerId]));
-  }
-
-  getPlayerSync(playerId: string): IPlayerTeam {
+  getPlayerSync(playerId: string): Readonly<IPlayerTeam> {
     return this.names.getValue()[playerId];
   }
 
@@ -221,7 +214,7 @@ export class SharedDataService implements OnDestroy {
     this.names.next(names);
   }
 
-  private broadcastNamesMessage(data: PartialDeep<IPlayerTeam>, overrides?: {id: string}) {
+  broadcastNamesMessage(data: PartialDeep<IPlayerTeam>, overrides?: {id: string}) {
     const message: MessageData = {
       command: 'INFO',
       player: data,

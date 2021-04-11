@@ -12,9 +12,9 @@ export class PlayersTurnInfo {
     if (names != null && Object.keys(names).length > 0) {
       const sortedKeys = getSortedTeamKeys(names);
       this.players = {
-        'white': sortedKeys.filter(t => names[t].team == 'white'),
-        'black': sortedKeys.filter(t => names[t].team == 'black'),
-      }
+        'white': sortedKeys.filter(t => names[t].team === 'white'),
+        'black': sortedKeys.filter(t => names[t].team === 'black'),
+      };
     } else {
       throw new Error('can this happen?');
     }
@@ -22,7 +22,7 @@ export class PlayersTurnInfo {
 
   getTeam(playerId: string): Color {
     console.log(this.players, playerId);
-    return this.players['white'].filter(t => t == playerId).length === 1 ? 'white' : 'black';
+    return this.players['white'].filter(t => t === playerId).length === 1 ? 'white' : 'black';
   }
 
   isPlayersTurnNext(moveNumber: number, playerId: string) {
@@ -30,17 +30,17 @@ export class PlayersTurnInfo {
   }
 
   isPlayersTurn(moveNumber: number, playerId: string) {
-    return this.getPlayer(moveNumber) == playerId;
+    return this.getPlayer(moveNumber) === playerId;
   }
 
   getPlayer(moveNumber: number) {
-    const moveColour: Color = (moveNumber + (this.blackWentFirst ? 1 : 0)) % 2 == 0 ? 'white' : 'black';
+    const moveColour: Color = (moveNumber + (this.blackWentFirst ? 1 : 0)) % 2 === 0 ? 'white' : 'black';
     const teamsTurn = moveColour;
     const playersInTeam = this.players[teamsTurn].length;
-    return this.players[teamsTurn][Math.floor(moveNumber/2) % playersInTeam];
+    return this.players[teamsTurn][Math.floor(moveNumber / 2) % playersInTeam];
   }
 
   didMoveBelongToPlayer(moveNumber: number, playerId: string) {
-    return this.names != null && this.names[this.getPlayer(moveNumber)].owner == playerId;
+    return this.names != null && this.names[this.getPlayer(moveNumber)].owner === playerId;
   }
 }
