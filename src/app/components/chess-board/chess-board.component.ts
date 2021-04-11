@@ -4,11 +4,11 @@ import { NgxChessgroundComponent, NgxChessgroundModule } from 'ngx-chessground';
 import * as ChessJS from 'chess.js';
 import { OnePlayerBoardChanger } from './helpers/OnePlayerBoardChanger';
 import { Api } from 'chessground/api';
-import { Color, Key, Piece, PiecesDiff } from 'chessground/types';
+import { Color, Key } from 'chessground/types';
 import { MoveHandlerResolver } from './helpers/MoveHandlerResolver';
 import { ChessTimerService } from 'src/app/services/chess-timer.service';
 import { ChessStatusService } from 'src/app/services/chess-status.service';
-import { DEFAULT_ID, PeerToPeerService } from 'src/app/services/peer-to-peer.service';
+import { PeerToPeerService } from 'src/app/services/peer-to-peer.service';
 import { SharedDataService } from 'src/app/services/shared-data.service';
 import { AudioService } from 'src/app/services/audio.service';
 import { promoteIfNecessary, removeEnPassantIfNecessary } from './helpers/ChessgroundHelpers';
@@ -187,7 +187,7 @@ export class ChessBoardComponent implements OnInit, OnDestroy {
         matchId: this.sharedDataService.sharedData.getValue().matchCount,
         promotion: move.promotion,
         claimedTime: this.chessTimerService.getCurrentTime()
-      })
+      });
     }
 
     const resMove = this.chessStatusService.move(move);
@@ -265,7 +265,7 @@ export class ChessBoardComponent implements OnInit, OnDestroy {
     else if (offset > 0 && this.historicalMoveNumber + offset <= this.chessStatusService.getNumMoves()) {
       this.historicalMoveNumber += offset;
       this.setCgForHistoricalMove(this.historicalMoveNumber);
-      if (this.historicalMoveNumber == this.chessStatusService.getNumMoves()) {
+      if (this.historicalMoveNumber === this.chessStatusService.getNumMoves()) {
         this.setBoardMouseEventMovable();
       }
     }
@@ -274,7 +274,7 @@ export class ChessBoardComponent implements OnInit, OnDestroy {
   private setCgForHistoricalMove(moveNumber: number, movingBackward: boolean = false) {
     const fen = this.chessStatusService.getFenForMove(moveNumber);
     this.cg.set({fen});
-    if (moveNumber == 0) {
+    if (moveNumber === 0) {
       this.cg.set({lastMove: undefined});
     } else {
       const lastMove = this.chessStatusService.getPreviousMoveForMove(moveNumber);
@@ -285,7 +285,7 @@ export class ChessBoardComponent implements OnInit, OnDestroy {
     }
     this.cg.set({
       check: this.chessStatusService.isInCheck(moveNumber) ? this.chessStatusService.getColor() : false
-    })
+    });
     this.playSoundForMoveNumber(moveNumber + (movingBackward ? 1 : 0));
   }
 
@@ -296,7 +296,7 @@ export class ChessBoardComponent implements OnInit, OnDestroy {
   }
 
   private resetHistoryIfRequired() {
-    if (this.historicalMoveNumber != this.chessStatusService.getNumMoves()) {
+    if (this.historicalMoveNumber !== this.chessStatusService.getNumMoves()) {
       this.historicalMoveNumber = this.chessStatusService.getNumMoves();
       const oldAnimation = this.cg.state.animation.enabled;
       this.cg.set({animation: {enabled: false}});
