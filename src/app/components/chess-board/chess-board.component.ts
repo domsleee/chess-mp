@@ -60,13 +60,13 @@ export class ChessBoardComponent implements OnInit, OnDestroy {
 
     this.peerToPeerSubscription = this.peerToPeerService.messageSubject.subscribe(message => {
       if (message.data.command === 'MOVE') {
-        if (message.data.matchId !== this.sharedDataService.sharedData.getValue().matchCount) {
+        if (message.data.matchId !== this.sharedDataService.getSharedDataSync().matchCount) {
           return;
         }
         this.processMoveFromExternal({from: message.data.orig, to: message.data.dest, promotion: message.data.promotion}, message.data.claimedTime);
       }
       else if (message.data.command === 'DECLARE_TIMEOUT') {
-        if (message.data.matchId !== this.sharedDataService.sharedData.getValue().matchCount) {
+        if (message.data.matchId !== this.sharedDataService.getSharedDataSync().matchCount) {
           return;
         }
         this.chessStatusService.setTimeout(message.data.color);
@@ -113,7 +113,7 @@ export class ChessBoardComponent implements OnInit, OnDestroy {
       },
     });
 
-    const sharedData = this.sharedDataService.sharedData.getValue();
+    const sharedData = this.sharedDataService.getSharedDataSync();
     if (sharedData.startFen) {
       this.setFen(sharedData.startFen);
     }
@@ -135,7 +135,7 @@ export class ChessBoardComponent implements OnInit, OnDestroy {
   }
 
   private setupTimer() {
-    const sharedData = this.sharedDataService.sharedData.getValue();
+    const sharedData = this.sharedDataService.getSharedDataSync();
     const timerSettings = sharedData.timerSettings;
     if (timerSettings == undefined) throw new Error('timer settings shoudl not be undefined');
     this.chessTimerService.setupTimer(timerSettings, this.chessStatusService.getColor());
@@ -184,7 +184,7 @@ export class ChessBoardComponent implements OnInit, OnDestroy {
         numMoves: this.chessStatusService.getNumMoves(),
         orig: move.from,
         dest: move.to,
-        matchId: this.sharedDataService.sharedData.getValue().matchCount,
+        matchId: this.sharedDataService.getSharedDataSync().matchCount,
         promotion: move.promotion,
         claimedTime: this.chessTimerService.getCurrentTime()
       });

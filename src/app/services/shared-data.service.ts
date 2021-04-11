@@ -3,14 +3,14 @@ import { Color } from 'chessground/types';
 import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { getDefaultEngineSettings, getDefaultNames, IEngineSettings, IPlayerTeam, PlayerTeamDict } from '../components/chess-board/helpers/PlayerTeamHelper';
-import { getEngineName, getNewCPUId } from '../shared/engine/engine-helpers';
+import { getEngineName } from '../shared/engine/engine-helpers';
 import { IMessage, MessageData } from '../shared/peer-to-peer/defs';
 import { getDefaultSharedData, ISharedData } from '../shared/peer-to-peer/shared-data';
 import { invertColor } from '../shared/util/play';
 import { GetCpuIdService } from './get-cpu-id.service';
 import { PeerToPeerService } from './peer-to-peer.service';
 import merge from 'lodash-es/merge';
-import { PartialDeep } from 'type-fest';
+import { PartialDeep, ReadonlyDeep } from 'type-fest';
 
 const debug = console.log;
 
@@ -19,10 +19,11 @@ const debug = console.log;
 })
 export class SharedDataService implements OnDestroy {
   messageSubscription: Subscription;
-  names: BehaviorSubject<PlayerTeamDict> = new BehaviorSubject({});
   numNames = new BehaviorSubject<number>(0);
   newName: Subject<string> = new Subject();
-  sharedData: BehaviorSubject<ISharedData> = new BehaviorSubject(getDefaultSharedData());
+
+  private names: BehaviorSubject<PlayerTeamDict> = new BehaviorSubject({});
+  private sharedData: BehaviorSubject<ISharedData> = new BehaviorSubject(getDefaultSharedData());
 
   private nameByTeamObservable: {
     white: Observable<PlayerTeamDict>,
@@ -48,7 +49,23 @@ export class SharedDataService implements OnDestroy {
     this.messageSubscription.unsubscribe();
   }
 
-  getNameObservable(color?: Color) {
+  getNames(): Observable<PlayerTeamDict> {
+    return this.getNameObservable();
+  }
+
+  getNamesSync(): ReadonlyDeep<PlayerTeamDict> {
+    return this.names.getValue();
+  }
+
+  getSharedData(): Observable<Readonly<ISharedData>> {
+    return this.sharedData.asObservable();
+  }
+
+  getSharedDataSync(): ReadonlyDeep<ISharedData> {
+    return this.getSharedDataSync();
+  }
+
+  getNameObservable(color?: Color): Readonly<Observable<PlayerTeamDict>> {
     if (color === undefined) {
       return this.names.asObservable();
     }
@@ -117,7 +134,7 @@ export class SharedDataService implements OnDestroy {
       this.sharedData.next(message.data.sharedData);
     }
     else if (message.data.command === 'UPDATE_SHARED') {
-      this.sharedData.next(merge(this.sharedData.getValue(), message.data.sharedData));
+      this.sharedData.next(merge(this.getSharedDataSync(), message.data.sharedData));
     }
   }
 
@@ -200,7 +217,7 @@ export class SharedDataService implements OnDestroy {
       names[key].team = invertColor(names[key].team);
       names[key].rematchRequested = undefined;
     }
-    this.setSharedData({matchCount: this.sharedData.getValue().matchCount + 1});
+    this.setSharedData({matchCount: this.getSharedDataSync().matchCount + 1});
     this.names.next(names);
   }
 

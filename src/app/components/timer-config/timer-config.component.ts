@@ -9,16 +9,15 @@ import { SharedDataService } from 'src/app/services/shared-data.service';
   styleUrls: ['./timer-config.component.scss']
 })
 export class TimerConfigComponent implements OnInit {
+  sharedData: Observable<ISharedData>;
+
   updateWhiteTime = (val: number) => this.sharedDataService.setSharedData({timerSettings: {whiteTime: val}});
   updateWhiteIncrement = (val: number) => this.sharedDataService.setSharedData({timerSettings: {whiteIncrement: val}});
 
-  sharedData: Observable<ISharedData>;
-
   constructor(private sharedDataService: SharedDataService) {
-    this.sharedData = this.sharedDataService.sharedData.asObservable();
+    this.sharedData = this.sharedDataService.getSharedData();
   }
 
   ngOnInit(): void {
   }
-
 }

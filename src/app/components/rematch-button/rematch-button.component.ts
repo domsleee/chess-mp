@@ -27,12 +27,13 @@ export class RematchButtonComponent implements OnInit {
     private peerToPeerService: PeerToPeerService) {
 
     this.numNamesSubscription = this.sharedDataService.numNames.subscribe(t => {
-      this.numUniqNames = new Set(Object.entries(this.sharedDataService.names.getValue()).map(([k, val]) => val.owner)).size;      
+      this.numUniqNames = new Set(Object.entries(this.sharedDataService.getNamesSync()).map(([k, val]) => val.owner)).size;
       this.checkRematchReady();
     });
 
-    this.namesSubscription = this.sharedDataService.names.subscribe(t => {
-      this.numReady = Object.entries(this.sharedDataService.names.getValue()).filter(([k, val]) => val.owner === k && val.rematchRequested).length;
+    this.namesSubscription = this.sharedDataService.getNames().subscribe(t => {
+      this.numReady = Object.entries(this.sharedDataService.getNamesSync())
+        .filter(([k, val]) => val.owner === k && val.rematchRequested).length;
       this.isReady = this.sharedDataService.getPlayerSync(this.peerToPeerService.getId()).rematchRequested === true;
       this.checkRematchReady();
     });
@@ -51,7 +52,7 @@ export class RematchButtonComponent implements OnInit {
   }
 
   private async checkRematchReady() {
-    if (this.numUniqNames > 0 && this.numUniqNames == this.numReady && !this.resetStarted) {
+    if (this.numUniqNames > 0 && this.numUniqNames === this.numReady && !this.resetStarted) {
       this.resetStarted = true;
       await sleep(500);
       this.sharedDataService.swapAllTeamsAndRematch();

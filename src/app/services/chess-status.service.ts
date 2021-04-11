@@ -24,7 +24,7 @@ export class ChessStatusService {
 
   constructor(private sharedDataService: SharedDataService) {
     this.chess = new Chess();
-    this.playersTurnInfo = new PlayersTurnInfo(this.sharedDataService.names.getValue());
+    this.playersTurnInfo = new PlayersTurnInfo(this.sharedDataService.getNamesSync());
     this.resetPlayersTurnInfo();
     this.sharedDataService.newName.subscribe(() => {
       this.resetPlayersTurnInfo();
@@ -34,7 +34,7 @@ export class ChessStatusService {
   }
 
   private resetPlayersTurnInfo() {
-    this.playersTurnInfo = new PlayersTurnInfo(this.sharedDataService.names.getValue(), this.blackWentFirst);
+    this.playersTurnInfo = new PlayersTurnInfo(this.sharedDataService.getNamesSync(), this.blackWentFirst);
   }
 
   move(move: string | ChessJS.ShortMove): ChessJS.Move | null {
@@ -118,7 +118,7 @@ export class ChessStatusService {
 
   private getTupleForMoveNumber(moveNumber: number): [string, IPlayerTeam] {
     const playerId = this.playersTurnInfo.getPlayer(moveNumber);
-    const playerTeamDict = this.sharedDataService.names.getValue()[playerId] || null;
+    const playerTeamDict = this.sharedDataService.getNamesSync()[playerId] || null;
     return [playerId, playerTeamDict];
   }
 

@@ -44,7 +44,7 @@ export class ChessTimerComponent implements OnInit {
     this.nextId = this.chessStatusService.nextTurn.asObservable().pipe(map(([key, value]) => key));
     this.currentTurn = this.chessStatusService.currentTurn.asObservable().pipe(map(([key, value]) => value?.name ?? key));
     this.myId = this.peerToPeerService.getId();
-    this.myName = this.sharedDataService.names.pipe(map(t => t[this.peerToPeerService.getId()]?.name ?? DEFAULT_ID));
+    this.myName = this.sharedDataService.getNames().pipe(map(t => t[this.peerToPeerService.getId()]?.name ?? DEFAULT_ID));
   }
 
   ngOnInit() {

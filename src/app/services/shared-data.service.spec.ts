@@ -54,15 +54,15 @@ describe('sharedDataService', () => {
     service1.setSharedData({timerSettings:{whiteTime: 0}});
     jasmine.clock().tick(BROADCAST_FINISH_DELAY);
 
-    expect(service1.sharedData.getValue().timerSettings?.whiteTime).toBe(0);
-    expect(service2.sharedData.getValue().timerSettings?.whiteTime).toBe(0);
+    expect(service1.getSharedDataSync().timerSettings?.whiteTime).toBe(0);
+    expect(service2.getSharedDataSync().timerSettings?.whiteTime).toBe(0);
 
     service1.setSharedData({timerSettings:{whiteTime: 50}});
     service2.setSharedData({timerSettings:{whiteTime: 60}});
     jasmine.clock().tick(BROADCAST_FINISH_DELAY);
 
-    expect(service1.sharedData.getValue().timerSettings?.whiteTime).toBe(60, 'service1');
-    expect(service2.sharedData.getValue().timerSettings?.whiteTime).toBe(60, 'service2');
+    expect(service1.getSharedDataSync().timerSettings?.whiteTime).toBe(60, 'service1');
+    expect(service2.getSharedDataSync().timerSettings?.whiteTime).toBe(60, 'service2');
   });
 
   it('concurrency with multi-writer on PLAYER data', () => {

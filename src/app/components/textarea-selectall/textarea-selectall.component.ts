@@ -6,7 +6,7 @@ import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
   styleUrls: ['./textarea-selectall.component.scss']
 })
 export class TextareaSelectallComponent implements OnInit {
-  @ViewChild("el", {read: ElementRef}) el!: ElementRef;
+  @ViewChild('el', {read: ElementRef}) el!: ElementRef;
 
   @Input() text: string | undefined = '';
 

@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Color } from 'chessground/types';
 import { Observable, Subscription } from 'rxjs';
@@ -13,35 +13,32 @@ import { APP_BASE_HREF } from '@angular/common';
   templateUrl: './mp-lobby.component.html',
   styleUrls: ['./mp-lobby.component.scss']
 })
-export class MpLobbyComponent implements OnInit {
+export class MpLobbyComponent implements OnInit, OnDestroy {
   url: string;
 
   readonly connectedSubscription: Subscription;
-  numberReady = 0;
-  readyString = 'ready';
   readonly hostUrl: string;
   readonly sharedData: Observable<ISharedData>;
 
-  constructor(private peerToPeerService: PeerToPeerService,
+  constructor(
+    private peerToPeerService: PeerToPeerService,
     private router: Router,
     private sharedDataService: SharedDataService,
-    @Inject(APP_BASE_HREF) private baseHref: string) {
+    @Inject(APP_BASE_HREF) private baseHref: string
+  ) {
     this.hostUrl = `/join/${this.peerToPeerService.getHostId()}`;
     this.url = `${window.location.origin}${this.baseHref}${this.hostUrl.substring(1)}`;
 
-    this.sharedData = this.sharedDataService.sharedData.asObservable();
+    this.sharedData = this.sharedDataService.getSharedData();
 
     this.connectedSubscription = this.sharedDataService.newName.subscribe((id) => {
       if (this.peerToPeerService.isHost) {
         this.peerToPeerService.sendSingleMessage(id, {
           command: 'SET_NAMES',
-          names: this.sharedDataService.names.getValue(),
-          sharedData: this.sharedDataService.sharedData.getValue()
+          names: this.sharedDataService.getNamesSync(),
+          sharedData: this.sharedDataService.getSharedDataSync()
         });
       }
-    });
-    this.sharedDataService.names.subscribe((names) => {
-      this.numberReady = Object.values(names).filter(t => t.isReady).length;
     });
     this.peerToPeerService.messageSubject.subscribe((message) => {
       if (message.data.command === 'START') {
@@ -66,12 +63,6 @@ export class MpLobbyComponent implements OnInit {
 
   setTeam(team: Color) {
     this.sharedDataService.setTeam(team);
-  }
-
-  readyClick() {
-    console.log('ready click')
-    this.readyString = this.readyString === 'ready' ? 'not ready' : 'ready';
-    this.sharedDataService.setIsReady(this.readyString === 'not ready');
   }
 
   startGame() {

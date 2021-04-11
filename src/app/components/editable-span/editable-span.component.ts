@@ -9,9 +9,11 @@ const debug = /*(...args: any[]) => {}*/console.log;
   styleUrls: ['./editable-span.component.scss']
 })
 export class EditableSpanComponent implements OnInit {
-  @ViewChild("span", {read: ElementRef}) span!: ElementRef;
+  @ViewChild('span', {read: ElementRef}) span!: ElementRef;
+  @Input() value = -1;
+  @Input() min = 0;
+  @Input() max = 1000;
   @Input() setNumber: (v: number) => void = () => {};
-  @Input() value: number = -1;
 
   constructor(@Inject(DOCUMENT) private document: Document) { }
 
@@ -19,9 +21,9 @@ export class EditableSpanComponent implements OnInit {
   }
 
   onKeyPress(e: KeyboardEvent) {
-    debug("spankeypress", e.key);
+    debug('spankeypress', e.key);
     if (!(e.key >= '0' && e.key <= '9')) e.preventDefault();
-    if (e.key == 'Enter') {
+    if (e.key === 'Enter') {
       this.span.nativeElement.blur();
     }
   }
@@ -39,24 +41,23 @@ export class EditableSpanComponent implements OnInit {
   onFocus(e: Event) {
     this.document.addEventListener('keydown', this.enterKeyHandler);
   }
-  
+
   private onSpanValueChange(v: any) {
-    debug("SPAN VALUE CHANGE", v);
+    debug('SPAN VALUE CHANGE', v);
     if (!isNaN(v)) {
       let n = parseInt(v, 10);
-      const min = 0, max = 1000;
-      n = Math.min(max, Math.max(min, n));
+      n = Math.min(this.max, Math.max(this.min, n));
       this.setNumber(n);
       this.span.nativeElement.innerHTML = n;
     }
   }
 
   private enterKeyHandler = (e: KeyboardEvent) => {
-    if (e.key == 'Enter') {
+    if (e.key === 'Enter') {
       e.preventDefault();
       e.stopImmediatePropagation();
       this.document.removeEventListener('keydown', this.enterKeyHandler);
       this.span.nativeElement.blur();
     }
-  };
+  }
 }

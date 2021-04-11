@@ -15,11 +15,12 @@ export class ChessTimeoutService implements OnDestroy {
   private hostTimeoutDeclSubscription?: Subscription;
   private timeout = new Subject<Color>();
 
-  constructor(private chessTimerService: ChessTimerService,
+  constructor(
+    private chessTimerService: ChessTimerService,
     private chessStatusService: ChessStatusService,
     private peerToPeerService: PeerToPeerService,
     private sharedDataService: SharedDataService
-    ) {
+  ) {
       this.timerSubscription = this.chessTimerService.getTimeoutObservable().subscribe(color => {
         const [playerName, currentPlayer] = this.chessStatusService.currentTurn.getValue();
         if (currentPlayer?.owner === this.peerToPeerService.getId()) {
@@ -52,7 +53,7 @@ export class ChessTimeoutService implements OnDestroy {
     if (sendTimeoutMessage) {
       this.peerToPeerService.broadcast({
         command: 'DECLARE_TIMEOUT',
-        matchId: this.sharedDataService.sharedData.getValue().matchCount,
+        matchId: this.sharedDataService.getSharedDataSync().matchCount,
         color
       });
     }
