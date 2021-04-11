@@ -41,23 +41,28 @@ export class MpLobbyComponent implements OnInit {
           sharedData: this.sharedDataService.sharedData.getValue()
         });
       }
-
-      this.setTeam(this.sharedDataService.getPlayerSync(this.peerToPeerService.getId()).team);
-    })
+      //this.setTeam(this.sharedDataService.getPlayerSync(this.peerToPeerService.getId()).team);
+    });
     this.sharedDataService.names.subscribe((names) => {
       this.numberReady = Object.values(names).filter(t => t.isReady).length;
-    })
+    });
     this.peerToPeerService.messageSubject.subscribe((message) => {
-      if (message.data.command == 'START') {
+      if (message.data.command === 'START') {
         this.startGameNoBroadcast();
       }
-    })
+    });
   }
 
 
   ngOnInit(): void {
-    this.setTeam('white');
-    this.sharedDataService.setSortNumber(this.peerToPeerService.getId(), 0);
+    this.sharedDataService.createPlayer({
+      name: this.peerToPeerService.getAlias(),
+      team: 'white',
+      owner: this.peerToPeerService.getId(),
+      sortNumber: 0
+    }, this.peerToPeerService.getId());
+    //this.setTeam('white');
+    //this.sharedDataService.setSortNumber(this.peerToPeerService.getId(), 0);
   }
 
   ngOnDestroy() {
@@ -70,8 +75,8 @@ export class MpLobbyComponent implements OnInit {
 
   readyClick() {
     console.log('ready click')
-    this.readyString = this.readyString == 'ready' ? 'not ready' : 'ready';
-    this.sharedDataService.setIsReady(this.readyString == 'not ready');
+    this.readyString = this.readyString === 'ready' ? 'not ready' : 'ready';
+    this.sharedDataService.setIsReady(this.readyString === 'not ready');
   }
 
   startGame() {

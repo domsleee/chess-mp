@@ -42,16 +42,16 @@ function createPlayerTeam(name: string, color: Color = 'white', engineSettings: 
     name,
     team: color,
     owner: DEFAULT_ID,
-    isOwnedByMe: false,
     isReady: true,
     sortNumber: 0,
     engineSettings
-  }
+  };
 }
 
 export function getSortedTeamKeys(names: PlayerTeamDict) {
-  return Object.keys(names).sort((a,b) => {
-    const lt = (c: string, d: string) => names[c].sortNumber < names[d].sortNumber || (names[c].sortNumber == names[d].sortNumber && c < d)
+  return Object.keys(names).sort((a, b) => {
+    const lt = (c: string, d: string) => (names[c].sortNumber < names[d].sortNumber)
+                                      || (names[c].sortNumber === names[d].sortNumber && c < d);
     if (lt(a,b)) return -1;
     if (lt(b,a)) return 1;
     return 0;
@@ -62,18 +62,17 @@ export interface IEngineSettings {
   timeForMove?: number;
   elo?: number;
   skillLevel?: number;
-};
+}
 
 export interface IPlayerTeam {
   name: string;
   team: Color;
   owner: string;
-  isOwnedByMe: boolean;
-  isReady: boolean;
   sortNumber: number;
+  isReady?: boolean;
   engineSettings?: IEngineSettings;
   rematchRequested?: boolean;
-};
+}
 
 export type PlayerTeamDict = {[id: string]: IPlayerTeam};
 

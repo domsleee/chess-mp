@@ -1,12 +1,12 @@
 import { Color, Key } from "chessground/types";
 import * as ChessJS from 'chess.js';
-import { IEngineSettings, PlayerTeamDict } from "../../components/chess-board/helpers/PlayerTeamHelper";
+import { IEngineSettings, IPlayerTeam, PlayerTeamDict } from "../../components/chess-board/helpers/PlayerTeamHelper";
 import { ISharedData, ISharedDataOptionals } from "./shared-data";
 export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
 
 
-export type MessageData = IMove | IInfo | IStart | IDisconnectNotification | ISendNames | IUpdateShared |
-                          IDeclareTimeout | IDeletePlayer;
+export type MessageData = IMove | IInfo | IInfo2 | IStart | IDisconnectNotification | ISendNames | IUpdateShared |
+                          IDeclareTimeout | IDeletePlayer | ICreatePlayer;
 
 export interface IMessage {
   type: 'BROADCAST' | 'SINGLE';
@@ -28,6 +28,20 @@ export interface IMove extends ICommand {
   matchId: number;
   claimedTime: number;
   promotion?: Exclude<ChessJS.PieceType, 'p'>;
+}
+
+export interface IInfo2 extends ICommand {
+  command: 'INFO2';
+  player: Partial<IPlayerTeam>;
+  overrides?: {
+    id?: string;
+  };
+}
+
+export interface ICreatePlayer extends ICommand {
+  command: 'CREATE_PLAYER';
+  player: IPlayerTeam;
+  playerId: string;
 }
 
 export interface IInfo extends ICommand, IInfoOptionals {

@@ -61,7 +61,52 @@ export class SharedDataService {
   }
 
   private processMessage(message: IMessage) {
-    if (message.data.command === 'INFO') {
+    if (message.data.command === 'CREATE_PLAYER') {
+      const nameId = message.data.playerId;
+      const currNames = this.names.getValue();
+      if (nameId in currNames) {
+        debug('warning! attempted to create player that exists');
+        return;
+      }
+      debug(`creating player ${nameId}`);
+      currNames[nameId] = message.data.player;
+      this.names.next(currNames);
+      this.newName.next(nameId);
+      this.numNames.next(Object.keys(currNames).length);
+    }
+    else if (message.data.command === 'DELETE_PLAYER') {
+      const currNames = this.names.getValue();
+      const nameId = message.data.playerId;
+      if (!(nameId in currNames)) {
+        debug('warning! attempted to delete player that does not exist');
+        return;
+      }
+      delete currNames[nameId];
+      this.names.next(currNames);
+      this.numNames.next(Object.keys(currNames).length);
+    }
+    else if (message.data.command === 'INFO2') {
+      const nameId = message.data.overrides?.id ?? message.from;
+      const currNames = this.names.getValue();
+
+      if (!(nameId in currNames)) {
+        debug('warning! attempted to modify player that does not exist');
+        return;
+      }
+      debug(`updating ${nameId}`, message);
+      const namesMerge = this.filterDict<Partial<IPlayerTeam>>(
+        message.data.player, ([k, v]) => k !== 'engineSettings'
+      );
+      currNames[nameId] = {...currNames[nameId], ...namesMerge};
+      if (message.data.player.engineSettings) {
+        currNames[nameId].engineSettings = {
+          ...currNames[nameId].engineSettings,
+          ...message.data.player.engineSettings
+        };
+      }
+      this.names.next(currNames);
+    }
+    else if (message.data.command === 'INFO') {
       let currNames = this.names.getValue();
       debug("NEW MSG RECEIVED", message);
       const nameId = message.data.idOverride ?? message.from;
@@ -69,8 +114,7 @@ export class SharedDataService {
       const isNewName = !(nameId in currNames);
       currNames[nameId] = {
         ...currNames[nameId],
-        ...this.filterDict<IInfo>(message.data, ([k,v]) => k !== 'engineSettings' && k !== 'idOverride'),
-        isOwnedByMe: message.data.owner === this.peerToPeerService.getId()
+        ...this.filterDict<IInfo>(message.data, ([k, v]) => k !== 'engineSettings' && k !== 'idOverride'),
       };
       if (message.data.engineSettings) {
         const currEngineSettings = currNames[nameId].engineSettings ?? {};
@@ -131,41 +175,53 @@ export class SharedDataService {
   }
 
   setTeam(team: Color) {
-    return this.broadcastNamesMessage({team: team});
+    return this.broadcastNamesMessage2({team});
   }
 
   setSortNumber(playerId: string, sortNumber: number) {
-    return this.broadcastNamesMessage({sortNumber, idOverride: playerId}, this.getPlayerSync(playerId).name);
+    return this.broadcastNamesMessage2({sortNumber}, {id: playerId});
   }
 
   addCPU(team: Color) {
-    return this.setEngineSettings(this.getCpuIdService.getNewCpuId(), getDefaultEngineSettings(), team);
+    return this.createPlayer({
+      name: getEngineName(getDefaultEngineSettings()),
+      team,
+      owner: this.peerToPeerService.getId(),
+      engineSettings: getDefaultEngineSettings(),
+      sortNumber: 0
+    }, this.getCpuIdService.getNewCpuId());
   }
 
-  setIsReady(isReady: boolean) {
-    return this.broadcastNamesMessage({
-      isReady: isReady,
+  createPlayer(player: IPlayerTeam, playerId: string) {
+    return this.peerToPeerService.broadcastAndToSelf({
+      command: 'CREATE_PLAYER',
+      player,
+      playerId
     });
   }
 
+  setIsReady(isReady: boolean) {
+    return this.broadcastNamesMessage2({isReady});
+  }
+
   setEngineSettings(playerId: string, engineSettings: IEngineSettings, team: Color | null = null) {
-    const infoOptionals: IInfoOptionals = {
-      idOverride: playerId,
+    const player: Partial<IPlayerTeam> = {
+      name: getEngineName({...this.getPlayerSync(playerId).engineSettings, ...engineSettings}),
       sortNumber: 0,
-      engineSettings: engineSettings
+      engineSettings
     };
     if (team != null) {
-      infoOptionals.team = team;
+      player.team = team;
     }
 
-    return this.broadcastNamesMessage(
-      infoOptionals,
-      getEngineName({...this.getPlayerSync(playerId)?.engineSettings ?? {}, ...engineSettings})
+    return this.broadcastNamesMessage2(
+      player,
+      {id: playerId}
     );
   }
 
   setRematchRequested(rematchRequested: boolean) {
-    this.broadcastNamesMessage({rematchRequested});
+    this.broadcastNamesMessage2({rematchRequested});
   }
 
   swapAllTeamsAndRematch() {
@@ -178,17 +234,13 @@ export class SharedDataService {
     this.names.next(names);
   }
 
-  private broadcastNamesMessage(data: IInfoOptionals, nameOverride: string | null = null) {
-    let message: MessageData = {
-      command: 'INFO',
-      name: this.peerToPeerService.getAlias(),
-      owner: this.peerToPeerService.getId(),
-      ...data
+  private broadcastNamesMessage2(data: Partial<IPlayerTeam>, overrides?: {id: string}) {
+    const message: MessageData = {
+      command: 'INFO2',
+      player: data,
+      overrides
     };
-    if (nameOverride != null) {
-      message = {...message, name: nameOverride};
-    }
-
     this.peerToPeerService.broadcastAndToSelf(message, {echo: true});
   }
+
 }
