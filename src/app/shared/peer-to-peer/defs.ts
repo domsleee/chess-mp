@@ -1,7 +1,8 @@
-import { Color, Key } from "chessground/types";
+import { Color, Key } from 'chessground/types';
 import * as ChessJS from 'chess.js';
-import { IEngineSettings, IPlayerTeam, PlayerTeamDict } from "../../components/chess-board/helpers/PlayerTeamHelper";
-import { ISharedData } from "./shared-data";
+import { IPlayerTeam, PlayerTeamDict } from "../../components/chess-board/helpers/PlayerTeamHelper";
+import { ISharedData } from './shared-data';
+import { PartialDeep } from 'type-fest';
 export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
 
 
@@ -14,7 +15,6 @@ export interface IMessage {
   data: MessageData;
   echoBroadcast?: boolean;
 }
-
 
 export interface ICommand {
   command: string;
@@ -32,7 +32,7 @@ export interface IMove extends ICommand {
 
 export interface IInfo extends ICommand {
   command: 'INFO';
-  player: Partial<IPlayerTeam>;
+  player: PartialDeep<IPlayerTeam>;
   overrides?: {
     id?: string;
   };
@@ -47,7 +47,7 @@ export interface ICreatePlayer extends ICommand {
 
 export interface IUpdateShared extends ICommand {
   command: 'UPDATE_SHARED';
-  sharedData: Partial<ISharedData>;
+  sharedData: PartialDeep<ISharedData>;
 }
 
 export interface IStart extends ICommand {

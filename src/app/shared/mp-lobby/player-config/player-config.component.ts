@@ -9,7 +9,7 @@ import { SharedDataService } from 'src/app/services/shared-data.service';
   styleUrls: ['./player-config.component.scss']
 })
 export class PlayerConfigComponent implements OnInit, OnDestroy {
-  @Input() playerId: string = '';
+  @Input() playerId = '';
   player: IPlayerTeam | null = null;
 
   namesSubscription: Subscription;
@@ -18,8 +18,8 @@ export class PlayerConfigComponent implements OnInit, OnDestroy {
   updateElo = (val: number) => this.sharedDataService.setEngineSettings(this.playerId, {elo: val});
   updateSkillLevel = (val: number) => this.sharedDataService.setEngineSettings(this.playerId, {skillLevel: val});
 
-  roundTo100 = (val: number) => Math.round(val/100) * 100;
-  roundTo50 = (val: number) => Math.round(val/50) * 50;
+  roundTo100 = (val: number) => Math.round(val / 100) * 100;
+  roundTo50 = (val: number) => Math.round(val / 50) * 50;
 
   constructor(private sharedDataService: SharedDataService) {
     this.namesSubscription = this.sharedDataService.getNameObservable().subscribe(names => {

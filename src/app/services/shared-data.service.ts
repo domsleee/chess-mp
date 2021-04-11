@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy, OnInit } from '@angular/core';
 import { Color } from 'chessground/types';
 import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -6,17 +6,18 @@ import { getDefaultEngineSettings, getDefaultNames, IEngineSettings, IPlayerTeam
 import { getEngineName, getNewCPUId } from '../shared/engine/engine-helpers';
 import { IMessage, MessageData } from '../shared/peer-to-peer/defs';
 import { getDefaultSharedData, ISharedData } from '../shared/peer-to-peer/shared-data';
-import { merge } from '../shared/util/helpers';
 import { invertColor } from '../shared/util/play';
 import { GetCpuIdService } from './get-cpu-id.service';
 import { PeerToPeerService } from './peer-to-peer.service';
+import merge from 'lodash-es/merge';
+import { PartialDeep } from 'type-fest';
 
 const debug = console.log;
 
 @Injectable({
   providedIn: 'root'
 })
-export class SharedDataService {
+export class SharedDataService implements OnDestroy {
   messageSubscription: Subscription;
   names: BehaviorSubject<PlayerTeamDict> = new BehaviorSubject({});
   numNames = new BehaviorSubject<number>(0);
@@ -28,13 +29,15 @@ export class SharedDataService {
     black: Observable<PlayerTeamDict>
   };
 
-  constructor(private peerToPeerService: PeerToPeerService,
-    private getCpuIdService: GetCpuIdService) {
+  constructor(
+    private peerToPeerService: PeerToPeerService,
+    private getCpuIdService: GetCpuIdService
+  ) {
     this.messageSubscription = this.peerToPeerService.messageSubject.subscribe(this.processMessage.bind(this));
     this.nameByTeamObservable = {
       white: this.names.pipe(map(t => this.keyValueFilter(t, "white"))),
       black: this.names.pipe(map(t => this.keyValueFilter(t, "black")))
-    }
+    };
 
     if (!this.peerToPeerService.isConnected) {
       this.names.next(getDefaultNames());
@@ -46,7 +49,7 @@ export class SharedDataService {
   }
 
   getNameObservable(color?: Color) {
-    if (color == undefined) {
+    if (color === undefined) {
       return this.names.asObservable();
     }
     return this.nameByTeamObservable[color];
@@ -94,34 +97,23 @@ export class SharedDataService {
         return;
       }
       debug(`updating ${nameId}`, message);
-      const namesMerge = this.filterDict<Partial<IPlayerTeam>>(
-        message.data.player, ([k, v]) => k !== 'engineSettings'
-      );
-      currNames[nameId] = {...currNames[nameId], ...namesMerge};
-      if (message.data.player.engineSettings) {
-        currNames[nameId].engineSettings = {
-          ...currNames[nameId].engineSettings,
-          ...message.data.player.engineSettings
-        };
-      }
+      currNames[nameId] = merge(currNames[nameId], message.data.player);
       this.names.next(currNames);
     }
     else if (message.data.command === 'DISCONNECTED') {
       const currNames = this.names.getValue();
-      let newNames: PlayerTeamDict = {};
+      const newNames: PlayerTeamDict = {};
       for (const key in currNames) {
         if (currNames[key].owner !== message.data.name) {
           newNames[key] = currNames[key];
         }
       }
-
       this.names.next(newNames);
       console.log("NEXT NAMES after dc...", newNames);
     }
     else if (message.data.command === 'SET_NAMES') {
       const currNames = this.names.getValue();
-      const newNames = {...currNames, ...message.data.names};
-      this.names.next(newNames);
+      this.names.next(merge(currNames, message.data.names));
       this.sharedData.next(message.data.sharedData);
     }
     else if (message.data.command === 'UPDATE_SHARED') {
@@ -129,15 +121,15 @@ export class SharedDataService {
     }
   }
 
-  setSharedData(sharedData: Partial<ISharedData>) {
+  setSharedData(sharedData: PartialDeep<ISharedData>) {
     this.peerToPeerService.broadcastAndToSelf({
       command: 'UPDATE_SHARED',
       sharedData
     }, {echo: true});
   }
 
-  filterDict<T>(dict: T, fn: (entry: [string, any]) => boolean) {
-    return Object.fromEntries(Object.entries(dict).filter(fn));
+  filterDict<T>(dict: T, fn: (entry: [string, any]) => boolean): Partial<T> {
+    return Object.fromEntries(Object.entries(dict).filter(fn)) as Partial<T>;
   }
 
   getPlayer(playerId: string): Observable<IPlayerTeam> {
@@ -178,9 +170,13 @@ export class SharedDataService {
     return this.broadcastNamesMessage({isReady});
   }
 
-  setEngineSettings(playerId: string, engineSettings: IEngineSettings, team: Color | null = null) {
-    const player: Partial<IPlayerTeam> = {
-      name: getEngineName({...this.getPlayerSync(playerId).engineSettings, ...engineSettings}),
+  setEngineSettings(playerId: string, engineSettings: Partial<IEngineSettings>, team: Color | null = null) {
+    const currentEngineSettings = this.getPlayerSync(playerId).engineSettings;
+    if (!currentEngineSettings) {
+      throw new Error('Engine settings must be defined before updated');
+    }
+    const player: PartialDeep<IPlayerTeam> = {
+      name: getEngineName({...currentEngineSettings, ...engineSettings}),
       sortNumber: 0,
       engineSettings
     };
@@ -208,7 +204,7 @@ export class SharedDataService {
     this.names.next(names);
   }
 
-  private broadcastNamesMessage(data: Partial<IPlayerTeam>, overrides?: {id: string}) {
+  private broadcastNamesMessage(data: PartialDeep<IPlayerTeam>, overrides?: {id: string}) {
     const message: MessageData = {
       command: 'INFO',
       player: data,
@@ -216,5 +212,4 @@ export class SharedDataService {
     };
     this.peerToPeerService.broadcastAndToSelf(message, {echo: true});
   }
-
 }

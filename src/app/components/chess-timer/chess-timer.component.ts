@@ -8,14 +8,13 @@ import { SharedDataService } from 'src/app/services/shared-data.service';
 import { PlayerTeamDict } from '../chess-board/helpers/PlayerTeamHelper';
 import { ChessStatusService } from 'src/app/services/chess-status.service';
 
-
 @Component({
   selector: 'app-chess-timer',
   templateUrl: './chess-timer.component.html',
   styleUrls: ['./chess-timer.component.scss'],
   providers: [ChessTimerFormatPipe]
 })
-export class ChessTimerComponent {
+export class ChessTimerComponent implements OnInit {
   whiteTime: Observable<number>;
   blackTime: Observable<number>;
   currentStatus: BehaviorSubject<string>;
@@ -31,18 +30,19 @@ export class ChessTimerComponent {
   @Input() inverted = false;
   flexDirection = 'column';
 
-  constructor(private chessTimerService: ChessTimerService,
-    private ChessStatusService: ChessStatusService,
+  constructor(
+    private chessTimerService: ChessTimerService,
+    private chessStatusService: ChessStatusService,
     private peerToPeerService: PeerToPeerService,
     private sharedDataService: SharedDataService) {
 
     this.whiteTime = this.chessTimerService.getTimerObservable('white');
     this.blackTime = this.chessTimerService.getTimerObservable('black');
-    this.currentStatus = this.ChessStatusService.currentStatus;
+    this.currentStatus = this.chessStatusService.currentStatus;
 
-    this.currentId = this.ChessStatusService.currentTurn.asObservable().pipe(map(([key, value]) => key));
-    this.nextId = this.ChessStatusService.nextTurn.asObservable().pipe(map(([key, value]) => key));
-    this.currentTurn = this.ChessStatusService.currentTurn.asObservable().pipe(map(([key, value]) => value?.name ?? key));
+    this.currentId = this.chessStatusService.currentTurn.asObservable().pipe(map(([key, value]) => key));
+    this.nextId = this.chessStatusService.nextTurn.asObservable().pipe(map(([key, value]) => key));
+    this.currentTurn = this.chessStatusService.currentTurn.asObservable().pipe(map(([key, value]) => value?.name ?? key));
     this.myId = this.peerToPeerService.getId();
     this.myName = this.sharedDataService.names.pipe(map(t => t[this.peerToPeerService.getId()]?.name ?? DEFAULT_ID));
   }

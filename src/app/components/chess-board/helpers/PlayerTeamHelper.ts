@@ -59,9 +59,9 @@ export function getSortedTeamKeys(names: PlayerTeamDict) {
 }
 
 export interface IEngineSettings {
-  timeForMove?: number;
-  elo?: number;
-  skillLevel?: number;
+  timeForMove: number;
+  elo: number;
+  skillLevel: number;
 }
 
 export interface IPlayerTeam {
