@@ -105,7 +105,7 @@ export class PeerToPeerService {
     const message: IMessage = {
       from,
       type: 'BROADCAST',
-      data: data
+      data
     };
     if (options?.echo) {
       message.echoBroadcast = true;
@@ -152,7 +152,7 @@ export class PeerToPeerService {
       this.peer!.on('error', (err) => {
         reject(err);
       });
-    })
+    });
   }
 
   private attachErrorAndCloseConnEvents(conn: Peer.DataConnection, additionalFn?: (err?: string) => void) {

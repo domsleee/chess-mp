@@ -4,7 +4,7 @@ import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { getDefaultEngineSettings, getDefaultNames, IEngineSettings, IPlayerTeam, PlayerTeamDict } from '../components/chess-board/helpers/PlayerTeamHelper';
 import { getEngineName, getNewCPUId } from '../shared/engine/engine-helpers';
-import { IInfo, IInfoOptionals, IMessage, MessageData } from '../shared/peer-to-peer/defs';
+import { IMessage, MessageData } from '../shared/peer-to-peer/defs';
 import { getDefaultSharedData, ISharedData, ISharedDataOptionals } from '../shared/peer-to-peer/shared-data';
 import { merge } from '../shared/util/helpers';
 import { invertColor } from '../shared/util/play';
@@ -105,32 +105,6 @@ export class SharedDataService {
         };
       }
       this.names.next(currNames);
-    }
-    else if (message.data.command === 'INFO') {
-      let currNames = this.names.getValue();
-      debug("NEW MSG RECEIVED", message);
-      const nameId = message.data.idOverride ?? message.from;
-
-      const isNewName = !(nameId in currNames);
-      currNames[nameId] = {
-        ...currNames[nameId],
-        ...this.filterDict<IInfo>(message.data, ([k, v]) => k !== 'engineSettings' && k !== 'idOverride'),
-      };
-      if (message.data.engineSettings) {
-        const currEngineSettings = currNames[nameId].engineSettings ?? {};
-        currNames[nameId].engineSettings = {...currEngineSettings, ...message.data.engineSettings};
-        const engineSettings = currNames[nameId].engineSettings;
-        if (engineSettings) {
-          currNames[nameId].name = getEngineName(engineSettings);
-        }
-      }
-
-      this.names.next(currNames);
-      debug("new names", currNames);
-      if (isNewName) {
-        this.newName.next(nameId);
-        this.numNames.next(Object.keys(currNames).length);
-      }
     }
     else if (message.data.command === 'DISCONNECTED') {
       const currNames = this.names.getValue();

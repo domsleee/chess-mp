@@ -41,7 +41,6 @@ export class MpLobbyComponent implements OnInit {
           sharedData: this.sharedDataService.sharedData.getValue()
         });
       }
-      //this.setTeam(this.sharedDataService.getPlayerSync(this.peerToPeerService.getId()).team);
     });
     this.sharedDataService.names.subscribe((names) => {
       this.numberReady = Object.values(names).filter(t => t.isReady).length;

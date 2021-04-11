@@ -5,7 +5,7 @@ import { ISharedData, ISharedDataOptionals } from "./shared-data";
 export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
 
 
-export type MessageData = IMove | IInfo | IInfo2 | IStart | IDisconnectNotification | ISendNames | IUpdateShared |
+export type MessageData = IMove | IInfo2 | IStart | IDisconnectNotification | ISendNames | IUpdateShared |
                           IDeclareTimeout | IDeletePlayer | ICreatePlayer;
 
 export interface IMessage {
@@ -42,21 +42,6 @@ export interface ICreatePlayer extends ICommand {
   command: 'CREATE_PLAYER';
   player: IPlayerTeam;
   playerId: string;
-}
-
-export interface IInfo extends ICommand, IInfoOptionals {
-  command: 'INFO';
-  name: string;
-  owner: string;
-}
-
-export interface IInfoOptionals {
-  team?: Color;
-  isReady?: boolean;
-  idOverride?: string;
-  engineSettings?: IEngineSettings;
-  rematchRequested?: boolean;
-  sortNumber?: number;
 }
 
 

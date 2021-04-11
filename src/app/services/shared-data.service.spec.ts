@@ -1,6 +1,7 @@
 import 'zone.js/dist/zone-testing';
 import { SharedDataService } from './shared-data.service';
 import { BROADCAST_FINISH_DELAY, createPeers } from './mocks/peer-to-peer-helpers';
+import { GetCpuIdService } from './get-cpu-id.service';
 
 
 describe('sharedDataService', () => {
@@ -11,18 +12,30 @@ describe('sharedDataService', () => {
     jasmine.clock().install();
     const peers = createPeers(2);
 
-    service1 = new SharedDataService(peers[0]);
-    service2 = new SharedDataService(peers[1]);
+    service1 = new SharedDataService(peers[0], new GetCpuIdService(peers[0]));
+    service2 = new SharedDataService(peers[1], new GetCpuIdService(peers[0]));
 
-    service1.setIsReady(false);
-    service2.setIsReady(false);
+    service1.createPlayer({
+      name: 'p1',
+      team: 'white',
+      sortNumber: 0,
+      owner: peers[0].getId(),
+      isReady: false
+    }, peers[0].getId());
+    service2.createPlayer({
+      name: 'p2',
+      team: 'white',
+      sortNumber: 0,
+      owner: peers[1].getId(),
+      isReady: false
+    }, peers[1].getId());
 
     jasmine.clock().tick(BROADCAST_FINISH_DELAY);
   });
 
   afterAll(() => {
     jasmine.clock().uninstall();
-  })
+  });
 
   it('should be created', () => {
     expect(service1).toBeTruthy();

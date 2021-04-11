@@ -10,16 +10,16 @@ export class PlayerListComponent implements OnInit {
 
   constructor() { }
 
-  @Input() players!: PlayerTeamDict | null;
-  @Input() currentId: string | null = '';
-  @Input() nextId: string | null = '';
+  @Input() players: PlayerTeamDict = {};
+  @Input() currentId = '';
+  @Input() nextId = '';
 
   playersNotNull!: PlayerTeamDict;
   playerIds!: string[];
 
   ngOnInit(): void {
-    this.playersNotNull = this.players!;
+    this.playersNotNull = this.players;
     console.log(this.players);
-    this.playerIds = getSortedTeamKeys(this.players!);
+    this.playerIds = getSortedTeamKeys(this.players);
   }
 }
