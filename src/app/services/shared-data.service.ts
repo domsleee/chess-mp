@@ -5,7 +5,7 @@ import { map } from 'rxjs/operators';
 import { getDefaultEngineSettings, getDefaultNames, IEngineSettings, IPlayerTeam, PlayerTeamDict } from '../components/chess-board/helpers/PlayerTeamHelper';
 import { getEngineName, getNewCPUId } from '../shared/engine/engine-helpers';
 import { IMessage, MessageData } from '../shared/peer-to-peer/defs';
-import { getDefaultSharedData, ISharedData, ISharedDataOptionals } from '../shared/peer-to-peer/shared-data';
+import { getDefaultSharedData, ISharedData } from '../shared/peer-to-peer/shared-data';
 import { merge } from '../shared/util/helpers';
 import { invertColor } from '../shared/util/play';
 import { GetCpuIdService } from './get-cpu-id.service';
@@ -57,7 +57,7 @@ export class SharedDataService {
   }
 
   private keyValueFilter(names: PlayerTeamDict, teamName: Color): PlayerTeamDict {
-    return Object.fromEntries(Object.entries(names).filter(([k, v]) => v.team == teamName));
+    return Object.fromEntries(Object.entries(names).filter(([k, v]) => v.team === teamName));
   }
 
   private processMessage(message: IMessage) {
@@ -120,7 +120,7 @@ export class SharedDataService {
     }
     else if (message.data.command === 'SET_NAMES') {
       const currNames = this.names.getValue();
-      const newNames = {...currNames, ...message.data.names}
+      const newNames = {...currNames, ...message.data.names};
       this.names.next(newNames);
       this.sharedData.next(message.data.sharedData);
     }
@@ -129,10 +129,10 @@ export class SharedDataService {
     }
   }
 
-  setSharedData(sharedData: ISharedData | ISharedDataOptionals) {
+  setSharedData(sharedData: Partial<ISharedData>) {
     this.peerToPeerService.broadcastAndToSelf({
       command: 'UPDATE_SHARED',
-      sharedData: sharedData
+      sharedData
     }, {echo: true});
   }
 

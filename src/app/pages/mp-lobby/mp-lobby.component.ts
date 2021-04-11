@@ -1,9 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Color } from 'chessground/types';
-import { BehaviorSubject, Observable, Subscription } from 'rxjs';
-import { PlayerTeamDict } from 'src/app/components/chess-board/helpers/PlayerTeamHelper';
-import { IMessage, ISendNames } from 'src/app/shared/peer-to-peer/defs';
+import { Observable, Subscription } from 'rxjs';
 import { ISharedData } from 'src/app/shared/peer-to-peer/shared-data';
 import { PeerToPeerService } from 'src/app/services/peer-to-peer.service';
 import { SharedDataService } from 'src/app/services/shared-data.service';
@@ -60,8 +58,6 @@ export class MpLobbyComponent implements OnInit {
       owner: this.peerToPeerService.getId(),
       sortNumber: 0
     }, this.peerToPeerService.getId());
-    //this.setTeam('white');
-    //this.sharedDataService.setSortNumber(this.peerToPeerService.getId(), 0);
   }
 
   ngOnDestroy() {

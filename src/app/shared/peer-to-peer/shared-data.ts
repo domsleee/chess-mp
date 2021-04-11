@@ -1,10 +1,7 @@
 import { mateInTwoFen } from "../fen";
 
-export interface ISharedData extends ISharedDataOptionals {
+export interface ISharedData {
   matchCount: number;
-}
-
-export interface ISharedDataOptionals {
   timerSettings?: ITimerSettings;
   startFen?: string;
 }
@@ -22,7 +19,7 @@ export function getDefaultSharedData(): ISharedData {
     timerSettings: {
       whiteTime: 60,
       whiteIncrement: 2,
-      asymmetric: true,
+      asymmetric: false,
       blackTime: 60,
       blackIncrement: 0
     },

@@ -39,6 +39,7 @@ import { RematchButtonComponent } from './components/rematch-button/rematch-butt
 import { TextareaSelectallComponent } from './components/textarea-selectall/textarea-selectall.component';
 import { EditableSpanComponent } from './components/editable-span/editable-span.component';
 import { PanelHeaderDisableEventsDirective } from './directives/panel-header-disable-events.directive';
+import { ReactiveComponentModule } from '@ngrx/component';
 
 
 
@@ -85,7 +86,8 @@ import { PanelHeaderDisableEventsDirective } from './directives/panel-header-dis
     MatCardModule,
     HttpClientModule,
     MatProgressSpinnerModule,
-    MatIconModule
+    MatIconModule,
+    ReactiveComponentModule
   ],
   providers: [
     {

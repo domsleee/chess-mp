@@ -1,7 +1,7 @@
 import { Color, Key } from "chessground/types";
 import * as ChessJS from 'chess.js';
 import { IEngineSettings, IPlayerTeam, PlayerTeamDict } from "../../components/chess-board/helpers/PlayerTeamHelper";
-import { ISharedData, ISharedDataOptionals } from "./shared-data";
+import { ISharedData } from "./shared-data";
 export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
 
 
@@ -47,7 +47,7 @@ export interface ICreatePlayer extends ICommand {
 
 export interface IUpdateShared extends ICommand {
   command: 'UPDATE_SHARED';
-  sharedData: ISharedData | ISharedDataOptionals;
+  sharedData: Partial<ISharedData>;
 }
 
 export interface IStart extends ICommand {
