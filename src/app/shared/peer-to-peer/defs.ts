@@ -5,7 +5,7 @@ import { ISharedData } from "./shared-data";
 export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
 
 
-export type MessageData = IMove | IInfo2 | IStart | IDisconnectNotification | ISendNames | IUpdateShared |
+export type MessageData = IMove | IInfo | IStart | IDisconnectNotification | ISendNames | IUpdateShared |
                           IDeclareTimeout | IDeletePlayer | ICreatePlayer;
 
 export interface IMessage {
@@ -30,8 +30,8 @@ export interface IMove extends ICommand {
   promotion?: Exclude<ChessJS.PieceType, 'p'>;
 }
 
-export interface IInfo2 extends ICommand {
-  command: 'INFO2';
+export interface IInfo extends ICommand {
+  command: 'INFO';
   player: Partial<IPlayerTeam>;
   overrides?: {
     id?: string;

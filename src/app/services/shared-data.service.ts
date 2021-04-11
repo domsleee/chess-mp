@@ -85,7 +85,7 @@ export class SharedDataService {
       this.names.next(currNames);
       this.numNames.next(Object.keys(currNames).length);
     }
-    else if (message.data.command === 'INFO2') {
+    else if (message.data.command === 'INFO') {
       const nameId = message.data.overrides?.id ?? message.from;
       const currNames = this.names.getValue();
 
@@ -149,11 +149,11 @@ export class SharedDataService {
   }
 
   setTeam(team: Color) {
-    return this.broadcastNamesMessage2({team});
+    return this.broadcastNamesMessage({team});
   }
 
   setSortNumber(playerId: string, sortNumber: number) {
-    return this.broadcastNamesMessage2({sortNumber}, {id: playerId});
+    return this.broadcastNamesMessage({sortNumber}, {id: playerId});
   }
 
   addCPU(team: Color) {
@@ -175,7 +175,7 @@ export class SharedDataService {
   }
 
   setIsReady(isReady: boolean) {
-    return this.broadcastNamesMessage2({isReady});
+    return this.broadcastNamesMessage({isReady});
   }
 
   setEngineSettings(playerId: string, engineSettings: IEngineSettings, team: Color | null = null) {
@@ -188,14 +188,14 @@ export class SharedDataService {
       player.team = team;
     }
 
-    return this.broadcastNamesMessage2(
+    return this.broadcastNamesMessage(
       player,
       {id: playerId}
     );
   }
 
   setRematchRequested(rematchRequested: boolean) {
-    this.broadcastNamesMessage2({rematchRequested});
+    this.broadcastNamesMessage({rematchRequested});
   }
 
   swapAllTeamsAndRematch() {
@@ -208,9 +208,9 @@ export class SharedDataService {
     this.names.next(names);
   }
 
-  private broadcastNamesMessage2(data: Partial<IPlayerTeam>, overrides?: {id: string}) {
+  private broadcastNamesMessage(data: Partial<IPlayerTeam>, overrides?: {id: string}) {
     const message: MessageData = {
-      command: 'INFO2',
+      command: 'INFO',
       player: data,
       overrides
     };
