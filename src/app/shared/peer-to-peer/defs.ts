@@ -6,7 +6,7 @@ export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
 
 
 export type MessageData = IMove | IInfo | IStart | IDisconnectNotification | ISendNames | IUpdateShared |
-                          IDeclareTimeout;
+                          IDeclareTimeout | IDeletePlayer;
 
 export interface IMessage {
   type: 'BROADCAST' | 'SINGLE';
@@ -70,4 +70,9 @@ export interface IDeclareTimeout extends ICommand {
   command: 'DECLARE_TIMEOUT';
   matchId: number;
   color: Color;
+}
+
+export interface IDeletePlayer extends ICommand {
+  command: 'DELETE_PLAYER';
+  playerId: string;
 }

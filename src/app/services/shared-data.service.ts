@@ -8,6 +8,7 @@ import { IInfo, IInfoOptionals, IMessage, MessageData } from '../shared/peer-to-
 import { getDefaultSharedData, ISharedData, ISharedDataOptionals } from '../shared/peer-to-peer/shared-data';
 import { merge } from '../shared/util/helpers';
 import { invertColor } from '../shared/util/play';
+import { GetCpuIdService } from './get-cpu-id.service';
 import { PeerToPeerService } from './peer-to-peer.service';
 
 const debug = console.log;
@@ -27,7 +28,8 @@ export class SharedDataService {
     black: Observable<PlayerTeamDict>
   };
 
-  constructor(private peerToPeerService: PeerToPeerService) {
+  constructor(private peerToPeerService: PeerToPeerService,
+    private getCpuIdService: GetCpuIdService) {
     this.messageSubscription = this.peerToPeerService.messageSubject.subscribe(this.processMessage.bind(this));
     this.nameByTeamObservable = {
       white: this.names.pipe(map(t => this.keyValueFilter(t, "white"))),
@@ -67,13 +69,13 @@ export class SharedDataService {
       const isNewName = !(nameId in currNames);
       currNames[nameId] = {
         ...currNames[nameId],
-        ...this.filterDict<IInfo>(message.data, ([k,v]) => k != 'engineSettings' && k != 'idOverride'),
+        ...this.filterDict<IInfo>(message.data, ([k,v]) => k !== 'engineSettings' && k !== 'idOverride'),
         isOwnedByMe: message.data.owner === this.peerToPeerService.getId()
       };
       if (message.data.engineSettings) {
         const currEngineSettings = currNames[nameId].engineSettings ?? {};
         currNames[nameId].engineSettings = {...currEngineSettings, ...message.data.engineSettings};
-        const engineSettings = currNames[nameId]!.engineSettings;
+        const engineSettings = currNames[nameId].engineSettings;
         if (engineSettings) {
           currNames[nameId].name = getEngineName(engineSettings);
         }
@@ -137,7 +139,7 @@ export class SharedDataService {
   }
 
   addCPU(team: Color) {
-    return this.setEngineSettings(getNewCPUId(this.names.getValue(), this.peerToPeerService.getId()), getDefaultEngineSettings(), team);
+    return this.setEngineSettings(this.getCpuIdService.getNewCpuId(), getDefaultEngineSettings(), team);
   }
 
   setIsReady(isReady: boolean) {
@@ -151,11 +153,11 @@ export class SharedDataService {
       idOverride: playerId,
       sortNumber: 0,
       engineSettings: engineSettings
-    }
+    };
     if (team != null) {
       infoOptionals.team = team;
     }
-   
+
     return this.broadcastNamesMessage(
       infoOptionals,
       getEngineName({...this.getPlayerSync(playerId)?.engineSettings ?? {}, ...engineSettings})
