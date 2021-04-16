@@ -39,6 +39,10 @@ export class ChessTimerService implements OnDestroy {
     return this.timers[color].asObservable();
   }
 
+  getTimeSync(color: Color) {
+    return this.timers[color].getValue();
+  }
+
   getTimeoutObservable() {
     return this.timeout.asObservable();
   }
@@ -107,6 +111,7 @@ export class ChessTimerService implements OnDestroy {
 
   private tickHandler() {
     if (this.paused) return;
+    // console.log("TICK HANDLER");
     const currentMs = Date.now();
     const diff = currentMs - this.timerState.msWhenLastChanged;
 

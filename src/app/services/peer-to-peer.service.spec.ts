@@ -9,7 +9,7 @@ describe('PeerToPeerService', () => {
   const sampleCommand: MessageData = {
     command: 'DISCONNECTED',
     name: 'myname'
-  }
+  };
 
   beforeEach(() => {
     peers = createPeers(1);

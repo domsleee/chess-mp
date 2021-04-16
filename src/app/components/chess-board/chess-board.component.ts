@@ -156,6 +156,10 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
     this.chessStatusService.setFen(fen);
   }
 
+  exposedMoveHandler(from: Key, to: Key) {
+    return this.cgMoveHandler(from, to);
+  }
+
   private cgMoveHandler(from: Key, to: Key, promotion?: Exclude<ChessJS.PieceType, 'p'>) {
     this.movePieceWithEnPassantAndPromotion({from, to, promotion});
 

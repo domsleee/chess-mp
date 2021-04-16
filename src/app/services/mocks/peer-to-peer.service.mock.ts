@@ -17,7 +17,7 @@ export class PeerToPeerServiceMock extends PeerToPeerService {
   getHostId() {
     return this.hostIdOverride;
   }
-  
+
   addConnection(p: PeerToPeerServiceMock) {
     console.log(`Add connection ${p.getId()}`, this.connections);
     this.connections[p.getId()] = jasmine.createSpyObj('DataConnection', ['send'], {

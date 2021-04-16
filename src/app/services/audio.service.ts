@@ -8,14 +8,13 @@ export class AudioService {
 
   constructor(@Inject(APP_BASE_HREF) private baseHref: string) { }
 
-  capture = new Multiplay(this.getAsset('audio/Capture.mp3'), 3);
-  move = new Multiplay(this.getAsset('audio/Move.mp3'), 3);
-  genericNotify = new Audio(this.getAsset('audio/GenericNotify.mp3'));
+  capture: IPlayable = new Multiplay(this.getAsset('audio/Capture.mp3'), 3);
+  move: IPlayable = new Multiplay(this.getAsset('audio/Move.mp3'), 3);
+  genericNotify: IPlayable = new Audio(this.getAsset('audio/GenericNotify.mp3'));
 
   private getAsset(assetDir: string) {
     return `${this.baseHref}assets/${assetDir}`;
   }
-
 }
 
 class Multiplay implements IPlayable {
@@ -35,6 +34,6 @@ class Multiplay implements IPlayable {
 }
 
 
-interface IPlayable {
+export interface IPlayable {
   play(): Promise<void>;
 }

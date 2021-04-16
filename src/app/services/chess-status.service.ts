@@ -78,7 +78,7 @@ export class ChessStatusService {
   }
 
   isGameOver() {
-    return this.currentStatus.getValue() != '';
+    return this.currentStatus.getValue() !== '';
   }
 
   setTimeout(color: Color) {
@@ -98,11 +98,11 @@ export class ChessStatusService {
   }
 
   isPlayersMove(playersId: string) {
-    return this.playersTurnInfo.isPlayersTurn(this.getNumMoves(), playersId)
+    return this.playersTurnInfo.isPlayersTurn(this.getNumMoves(), playersId);
   }
 
   didMoveBelongToPlayer(playersId: string) {
-    return this.playersTurnInfo.didMoveBelongToPlayer(this.getNumMoves(), playersId)
+    return this.playersTurnInfo.didMoveBelongToPlayer(this.getNumMoves(), playersId);
   }
 
   isPlayersMoveNext(playersId: string) {
