@@ -16,6 +16,7 @@ import { ChessTimerService } from 'src/app/services/chess-timer.service';
 import { getAudioServiceMock } from 'src/app/mocks/audio.service.mock';
 import { ReactiveComponentModule } from '@ngrx/component';
 import { PlayerListComponent } from '../player-list/player-list.component';
+import { CommandService } from 'src/app/services/command.service';
 
 describe('ChessBoardComponent', () => {
   let component: ChessBoardComponent;
@@ -124,5 +125,14 @@ describe('ChessBoardComponent', () => {
     }
     expect(chessStatusService.isGameOver()).toBeTrue();
     expect(chessStatusService.currentStatus.getValue()).toEqual('draw');
+  });
+
+  it('resign option', () => {
+    expect(chessStatusService.isGameOver()).toBeFalse();
+    const commandService = TestBed.inject(CommandService);
+    commandService.resign('white');
+    jasmine.clock().tick(1 * 1000);
+    expect(chessStatusService.isGameOver()).toEqual(true, 'should have resigned');
+    expect(chessStatusService.currentStatus.getValue()).toEqual('white resigned', 'should have resigned');
   });
 });

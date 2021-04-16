@@ -33,10 +33,6 @@ export class ChessStatusService {
     this.updateMoveForFen();
   }
 
-  private resetPlayersTurnInfo() {
-    this.playersTurnInfo = new PlayersTurnInfo(this.sharedDataService.getNamesSync(), this.blackWentFirst);
-  }
-
   move(move: string | ChessJS.ShortMove): ChessJS.Move | null {
     const res = this.chess.move(move);
     this.updateStatusFromGame(this.chess);
@@ -45,13 +41,9 @@ export class ChessStatusService {
     return res;
   }
 
-  getColor() {
-    return toColor(this.chess);
-  }
-
-  getPgn() {
-    return this.chess.pgn();
-  }
+  getColor = () => toColor(this.chess);
+  getPgn = () => this.chess.pgn();
+  getFenForMove = (moveNumber: number) => this.moveToFen[moveNumber];
 
   setFen(fen: string) {
     this.chess = new Chess(fen);
@@ -62,24 +54,9 @@ export class ChessStatusService {
     this.updateMoveForFen();
   }
 
-  getFenForMove(moveNumber: number) {
-    return this.moveToFen[moveNumber];
-  }
 
-  getPreviousMoveForMove(moveNumber: number) {
-    return this.moveToPreviousMove[moveNumber];
-  }
-
-  private updateMoveForFen(move?: ChessJS.Move) {
-    this.moveToFen[this.getNumMoves()] = this.chess.fen();
-    if (move) {
-      this.moveToPreviousMove[this.getNumMoves()] = move;
-    }
-  }
-
-  isGameOver() {
-    return this.currentStatus.getValue() !== '';
-  }
+  getPreviousMoveForMove = (moveNumber: number) => this.moveToPreviousMove[moveNumber];
+  isGameOver = () => this.currentStatus.getValue() !== '';
 
   setTimeout(color: Color) {
     this.currentStatus.next(`timeout ${color}`);
@@ -107,6 +84,21 @@ export class ChessStatusService {
 
   isPlayersMoveNext(playersId: string) {
     return this.playersTurnInfo.isPlayersTurnNext(this.getNumMoves(), playersId);
+  }
+
+  resign(team: Color) {
+    this.currentStatus.next(`${team} resigned`);
+  }
+
+  private resetPlayersTurnInfo() {
+    this.playersTurnInfo = new PlayersTurnInfo(this.sharedDataService.getNamesSync(), this.blackWentFirst);
+  }
+
+  private updateMoveForFen(move?: ChessJS.Move) {
+    this.moveToFen[this.getNumMoves()] = this.chess.fen();
+    if (move) {
+      this.moveToPreviousMove[this.getNumMoves()] = move;
+    }
   }
 
   private updateCurrentTurn() {

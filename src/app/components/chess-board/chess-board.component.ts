@@ -14,6 +14,8 @@ import { AudioService } from 'src/app/services/audio.service';
 import { promoteIfNecessary, removeEnPassantIfNecessary } from './helpers/ChessgroundHelpers';
 import { Subscription } from 'rxjs';
 import { ChessTimeoutService } from 'src/app/services/chess-timeout.service';
+import { KeyboardShortcutsComponent, ShortcutInput } from 'ng-keyboard-shortcuts';
+import { CommandService } from 'src/app/services/command.service';
 export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
 
 @Component({
@@ -31,9 +33,10 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
   private chessTimerSubscription!: Subscription;
   private peerToPeerSubscription!: Subscription;
 
-  @ViewChild('chess') ngxChessgroundComponent!: NgxChessgroundComponent;
+  @ViewChild('chess') private ngxChessgroundComponent!: NgxChessgroundComponent;
 
   private cg!: Api;
+  shortcuts: ShortcutInput[] = [];
 
   constructor(
     private chessTimerService: ChessTimerService,
@@ -41,7 +44,8 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
     private peerToPeerService: PeerToPeerService,
     private sharedDataService: SharedDataService,
     private audioService: AudioService,
-    private chessTimeoutService: ChessTimeoutService
+    private chessTimeoutService: ChessTimeoutService,
+    private commandService: CommandService
   ) {
     this.isSinglePlayer = !this.peerToPeerService.isConnected;
     this.myTeam = this.chessStatusService.playersTurnInfo.getTeam(this.peerToPeerService.getId());
@@ -77,7 +81,22 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
         }
         this.chessStatusService.setTimeout(message.data.color);
       }
+      else if (message.data.command === 'RESIGN') {
+        if (message.data.matchId !== this.sharedDataService.getSharedDataSync().matchCount) {
+          return;
+        }
+        this.chessStatusService.resign(message.data.team);
+        this.onGameOver();
+      }
     });
+
+    this.shortcuts.push(
+      {
+        key: 'ctrl + shift + r',
+        preventDefault: true,
+        command: e => this.commandService.resign(this.myTeam)
+      },
+    );
   }
 
   ngAfterContentInit() {
@@ -204,7 +223,6 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
     removeEnPassantIfNecessary(resMove!, this.cg);
 
     this.playMoveSound(resMove!.captured != null);
-
     this.cg.set({
       check: this.chessStatusService.chess.in_check() ? this.chessStatusService.getColor() : undefined,
     });
