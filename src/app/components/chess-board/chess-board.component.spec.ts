@@ -135,4 +135,33 @@ describe('ChessBoardComponent', () => {
     expect(chessStatusService.isGameOver()).toEqual(true, 'should have resigned');
     expect(chessStatusService.currentStatus.getValue()).toEqual('white resigned', 'should have resigned');
   });
+
+  it('timer settings', () => {
+    chessTimerService.setupTimer({
+      whiteTime: 60,
+      whiteIncrement: 5,
+      asymmetric: false
+    }, 'white');
+
+    const assertTimes = (whiteTime: number, blackTime: number, msg?: string) => {
+      chessTimerService.tickHandlerExposed();
+      expect(chessTimerService.getTimeSync('white')).toBeCloseTo(whiteTime, 5, msg);
+      expect(chessTimerService.getTimeSync('black')).toBeCloseTo(blackTime, 5, msg);
+    };
+
+    assertTimes(60, 60, '0 moves');
+    component.exposedMoveHandler('e2', 'e4');
+    jasmine.clock().tick(1000);
+    assertTimes(60, 60, 'after 1 move');
+    component.exposedMoveHandler('e7', 'e5');
+    assertTimes(60, 60, 'after 2 moves');
+    jasmine.clock().tick(1000);
+    assertTimes(59, 60, 'after 2 moves + 1 sec');
+    component.exposedMoveHandler('d2', 'd4');
+    assertTimes(64, 60, 'after 3rd move, increment');
+    jasmine.clock().tick(2 * 1000);
+    assertTimes(64, 58, 'after 3rd move + 2 secs');
+    component.exposedMoveHandler('d7', 'd5');
+    assertTimes(64, 63, 'after 4th move, increment');
+  });
 });

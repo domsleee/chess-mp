@@ -182,11 +182,10 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
   private cgMoveHandler(from: Key, to: Key, promotion?: Exclude<ChessJS.PieceType, 'p'>) {
     this.movePieceWithEnPassantAndPromotion({from, to, promotion});
 
+    this.chessTimerService.setTurn(this.chessStatusService.getColor());
     if (this.chessStatusService.getNumMoves() === 2) {
       this.chessTimerService.startTimer();
     }
-
-    this.chessTimerService.setTurn(this.chessStatusService.getColor());
     if (this.chessStatusService.getNumMoves() >= 2) {
       this.chessTimerService.unpauseTimer();
     }

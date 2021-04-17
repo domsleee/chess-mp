@@ -73,7 +73,6 @@ export class ChessTimerService implements OnDestroy {
   }
 
   startTimer() {
-    this.timerState.msWhenLastChanged = Date.now();
     this.unpauseTimer();
     this.resetTimer();
   }
@@ -89,11 +88,12 @@ export class ChessTimerService implements OnDestroy {
   }
 
   unpauseTimer() {
+    this.timerState.msWhenLastChanged = Date.now();
     this.paused = false;
   }
 
   setTurn(turn: Color) {
-    if (this.timerState.turn == turn) {
+    if (this.timerState.turn === turn) {
       throw new Error('Tried to set the same turn?');
     }
     if (!this.paused) {
@@ -103,6 +103,8 @@ export class ChessTimerService implements OnDestroy {
     this.resetTimer();
     this.timerState.msWhenLastChanged = Date.now();
   }
+
+  tickHandlerExposed = () => this.tickHandler();
 
   private resetTimer() {
     this.myTimerSubscription?.unsubscribe();
