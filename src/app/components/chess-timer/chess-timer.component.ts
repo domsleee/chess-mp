@@ -49,7 +49,7 @@ export class ChessTimerComponent implements OnInit {
 
   ngOnInit() {
     this.flexDirection = !this.inverted ? 'column' : 'column-reverse';
-    this.whiteNames = this.sharedDataService.getNameObservable('white');
-    this.blackNames = this.sharedDataService.getNameObservable('black');
+    this.whiteNames = this.sharedDataService.getNames('white');
+    this.blackNames = this.sharedDataService.getNames('black');
   }
 }

@@ -1,4 +1,4 @@
-import { mateInTwoFen } from "../fen";
+import { enPassantFen, mateInTwoFen, promotionFen } from "../fen";
 
 export interface ISharedData {
   matchCount: number;
@@ -23,7 +23,7 @@ export function getDefaultSharedData(): ISharedData {
       blackTime: 60,
       blackIncrement: 0
     },
-    // startFen: mateInTwoFen,
+    // startFen: promotionFen,
     matchCount: 1
   };
 }

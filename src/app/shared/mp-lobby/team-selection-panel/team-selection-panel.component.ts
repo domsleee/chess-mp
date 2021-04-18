@@ -3,6 +3,7 @@ import { MatExpansionPanelHeader } from '@angular/material/expansion';
 import { Color } from 'chessground/types';
 import { Observable, Subscription } from 'rxjs';
 import { getSortedTeamKeys, IPlayerTeam, PlayerTeamDict } from 'src/app/components/chess-board/helpers/PlayerTeamHelper';
+import { CommandService } from 'src/app/services/command.service';
 import { PeerToPeerService } from 'src/app/services/peer-to-peer.service';
 import { SharedDataService } from 'src/app/services/shared-data.service';
 
@@ -22,16 +23,15 @@ export class TeamSelectionPanelComponent implements OnInit, OnDestroy {
 
   setSortNumberFns: {[n: string]: (n: number) => void} = {};
 
-
   constructor(
     private sharedDataService: SharedDataService,
-    private peerToPeerService: PeerToPeerService
-  ) {
-  }
+    private peerToPeerService: PeerToPeerService,
+    private commandService: CommandService
+  ) {}
 
   ngOnInit(): void {
     debug("team selection init...");
-    this.teamDictSubscription = this.sharedDataService.getNameObservable(this.team).subscribe(t => {
+    this.teamDictSubscription = this.sharedDataService.getNames(this.team).subscribe(t => {
       this.teamDict = t;
       this.sortedKeys = getSortedTeamKeys(this.teamDict);
       console.log("sortedKeys", this.sortedKeys);
@@ -58,7 +58,7 @@ export class TeamSelectionPanelComponent implements OnInit, OnDestroy {
   }
 
   addCPU() {
-    this.sharedDataService.addCPU(this.team);
+    this.commandService.addCPU(this.team);
   }
 
   deleteCpu(e: Event, playerId: string) {

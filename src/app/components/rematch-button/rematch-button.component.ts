@@ -4,6 +4,7 @@ import { ChessBoardResetService } from 'src/app/services/chess-board-reset.servi
 import { PeerToPeerService } from 'src/app/services/peer-to-peer.service';
 import { SharedDataService } from 'src/app/services/shared-data.service';
 import { default as sleep } from 'sleep-promise';
+import { CommandService } from 'src/app/services/command.service';
 
 @Component({
   selector: 'app-rematch-button',
@@ -22,7 +23,8 @@ export class RematchButtonComponent implements OnInit, OnDestroy {
   constructor(
     private sharedDataService: SharedDataService,
     private chessBoardResetService: ChessBoardResetService,
-    private peerToPeerService: PeerToPeerService) {
+    private peerToPeerService: PeerToPeerService,
+    private commandService: CommandService) {
 
     this.numNamesSubscription = this.sharedDataService.numNames.subscribe(t => {
       this.numUniqNames = new Set(Object.entries(this.sharedDataService.getNamesSync()).map(([k, val]) => val.owner)).size;
@@ -53,7 +55,7 @@ export class RematchButtonComponent implements OnInit, OnDestroy {
     if (this.numUniqNames > 0 && this.numUniqNames === this.numReady && !this.resetStarted) {
       this.resetStarted = true;
       await sleep(500);
-      this.sharedDataService.swapAllTeamsAndRematch();
+      this.commandService.swapAllTeamsAndRematch();
       this.chessBoardResetService.doReset();
     }
   }

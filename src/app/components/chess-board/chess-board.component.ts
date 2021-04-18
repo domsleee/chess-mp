@@ -331,8 +331,8 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
   }
 
   private updateMoveHandlerResolver() {
-    const whiteTeamDict = this.sharedDataService.getColorNames('white');
-    const blackTeamDict = this.sharedDataService.getColorNames('black');
+    const whiteTeamDict = this.sharedDataService.getNamesSync('white');
+    const blackTeamDict = this.sharedDataService.getNamesSync('black');
     return this.moveHandlerResolver = new MoveHandlerResolver(whiteTeamDict, blackTeamDict);
   }
 }

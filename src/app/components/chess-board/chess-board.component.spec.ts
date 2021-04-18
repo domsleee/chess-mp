@@ -24,19 +24,21 @@ describe('ChessBoardComponent', () => {
   let chessStatusService: ChessStatusService;
   let chessTimerService: ChessTimerService;
   let sharedDataService: SharedDataService;
+  let commandService: CommandService;
 
   beforeEach(async () => {
     const peers = createPeers(0);
     sharedDataService = new SharedDataService(peers[0], new GetCpuIdService(peers[0]));
+    commandService = new CommandService(sharedDataService, peers[0], new GetCpuIdService(peers[0]));
 
-    sharedDataService.createPlayer({
+    commandService.createPlayer({
       name: 'p1',
       team: 'white',
       sortNumber: 0,
       owner: peers[0].getId(),
       isReady: false
     }, peers[0].getId());
-    sharedDataService.createPlayer({
+    commandService.createPlayer({
       name: 'p2',
       team: 'black',
       sortNumber: 0,
@@ -129,7 +131,6 @@ describe('ChessBoardComponent', () => {
 
   it('resign option', () => {
     expect(chessStatusService.isGameOver()).toBeFalse();
-    const commandService = TestBed.inject(CommandService);
     commandService.resign('white');
     jasmine.clock().tick(1 * 1000);
     expect(chessStatusService.isGameOver()).toEqual(true, 'should have resigned');

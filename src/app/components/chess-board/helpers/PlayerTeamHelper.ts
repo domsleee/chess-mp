@@ -58,6 +58,10 @@ export function getSortedTeamKeys(names: PlayerTeamDict) {
   });
 }
 
+export function keyValueFilter(names: PlayerTeamDict, teamName: Color): PlayerTeamDict {
+  return Object.fromEntries(Object.entries(names).filter(([k, v]) => v.team === teamName));
+}
+
 export interface IEngineSettings {
   timeForMove: number;
   elo: number;

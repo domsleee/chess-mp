@@ -2,11 +2,10 @@ import { Injectable, OnDestroy, OnInit } from '@angular/core';
 import { Color } from 'chessground/types';
 import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { getDefaultEngineSettings, getDefaultNames, IEngineSettings, IPlayerTeam, PlayerTeamDict } from '../components/chess-board/helpers/PlayerTeamHelper';
+import { getDefaultNames, IEngineSettings, IPlayerTeam, keyValueFilter, PlayerTeamDict } from '../components/chess-board/helpers/PlayerTeamHelper';
 import { getEngineName } from '../shared/engine/engine-helpers';
 import { IMessage, MessageData } from '../shared/peer-to-peer/defs';
 import { getDefaultSharedData, ISharedData } from '../shared/peer-to-peer/shared-data';
-import { invertColor } from '../shared/util/play';
 import { GetCpuIdService } from './get-cpu-id.service';
 import { PeerToPeerService } from './peer-to-peer.service';
 import merge from 'lodash-es/merge';
@@ -36,8 +35,8 @@ export class SharedDataService implements OnDestroy {
   ) {
     this.messageSubscription = this.peerToPeerService.messageSubject.subscribe(this.processMessage.bind(this));
     this.nameByTeamObservable = {
-      white: this.names.pipe(map(t => this.keyValueFilter(t, "white"))),
-      black: this.names.pipe(map(t => this.keyValueFilter(t, "black")))
+      white: this.names.pipe(map(t => keyValueFilter(t, 'white'))),
+      black: this.names.pipe(map(t => keyValueFilter(t, 'black')))
     };
 
     if (!this.peerToPeerService.isConnected) {
@@ -49,14 +48,7 @@ export class SharedDataService implements OnDestroy {
     this.messageSubscription.unsubscribe();
   }
 
-  getNames(): Observable<PlayerTeamDict> {
-    return this.names.asObservable();
-  }
-
-  getNamesSync(): ReadonlyDeep<PlayerTeamDict> {
-    return this.names.getValue();
-  }
-
+  // ========== shared data methods
   getSharedData(): Observable<Readonly<ISharedData>> {
     return this.sharedData.asObservable();
   }
@@ -65,20 +57,76 @@ export class SharedDataService implements OnDestroy {
     return this.sharedData.getValue();
   }
 
-  // todo: move these 3 functions
-  getNameObservable(color?: Color): Readonly<Observable<PlayerTeamDict>> {
+  setSharedData(sharedData: PartialDeep<ISharedData>) {
+    this.peerToPeerService.broadcastAndToSelf({
+      command: 'UPDATE_SHARED',
+      sharedData
+    }, {echo: true});
+  }
+
+  // ========== player methods
+  updateNames(names: PlayerTeamDict) {
+    this.names.next(names);
+  }
+
+  getNames(color?: Color): Readonly<Observable<PlayerTeamDict>> {
     if (color === undefined) {
       return this.names.asObservable();
     }
     return this.nameByTeamObservable[color];
   }
 
-  getColorNames(color: Color): PlayerTeamDict {
-    return this.keyValueFilter(this.names.getValue(), color);
+  getNamesSync(color?: Color): PlayerTeamDict {
+    if (color === undefined) {
+      return this.names.getValue();
+    }
+    return keyValueFilter(this.names.getValue(), color);
   }
 
-  private keyValueFilter(names: PlayerTeamDict, teamName: Color): PlayerTeamDict {
-    return Object.fromEntries(Object.entries(names).filter(([k, v]) => v.team === teamName));
+  getPlayerSync(playerId: string): Readonly<IPlayerTeam> {
+    return this.names.getValue()[playerId];
+  }
+
+  setTeam(team: Color) {
+    return this.broadcastNamesMessage({team});
+  }
+
+  setSortNumber(playerId: string, sortNumber: number) {
+    return this.broadcastNamesMessage({sortNumber}, {id: playerId});
+  }
+
+  setIsReady(isReady: boolean) {
+    return this.broadcastNamesMessage({isReady});
+  }
+
+  setEngineSettings(playerId: string, engineSettings: Partial<IEngineSettings>) {
+    const currentEngineSettings = this.getPlayerSync(playerId).engineSettings;
+    if (!currentEngineSettings) {
+      throw new Error('Engine settings must be defined before updated');
+    }
+    const player: PartialDeep<IPlayerTeam> = {
+      name: getEngineName({...currentEngineSettings, ...engineSettings}),
+      sortNumber: 0,
+      engineSettings
+    };
+
+    return this.broadcastNamesMessage(
+      player,
+      {id: playerId}
+    );
+  }
+
+  setRematchRequested(rematchRequested: boolean) {
+    return this.broadcastNamesMessage({rematchRequested});
+  }
+
+  broadcastNamesMessage(data: PartialDeep<IPlayerTeam>, overrides?: {id: string}) {
+    const message: MessageData = {
+      command: 'INFO',
+      player: data,
+      overrides
+    };
+    this.peerToPeerService.broadcastAndToSelf(message, {echo: true});
   }
 
   private processMessage(message: IMessage) {
@@ -137,89 +185,5 @@ export class SharedDataService implements OnDestroy {
     else if (message.data.command === 'UPDATE_SHARED') {
       this.sharedData.next(merge(this.getSharedDataSync(), message.data.sharedData));
     }
-  }
-
-  setSharedData(sharedData: PartialDeep<ISharedData>) {
-    this.peerToPeerService.broadcastAndToSelf({
-      command: 'UPDATE_SHARED',
-      sharedData
-    }, {echo: true});
-  }
-
-  getPlayerSync(playerId: string): Readonly<IPlayerTeam> {
-    return this.names.getValue()[playerId];
-  }
-
-  setTeam(team: Color) {
-    return this.broadcastNamesMessage({team});
-  }
-
-  setSortNumber(playerId: string, sortNumber: number) {
-    return this.broadcastNamesMessage({sortNumber}, {id: playerId});
-  }
-
-  addCPU(team: Color) {
-    return this.createPlayer({
-      name: getEngineName(getDefaultEngineSettings()),
-      team,
-      owner: this.peerToPeerService.getId(),
-      engineSettings: getDefaultEngineSettings(),
-      sortNumber: 0
-    }, this.getCpuIdService.getNewCpuId());
-  }
-
-  createPlayer(player: IPlayerTeam, playerId: string) {
-    return this.peerToPeerService.broadcastAndToSelf({
-      command: 'CREATE_PLAYER',
-      player,
-      playerId
-    });
-  }
-
-  setIsReady(isReady: boolean) {
-    return this.broadcastNamesMessage({isReady});
-  }
-
-  setEngineSettings(playerId: string, engineSettings: Partial<IEngineSettings>, team: Color | null = null) {
-    const currentEngineSettings = this.getPlayerSync(playerId).engineSettings;
-    if (!currentEngineSettings) {
-      throw new Error('Engine settings must be defined before updated');
-    }
-    const player: PartialDeep<IPlayerTeam> = {
-      name: getEngineName({...currentEngineSettings, ...engineSettings}),
-      sortNumber: 0,
-      engineSettings
-    };
-    if (team != null) {
-      player.team = team;
-    }
-
-    return this.broadcastNamesMessage(
-      player,
-      {id: playerId}
-    );
-  }
-
-  setRematchRequested(rematchRequested: boolean) {
-    this.broadcastNamesMessage({rematchRequested});
-  }
-
-  swapAllTeamsAndRematch() {
-    const names = this.names.getValue();
-    for (const key of Object.keys(names)) {
-      names[key].team = invertColor(names[key].team);
-      names[key].rematchRequested = undefined;
-    }
-    this.setSharedData({matchCount: this.getSharedDataSync().matchCount + 1});
-    this.names.next(names);
-  }
-
-  broadcastNamesMessage(data: PartialDeep<IPlayerTeam>, overrides?: {id: string}) {
-    const message: MessageData = {
-      command: 'INFO',
-      player: data,
-      overrides
-    };
-    this.peerToPeerService.broadcastAndToSelf(message, {echo: true});
   }
 }

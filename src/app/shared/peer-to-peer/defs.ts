@@ -1,6 +1,6 @@
 import { Color, Key } from 'chessground/types';
 import * as ChessJS from 'chess.js';
-import { IPlayerTeam, PlayerTeamDict } from "../../components/chess-board/helpers/PlayerTeamHelper";
+import { IPlayerTeam, PlayerTeamDict } from '../../components/chess-board/helpers/PlayerTeamHelper';
 import { ISharedData } from './shared-data';
 import { PartialDeep } from 'type-fest';
 export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;

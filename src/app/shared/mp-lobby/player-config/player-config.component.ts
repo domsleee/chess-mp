@@ -22,7 +22,7 @@ export class PlayerConfigComponent implements OnInit, OnDestroy {
   roundTo50 = (val: number) => Math.round(val / 50) * 50;
 
   constructor(private sharedDataService: SharedDataService) {
-    this.namesSubscription = this.sharedDataService.getNameObservable().subscribe(names => {
+    this.namesSubscription = this.sharedDataService.getNames().subscribe(names => {
       this.player = names[this.playerId];
     });
   }

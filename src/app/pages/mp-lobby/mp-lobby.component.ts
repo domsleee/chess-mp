@@ -7,6 +7,7 @@ import { PeerToPeerService } from 'src/app/services/peer-to-peer.service';
 import { SharedDataService } from 'src/app/services/shared-data.service';
 import { RouteNames } from '../routes';
 import { APP_BASE_HREF } from '@angular/common';
+import { CommandService } from 'src/app/services/command.service';
 
 @Component({
   selector: 'app-mp-lobby',
@@ -24,6 +25,7 @@ export class MpLobbyComponent implements OnInit, OnDestroy {
     private peerToPeerService: PeerToPeerService,
     private router: Router,
     private sharedDataService: SharedDataService,
+    private commandService: CommandService,
     @Inject(APP_BASE_HREF) private baseHref: string
   ) {
     this.hostUrl = `/join/${this.peerToPeerService.getHostId()}`;
@@ -49,7 +51,7 @@ export class MpLobbyComponent implements OnInit, OnDestroy {
 
 
   ngOnInit(): void {
-    this.sharedDataService.createPlayer({
+    this.commandService.createPlayer({
       name: this.peerToPeerService.getAlias(),
       team: 'white',
       owner: this.peerToPeerService.getId(),
