@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { ChessBoardResetService } from 'src/app/services/chess-board-reset.service';
 
@@ -7,7 +7,7 @@ import { ChessBoardResetService } from 'src/app/services/chess-board-reset.servi
   templateUrl: './chess-board-container.component.html',
   styleUrls: ['./chess-board-container.component.scss']
 })
-export class ChessBoardContainerComponent implements OnInit {
+export class ChessBoardContainerComponent implements OnInit, OnDestroy {
   visible = true;
   sub!: Subscription;
 

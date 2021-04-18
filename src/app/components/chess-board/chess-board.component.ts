@@ -18,6 +18,8 @@ import { KeyboardShortcutsComponent, ShortcutInput } from 'ng-keyboard-shortcuts
 import { CommandService } from 'src/app/services/command.service';
 export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
 
+const debug = console.log;
+
 @Component({
   selector: 'app-chess-board',
   templateUrl: './chess-board.component.html',
@@ -217,11 +219,15 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
     }
 
     const resMove = this.chessStatusService.move(move);
+    if (!resMove) {
+      debug('warning: invalid move');
+      return;
+    }
 
-    promoteIfNecessary(resMove!, this.cg, oldColor);
-    removeEnPassantIfNecessary(resMove!, this.cg);
+    promoteIfNecessary(resMove, this.cg, oldColor);
+    removeEnPassantIfNecessary(resMove, this.cg);
 
-    this.playMoveSound(resMove!.captured != null);
+    this.playMoveSound(resMove.captured != null);
     this.cg.set({
       check: this.chessStatusService.chess.in_check() ? this.chessStatusService.getColor() : undefined,
     });
@@ -264,7 +270,8 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
   }
 
   private async getAndApplyCPUMove() {
-    const move = await this.moveHandlerResolver.getMoveHander(this.chessStatusService.getNumMovesConsideringIfBlackWentFirst()).getMove(this.chessStatusService.chess);
+    const move = await this.moveHandlerResolver.getMoveHander(this.chessStatusService.getNumMovesConsideringIfBlackWentFirst())
+                .getMove(this.chessStatusService.chess);
     if (this.chessStatusService.isGameOver()) return;
     if (move != null) {
       console.log('APPLY CPU MOVE');

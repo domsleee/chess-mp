@@ -35,9 +35,12 @@ export class ChessStatusService {
 
   move(move: string | ChessJS.ShortMove): ChessJS.Move | null {
     const res = this.chess.move(move);
+    if (!res) {
+      throw new Error('invalid move');
+    }
     this.updateStatusFromGame(this.chess);
     this.updateCurrentTurn();
-    this.updateMoveForFen(res!);
+    this.updateMoveForFen(res);
     return res;
   }
 

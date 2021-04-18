@@ -30,7 +30,7 @@ export class StockfishGetNextMove implements IGetNextMove {
         this.sfEmitter.next(line);
 
         // console.log(line);
-        if (line == 'uciok') {
+        if (line === 'uciok') {
           console.log('OK!');
           sf.postMessage('setoption name UCI_LimitStrength value true');
           sf.postMessage(`setoption name UCI_Elo value ${this.engineSettings.elo ?? 2850}`);

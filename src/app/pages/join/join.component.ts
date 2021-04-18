@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -14,7 +14,7 @@ import { RouteNames } from '../routes';
   templateUrl: './join.component.html',
   styleUrls: ['./join.component.scss']
 })
-export class JoinComponent implements OnInit {
+export class JoinComponent implements OnInit, OnDestroy, AfterViewInit {
 
   disabled = false;
   control: FormGroup;
@@ -39,7 +39,7 @@ export class JoinComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if (this.joinId == '') this.control.disable();
+    if (this.joinId === '') this.control.disable();
   }
 
   ngOnDestroy() {

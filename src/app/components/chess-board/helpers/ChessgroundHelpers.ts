@@ -7,7 +7,7 @@ import { FLAGS } from 'src/app/shared/chessjs-types';
 
 
 export function promoteIfNecessary(move: ChessJS.Move, cg: Api, oldColor: Color) {
-  if (move.promotion != undefined) {
+  if (move.promotion) {
     const m: PiecesDiff = new Map();
     const piece: Piece = {
       role: 'queen',

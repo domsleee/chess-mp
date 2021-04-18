@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import Peer, { PeerJSOption } from 'peerjs';
 import { interval, ReplaySubject, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { assertNotNull } from '../shared/helpers';
 import { IMessage, MessageData } from '../shared/peer-to-peer/defs';
 
 const debug = /*(...args: any[]) => {}*/console.log;
@@ -40,12 +41,12 @@ export class PeerToPeerService {
     await this.connectToPeerServer();
     this.isConnected = true;
 
-    this.peer!.on('connection', (conn) => {
+    this.peer.on('connection', (conn) => {
       this.connections[conn.peer] = conn;
       conn.on('data', this.messageHandler.bind(this));
       this.attachErrorAndCloseConnEvents(conn);
     });
-    this.peer!.on('close', () => {
+    this.peer.on('close', () => {
       debug('NOT ACCEPTING INCOMING CONNECTIONS??');
     });
   }
@@ -111,7 +112,7 @@ export class PeerToPeerService {
       message.echoBroadcast = true;
     }
     for (const key in this.connections) {
-      if (key == from && !options?.echo) continue;
+      if (key === from && !options?.echo) continue;
       this.sendMessage(key, message);
     }
     return message;

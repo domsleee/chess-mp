@@ -61,14 +61,15 @@ export class ChessTimerService implements OnDestroy {
   }
 
   setupTimer(timerSettings: ITimerSettings, startingColor: Color) {
+    if (!timerSettings.whiteTime) throw new Error('white time must be defined');
     if (!timerSettings.asymmetric) {
-      this.setStartingTime(timerSettings.whiteTime!, startingColor,
-        timerSettings.whiteIncrement!,
-        timerSettings.whiteIncrement!);
+      this.setStartingTime(timerSettings.whiteTime, startingColor,
+        timerSettings.whiteIncrement,
+        timerSettings.whiteIncrement);
     } else {
-      this.setStartingTime(timerSettings.whiteTime!, startingColor,
-        timerSettings.whiteIncrement!,
-        timerSettings.blackIncrement!);
+      this.setStartingTime(timerSettings.whiteTime, startingColor,
+        timerSettings.whiteIncrement,
+        timerSettings.blackIncrement);
     }
   }
 

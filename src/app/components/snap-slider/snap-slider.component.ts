@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnChanges, OnInit, ViewChild } from '@angular/core';
 import { MatSliderChange } from '@angular/material/slider';
 
 @Component({
@@ -6,16 +6,16 @@ import { MatSliderChange } from '@angular/material/slider';
   templateUrl: './snap-slider.component.html',
   styleUrls: ['./snap-slider.component.scss']
 })
-export class SnapSliderComponent implements OnInit {
+export class SnapSliderComponent implements OnInit, OnChanges {
 
   constructor() { }
 
   get myValue() {
-    return this._myValue;
+    return this.myValueProp;
   }
 
   set myValue(val: number) {
-    this._myValue = this.roundFn(val);
+    this.myValueProp = this.roundFn(val);
   }
 
   @Input() label = 'label';
@@ -25,7 +25,7 @@ export class SnapSliderComponent implements OnInit {
 
   @ViewChild('span', {read: ElementRef}) span!: ElementRef;
 
-  _myValue = 0;
+  myValueProp = 0;
   @Input() updateModel: (value: number) => void = () => 0;
   @Input() roundFn: (value: number) => number = t => t;
 
@@ -48,7 +48,7 @@ export class SnapSliderComponent implements OnInit {
 
   onKeyPress(e: KeyboardEvent) {
     if (!(e.key >= '0' && e.key <= '9')) e.preventDefault();
-    if (e.key == 'Enter') {
+    if (e.key === 'Enter') {
       this.span.nativeElement.blur();
     }
   }
