@@ -1,6 +1,6 @@
-import { Injectable } from "@angular/core";
-import { IMessage } from "src/app/shared/peer-to-peer/defs";
-import { PeerToPeerService } from "../peer-to-peer.service";
+import { Injectable } from '@angular/core';
+import { IMessage } from 'src/app/shared/peer-to-peer/defs';
+import { PeerToPeerService } from '../../services/peer-to-peer.service';
 
 
 @Injectable()
@@ -21,11 +21,11 @@ export class PeerToPeerServiceMock extends PeerToPeerService {
   addConnection(p: PeerToPeerServiceMock) {
     console.log(`Add connection ${p.getId()}`, this.connections);
     this.connections[p.getId()] = jasmine.createSpyObj('DataConnection', ['send'], {
-      'send': (m: IMessage) => {
+      send: (m: IMessage) => {
         setTimeout(() => {
-          console.log(`Message ${this.getId()} -> ${p.getId()} ${m.data.command}`, m)
+          console.log(`Message ${this.getId()} -> ${p.getId()} ${m.data.command}`, m);
           p.messageHandler(m);
-        }, this.messageSendTimeMs)
+        }, this.messageSendTimeMs);
       }
     });
   }

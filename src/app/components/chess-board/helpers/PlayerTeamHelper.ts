@@ -37,7 +37,7 @@ export function getDefaultEngineSettings(): IEngineSettings {
   };
 }
 
-function createPlayerTeam(name: string, color: Color = 'white', engineSettings: IEngineSettings | undefined = undefined): IPlayerTeam {
+function createPlayerTeam(name: string, color: Color = 'white', engineSettings?: IEngineSettings): IPlayerTeam {
   return {
     name,
     team: color,

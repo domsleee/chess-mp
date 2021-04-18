@@ -1,6 +1,6 @@
 import 'zone.js/dist/zone-testing';
 import { SharedDataService } from './shared-data.service';
-import { BROADCAST_FINISH_DELAY, createPeers } from './mocks/peer-to-peer-helpers';
+import { BROADCAST_FINISH_DELAY, createPeers } from '../mocks/services/peer-to-peer-helpers';
 import { GetCpuIdService } from './get-cpu-id.service';
 import { CommandService } from './command.service';
 

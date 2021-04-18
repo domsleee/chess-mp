@@ -1,7 +1,7 @@
 import 'zone.js/dist/zone-testing';
 import { MessageData } from '../shared/peer-to-peer/defs';
-import { BROADCAST_FINISH_DELAY, createPeers } from './mocks/peer-to-peer-helpers';
-import { PeerToPeerServiceMock } from './mocks/peer-to-peer.service.mock';
+import { BROADCAST_FINISH_DELAY, createPeers } from '../mocks/services/peer-to-peer-helpers';
+import { PeerToPeerServiceMock } from '../mocks/services/peer-to-peer.service.mock';
 
 
 describe('PeerToPeerService', () => {

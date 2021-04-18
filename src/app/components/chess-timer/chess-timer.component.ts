@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { BehaviorSubject, Observable, timer } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { ChessTimerFormatPipe } from 'src/app/services/chess-timer-format.pipe';
+import { ChessTimerFormatPipe } from 'src/app/pipes/chess-timer-format.pipe';
 import { ChessTimerService } from 'src/app/services/chess-timer.service';
 import { DEFAULT_ID, PeerToPeerService } from 'src/app/services/peer-to-peer.service';
 import { SharedDataService } from 'src/app/services/shared-data.service';

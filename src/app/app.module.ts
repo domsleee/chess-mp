@@ -28,7 +28,7 @@ import { TeamSelectionPanelComponent } from './shared/mp-lobby/team-selection-pa
 import { PlayerConfigComponent } from './shared/mp-lobby/player-config/player-config.component';
 import { SnapSliderComponent } from './components/snap-slider/snap-slider.component';
 import { TimerConfigComponent } from './components/timer-config/timer-config.component';
-import { ChessTimerFormatPipe } from './services/chess-timer-format.pipe';
+import { ChessTimerFormatPipe } from './pipes/chess-timer-format.pipe';
 import { ChessTimerComponent } from './components/chess-timer/chess-timer.component';
 import { ReplaceNullWithEmptyPipe } from './pipes/replace-null-with-empty.pipe';
 import { AnalyseButtonComponent } from './components/analyse-button/analyse-button.component';
