@@ -22,8 +22,8 @@ export class LichessService {
       return this.fakeImportGame();
     }
     const body = new HttpParams().set('pgn', pgn);
-    const headers = new HttpHeaders().set('Content-Type','application/x-www-form-urlencoded');
-    const res = await this.http.post<IImportResult>(this.getUrl('/api/import'), body, {headers: headers}).toPromise();
+    const headers = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded');
+    const res = await this.http.post<IImportResult>(this.getUrl('/api/import'), body, {headers}).toPromise();
     return res.url;
   }
 

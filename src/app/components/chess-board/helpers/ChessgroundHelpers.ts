@@ -1,27 +1,27 @@
-import { Api } from "chessground/api";
-import { PiecesDiff, Color, Key, Piece } from "chessground/types";
+import { Api } from 'chessground/api';
+import { PiecesDiff, Color, Key, Piece } from 'chessground/types';
 
 import {default as ChessJS} from 'chess.js';
-import { FLAGS } from "src/app/shared/chessjs-types";
+import { FLAGS } from 'src/app/shared/chessjs-types';
 
 
 
 export function promoteIfNecessary(move: ChessJS.Move, cg: Api, oldColor: Color) {
   if (move.promotion != undefined) {
-    let m: PiecesDiff = new Map();
+    const m: PiecesDiff = new Map();
     const piece: Piece = {
       role: 'queen',
       color: oldColor
     };
     m.set(move.to, piece);
     cg.setPieces(m);
-  } 
+  }
 }
 
 export function removeEnPassantIfNecessary(move: ChessJS.Move, cg: Api) {
-  if (move.flags.includes(FLAGS['EP_CAPTURE'])) {
+  if (move.flags.includes(FLAGS.EP_CAPTURE)) {
     const enPassantSquare: Key = move.to[0] + move.from[1];
-    let m: PiecesDiff = new Map();
+    const m: PiecesDiff = new Map();
     m.set(enPassantSquare, undefined);
     cg.setPieces(m);
   }

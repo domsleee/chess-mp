@@ -56,14 +56,14 @@ describe('sharedDataService', () => {
   });
 
   it('concurrency with multi-writer on SHARED data', () => {
-    service1.setSharedData({timerSettings:{whiteTime: 0}});
+    service1.setSharedData({timerSettings: {whiteTime: 0}});
     jasmine.clock().tick(BROADCAST_FINISH_DELAY);
 
     expect(service1.getSharedDataSync().timerSettings?.whiteTime).toBe(0);
     expect(service2.getSharedDataSync().timerSettings?.whiteTime).toBe(0);
 
-    service1.setSharedData({timerSettings:{whiteTime: 50}});
-    service2.setSharedData({timerSettings:{whiteTime: 60}});
+    service1.setSharedData({timerSettings: {whiteTime: 50}});
+    service2.setSharedData({timerSettings: {whiteTime: 60}});
     jasmine.clock().tick(BROADCAST_FINISH_DELAY);
 
     expect(service1.getSharedDataSync().timerSettings?.whiteTime).toBe(60, 'service1');

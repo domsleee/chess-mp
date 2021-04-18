@@ -12,8 +12,8 @@ export class PlayersTurnInfo {
     if (names != null && Object.keys(names).length > 0) {
       const sortedKeys = getSortedTeamKeys(names);
       this.players = {
-        'white': sortedKeys.filter(t => names[t].team === 'white'),
-        'black': sortedKeys.filter(t => names[t].team === 'black'),
+        white: sortedKeys.filter(t => names[t].team === 'white'),
+        black: sortedKeys.filter(t => names[t].team === 'black'),
       };
     } else {
       throw new Error('can this happen?');
@@ -22,7 +22,7 @@ export class PlayersTurnInfo {
 
   getTeam(playerId: string): Color {
     console.log(this.players, playerId);
-    return this.players['white'].filter(t => t === playerId).length === 1 ? 'white' : 'black';
+    return this.players.white.filter(t => t === playerId).length === 1 ? 'white' : 'black';
   }
 
   isPlayersTurnNext(moveNumber: number, playerId: string) {

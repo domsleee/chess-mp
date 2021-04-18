@@ -1,6 +1,6 @@
-import { Api } from "chessground/api";
+import { Api } from 'chessground/api';
 import * as ChessJS from 'chess.js';
-import { Chessground } from "chessground";
+import { Chessground } from 'chessground';
 import { ChessInstance, Square } from 'chess.js';
 import { Color, Key } from 'chessground/types';
 
@@ -31,7 +31,7 @@ export const initial: Unit = {
     });
     return cg;
   }
-}
+};
 
 function wrapped(cont: HTMLElement) {
   const el = document.createElement('div');

@@ -9,7 +9,7 @@ import { PeerToPeerService } from '../services/peer-to-peer.service';
 })
 export class IsConnectedGuard implements CanActivate {
   constructor(private peerToPeerService: PeerToPeerService,
-    private router: Router)
+              private router: Router)
   {
 
   }
@@ -18,10 +18,10 @@ export class IsConnectedGuard implements CanActivate {
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
     if (!this.peerToPeerService.isConnected) {
-      console.log("ROUTE??");
+      console.log('ROUTE??');
       return this.router.parseUrl(RouteNames.HOME);
     }
     return true;
   }
-  
+
 }

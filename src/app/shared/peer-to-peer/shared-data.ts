@@ -1,4 +1,4 @@
-import { enPassantFen, mateInTwoFen, promotionFen } from "../fen";
+import { enPassantFen, mateInTwoFen, promotionFen } from '../fen';
 
 export interface ISharedData {
   matchCount: number;

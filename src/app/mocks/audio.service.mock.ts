@@ -1,5 +1,5 @@
-import { Mock } from "typemoq";
-import { AudioService, IPlayable } from "../services/audio.service"
+import { Mock } from 'typemoq';
+import { AudioService, IPlayable } from '../services/audio.service';
 
 export function getAudioServiceMock(): AudioService {
   const m = Mock.ofType<AudioService>();

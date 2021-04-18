@@ -1,4 +1,4 @@
-import { PeerToPeerServiceMock } from "./peer-to-peer.service.mock";
+import { PeerToPeerServiceMock } from './peer-to-peer.service.mock';
 
 export const BROADCAST_FINISH_DELAY = 1000 * 2;
 

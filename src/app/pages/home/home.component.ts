@@ -14,12 +14,14 @@ import { RouteNames } from '../routes';
 })
 export class HomeComponent implements OnInit {
   control: FormGroup;
-  loading: boolean = false;
+  loading = false;
   err = '';
   @ViewChild('myButton', {static: false}) button: LoadingButtonComponent | null = null;
 
-  constructor(private peerToPeerService: PeerToPeerService,
-    private router: Router) {
+  constructor(
+    private peerToPeerService: PeerToPeerService,
+    private router: Router
+  ) {
     this.control = new FormGroup({
       name: new FormControl('')
     });
@@ -30,9 +32,9 @@ export class HomeComponent implements OnInit {
 
   ngAfterViewInit(): void {
     setTimeout(() => {
-      this.control.setValue({'name': 'dom'});
+      this.control.setValue({name: 'dom'});
       // this.hostGameIfValid();
-    }, 1)
+    }, 1);
   }
 
   hostGameIfValid = async () => {
@@ -42,7 +44,7 @@ export class HomeComponent implements OnInit {
     try {
       await this.hostGame();
       this.err = '';
-    } catch(err) {
+    } catch (err) {
       this.err = err;
     } finally {
       this.loading = false;
@@ -51,7 +53,7 @@ export class HomeComponent implements OnInit {
   }
 
   async hostGame() {
-    this.peerToPeerService.setAlias(this.control.controls['name'].value);
+    this.peerToPeerService.setAlias(this.control.controls.name.value);
     await this.peerToPeerService.setupAsHost();
     this.router.navigate([RouteNames.MP_LOBBY], { replaceUrl: true });
   }

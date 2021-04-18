@@ -8,18 +8,26 @@ import { MatSliderChange } from '@angular/material/slider';
 })
 export class SnapSliderComponent implements OnInit {
 
-  @Input() label: string = "label";
+  constructor() { }
+
+  get myValue() {
+    return this._myValue;
+  }
+
+  set myValue(val: number) {
+    this._myValue = this.roundFn(val);
+  }
+
+  @Input() label = 'label';
   @Input() value: number | undefined = 0;
-  @Input() min: number = 0;
-  @Input() max: number = 100000;
+  @Input() min = 0;
+  @Input() max = 100000;
+
+  @ViewChild('span', {read: ElementRef}) span!: ElementRef;
+
+  _myValue = 0;
   @Input() updateModel: (value: number) => void = () => 0;
   @Input() roundFn: (value: number) => number = t => t;
-
-  @ViewChild("span", {read: ElementRef}) span!: ElementRef;
-
-  _myValue: number = 0;
-
-  constructor() { }
 
   ngOnInit(): void {
   }
@@ -36,14 +44,6 @@ export class SnapSliderComponent implements OnInit {
   setMyValue(e: MatSliderChange) {
     const value = e.value ?? 0;
     this.myValue = value;
-  }
-
-  get myValue() {
-    return this._myValue;
-  }
-
-  set myValue(val: number) {
-    this._myValue = this.roundFn(val);
   }
 
   onKeyPress(e: KeyboardEvent) {

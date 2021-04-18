@@ -3,4 +3,4 @@ export enum RouteNames {
   HOME = '',
   PLAY = 'play',
   JOIN = 'join'
-};
+}

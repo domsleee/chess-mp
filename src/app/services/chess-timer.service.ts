@@ -51,10 +51,10 @@ export class ChessTimerService implements OnDestroy {
     return this.timers[this.timerState.turn].getValue();
   }
 
-  private setStartingTime(totalTimeSeconds: number, startingTurn: Color = 'white', whiteIncrement = 20*1000, blackIncrement = 0) {
-    console.log("set starting time", totalTimeSeconds, startingTurn);
-    this.timers['white'].next(totalTimeSeconds);
-    this.timers['black'].next(totalTimeSeconds);
+  private setStartingTime(totalTimeSeconds: number, startingTurn: Color = 'white', whiteIncrement = 20 * 1000, blackIncrement = 0) {
+    console.log('set starting time', totalTimeSeconds, startingTurn);
+    this.timers.white.next(totalTimeSeconds);
+    this.timers.black.next(totalTimeSeconds);
     this.timerState.turn = startingTurn;
     this.whiteIncrement = whiteIncrement;
     this.blackIncrement = blackIncrement;

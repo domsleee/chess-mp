@@ -175,7 +175,7 @@ export class SharedDataService implements OnDestroy {
         }
       }
       this.names.next(newNames);
-      console.log("NEXT NAMES after dc...", newNames);
+      console.log('NEXT NAMES after dc...', newNames);
     }
     else if (message.data.command === 'SET_NAMES') {
       const currNames = this.names.getValue();

@@ -166,8 +166,8 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
 
   private setupDebug() {
     const anyWindow = window as any;
-    anyWindow['cg'] = this.cg;
-    anyWindow['chess'] = this.chessStatusService.chess;
+    anyWindow.cg = this.cg;
+    anyWindow.chess = this.chessStatusService.chess;
   }
 
   private setFen(fen: string) {
@@ -267,7 +267,7 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
     const move = await this.moveHandlerResolver.getMoveHander(this.chessStatusService.getNumMovesConsideringIfBlackWentFirst()).getMove(this.chessStatusService.chess);
     if (this.chessStatusService.isGameOver()) return;
     if (move != null) {
-      console.log("APPLY CPU MOVE");
+      console.log('APPLY CPU MOVE');
       this.processMoveFromExternal(move);
     }
   }

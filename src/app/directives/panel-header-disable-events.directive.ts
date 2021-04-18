@@ -10,6 +10,6 @@ export class PanelHeaderDisableEventsDirective {
       if (hostPanelHeader.panel.accordion) {
         hostPanelHeader.panel.accordion._handleHeaderKeydown(event);
       }
-    }
+    };
   }
 }

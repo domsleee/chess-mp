@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@angular/core';
-import { APP_BASE_HREF } from '@angular/common'; 
+import { APP_BASE_HREF } from '@angular/common';
 
 @Injectable({
   providedIn: 'root'
@@ -29,7 +29,7 @@ class Multiplay implements IPlayable {
 
   async play() {
     this.audios[this.ct].play();
-    this.ct = (this.ct+1) % this.audios.length;
+    this.ct = (this.ct + 1) % this.audios.length;
   }
 }
 

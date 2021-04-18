@@ -9,9 +9,9 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 export class LoadingButtonComponent implements OnInit {
 
-  @Input() text: string = 'text';
-  @Input() loading: boolean = false;
-  @Input() disabled: boolean = false;
+  @Input() text = 'text';
+  @Input() loading = false;
+  @Input() disabled = false;
   @Input() buttonClass = 'mat-raised-button';
 
   constructor() { }

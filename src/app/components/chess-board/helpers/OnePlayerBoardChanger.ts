@@ -1,6 +1,6 @@
-import { ChessInstance } from "chess.js";
-import { Api } from "chessground/api";
-import { invertColor, toColor, toDests } from "src/app/shared/util/play";
+import { ChessInstance } from 'chess.js';
+import { Api } from 'chessground/api';
+import { invertColor, toColor, toDests } from 'src/app/shared/util/play';
 
 export class OnePlayerBoardChanger {
   constructor() {

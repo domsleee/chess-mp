@@ -16,23 +16,25 @@ import { RouteNames } from '../routes';
 })
 export class JoinComponent implements OnInit {
 
-  disabled: boolean = false;
+  disabled = false;
   control: FormGroup;
-  loading: boolean = false;
+  loading = false;
   joinId = '';
   activateRouteSubscription: Subscription;
   err = '';
   @ViewChild('myButton', {static: false}) button: LoadingButtonComponent | null = null;
 
-  constructor(private peerToPeerService: PeerToPeerService,
+  constructor(
+    private peerToPeerService: PeerToPeerService,
     private router: Router,
-    private activatedRoute: ActivatedRoute) {
+    private activatedRoute: ActivatedRoute
+  ) {
     this.control = new FormGroup({
       name: new FormControl('')
     });
     this.activateRouteSubscription = this.activatedRoute.params.subscribe(params => {
       this.joinId = params.id;
-      this.control.enable()
+      this.control.enable();
     });
   }
 
@@ -47,9 +49,9 @@ export class JoinComponent implements OnInit {
   ngAfterViewInit(): void {
     if (!environment.production) {
       setTimeout(() => {
-        this.control.setValue({'name': 'other'});
+        this.control.setValue({name: 'other'});
         this.joinGameIfValid();
-      }, 1)
+      }, 1);
     }
   }
 
@@ -60,7 +62,7 @@ export class JoinComponent implements OnInit {
     try {
       await this.joinGame();
       this.err = '';
-    } catch(err) {
+    } catch (err) {
       this.err = err;
     } finally {
       this.loading = false;
@@ -70,7 +72,7 @@ export class JoinComponent implements OnInit {
 
   async joinGame() {
     await this.peerToPeerService.setupByConnectingToId(this.joinId);
-    this.peerToPeerService.setAlias(this.control.controls['name'].value);
+    this.peerToPeerService.setAlias(this.control.controls.name.value);
     this.router.navigate([RouteNames.MP_LOBBY], { replaceUrl: true });
   }
 

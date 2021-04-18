@@ -1,7 +1,7 @@
-import { Color } from "chessground/types";
-import { DEFAULT_ID } from "src/app/services/peer-to-peer.service";
-import { getEngineName } from "src/app/shared/engine/engine-helpers";
-import { environment } from "src/environments/environment";
+import { Color } from 'chessground/types';
+import { DEFAULT_ID } from 'src/app/services/peer-to-peer.service';
+import { getEngineName } from 'src/app/shared/engine/engine-helpers';
+import { environment } from 'src/environments/environment';
 
 export function getDefaultNames() {
   const engineSettings: IEngineSettings = getDefaultEngineSettings();
@@ -14,19 +14,19 @@ export function getDefaultNames() {
     const d: any = {};
     for (let i = 0; i < 20; ++i) {
       const s = 'abc' + i.toString();
-      d[s] = createPlayerTeam(s, 'black', engineSettings)
+      d[s] = createPlayerTeam(s, 'black', engineSettings);
     }
     return {
       [DEFAULT_ID]: createPlayerTeam('default'),
       ...d
-    }
+    };
   }
 
   return {
     [DEFAULT_ID]: createPlayerTeam('default'),
-    'stockfish': createPlayerTeam(getEngineName(engineSettings), 'black', engineSettings),
-    'stockfish2': createPlayerTeam(getEngineName(engineSettings2), 'black', engineSettings2)
-  }
+    stockfish: createPlayerTeam(getEngineName(engineSettings), 'black', engineSettings),
+    stockfish2: createPlayerTeam(getEngineName(engineSettings2), 'black', engineSettings2)
+  };
 }
 
 export function getDefaultEngineSettings(): IEngineSettings {
@@ -52,8 +52,8 @@ export function getSortedTeamKeys(names: PlayerTeamDict) {
   return Object.keys(names).sort((a, b) => {
     const lt = (c: string, d: string) => (names[c].sortNumber < names[d].sortNumber)
                                       || (names[c].sortNumber === names[d].sortNumber && c < d);
-    if (lt(a,b)) return -1;
-    if (lt(b,a)) return 1;
+    if (lt(a, b)) return -1;
+    if (lt(b, a)) return 1;
     return 0;
   });
 }

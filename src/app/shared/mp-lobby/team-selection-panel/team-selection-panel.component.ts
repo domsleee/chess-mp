@@ -30,15 +30,15 @@ export class TeamSelectionPanelComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    debug("team selection init...");
+    debug('team selection init...');
     this.teamDictSubscription = this.sharedDataService.getNames(this.team).subscribe(t => {
       this.teamDict = t;
       this.sortedKeys = getSortedTeamKeys(this.teamDict);
-      console.log("sortedKeys", this.sortedKeys);
+      console.log('sortedKeys', this.sortedKeys);
 
       for (const key of Object.keys(this.teamDict)) {
         this.setSortNumberFns[key] = (n: number) => {
-          console.log("setSortNumberFns", key, n);
+          console.log('setSortNumberFns', key, n);
           this.sharedDataService.setSortNumber(key, n);
         };
       }
@@ -50,7 +50,7 @@ export class TeamSelectionPanelComponent implements OnInit, OnDestroy {
   }
 
   onDestroy() {
-    debug("panel destroyed...");
+    debug('panel destroyed...');
   }
 
   setTeam() {

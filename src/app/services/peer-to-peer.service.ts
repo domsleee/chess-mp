@@ -46,7 +46,7 @@ export class PeerToPeerService {
       this.attachErrorAndCloseConnEvents(conn);
     });
     this.peer!.on('close', () => {
-      debug("NOT ACCEPTING INCOMING CONNECTIONS??");
+      debug('NOT ACCEPTING INCOMING CONNECTIONS??');
     });
   }
 
@@ -62,13 +62,13 @@ export class PeerToPeerService {
         timeoutSub.unsubscribe();
       });
 
-      debug(`connecting to ${id}`)
+      debug(`connecting to ${id}`);
       const conn = this.peer!.connect(id);
       conn.on('open', () => {
         debug(`connected to ${id}!`);
         this.connections[id] = conn;
         this.isConnected = true;
-        conn.on('data', this.messageHandler.bind(this))
+        conn.on('data', this.messageHandler.bind(this));
         resolve(true);
         timeoutSub.unsubscribe();
       });
@@ -78,7 +78,7 @@ export class PeerToPeerService {
         timeoutSub.unsubscribe();
       });
 
-    })
+    });
   }
 
   setAlias(alias: string) {
@@ -86,7 +86,7 @@ export class PeerToPeerService {
   }
 
   getAlias() {
-    return this.alias
+    return this.alias;
   }
 
   getHostId() {
@@ -122,11 +122,11 @@ export class PeerToPeerService {
     const message: IMessage = {
       from: this.getId(),
       type: 'SINGLE',
-      data: data
-    }
+      data
+    };
     this.sendMessage(to, message);
   }
-  
+
   private getPeerConfig(): PeerJSOption {
     if (false && !environment.production) {
       return {
@@ -176,7 +176,7 @@ export class PeerToPeerService {
       if (status === 'disconnected') {
         fn();
       }
-    })
+    });
   }
 
   private onPeerDisconnected(conn: any) {
