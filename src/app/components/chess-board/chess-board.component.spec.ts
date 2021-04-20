@@ -17,8 +17,10 @@ import { ReactiveComponentModule } from '@ngrx/component';
 import { PlayerListComponent } from '../player-list/player-list.component';
 import { CommandService } from 'src/app/services/command.service';
 import { Api } from 'chessground/api';
-import { Color } from 'chessground/types';
-import { Mock } from 'typemoq';
+import { Key } from 'chessground/types';
+
+import * as ChessJS from 'chess.js';
+import { arrowLeftEvent, arrowRightEvent } from 'src/app/mocks/keyboard.mock';
 
 describe('ChessBoardComponent', () => {
   let component: ChessBoardComponent;
@@ -31,7 +33,7 @@ describe('ChessBoardComponent', () => {
 
   beforeEach(async () => {
     const peers = createPeers(2);
-    sharedDataService = new SharedDataService(peers[0], new GetCpuIdService(peers[0]));
+    sharedDataService = new SharedDataService(peers[0]);
     commandService = new CommandService(sharedDataService, peers[0], new GetCpuIdService(peers[0]));
 
     commandService.createPlayer({
@@ -106,6 +108,18 @@ describe('ChessBoardComponent', () => {
     component.ngOnDestroy();
   });
 
+  function doMove(from: Key, to: Key, claimedTime?: number) {
+    component.exposedMoveHandler(from, to);
+    jasmine.clock().tick(1);
+  }
+
+  function getMovableStatus() {
+    if (cg.state.movable.color === undefined) return 'unmovable';
+    return cg.state.movable.color === cg.state.turnColor
+      ? 'movable'
+      : 'premovable';
+  }
+
   it('should create', () => {
     expect(component).toBeTruthy();
     expect(component.myTeam).toBe('white');
@@ -115,10 +129,10 @@ describe('ChessBoardComponent', () => {
     expect(chessStatusService.isGameOver()).toBeFalse();
     jasmine.clock().tick(200 * 1000);
     expect(chessStatusService.isGameOver()).toEqual(false, 'Zero moves should not timeout');
-    component.exposedMoveHandler('e2', 'e4');
+    doMove('e2', 'e4');
     jasmine.clock().tick(200 * 1000);
     expect(chessStatusService.isGameOver()).toEqual(false, 'One move should not timeout');
-    component.exposedMoveHandler('e7', 'e5');
+    doMove('e7', 'e5');
     jasmine.clock().tick(200 * 1000);
     expect(chessStatusService.isGameOver()).toEqual(true, 'Two moves should timeout');
   });
@@ -134,7 +148,7 @@ describe('ChessBoardComponent', () => {
     for (let i = 0; i < 2; ++i) {
       for (const move of moves) {
         expect(chessStatusService.isGameOver()).toBeFalse();
-        component.exposedMoveHandler(move[0], move[1]);
+        doMove(move[0], move[1]);
       }
     }
     expect(chessStatusService.isGameOver()).toBeTrue();
@@ -158,46 +172,32 @@ describe('ChessBoardComponent', () => {
 
     const assertTimes = (whiteTime: number, blackTime: number, msg?: string) => {
       chessTimerService.tickHandlerExposed();
-      expect(chessTimerService.getTimeSync('white')).toBeCloseTo(whiteTime, 5, msg);
-      expect(chessTimerService.getTimeSync('black')).toBeCloseTo(blackTime, 5, msg);
+      expect(chessTimerService.getTimeSync('white')).toBeCloseTo(whiteTime, 2, msg);
+      expect(chessTimerService.getTimeSync('black')).toBeCloseTo(blackTime, 2, msg);
     };
 
     assertTimes(60, 60, '0 moves');
-    component.exposedMoveHandler('e2', 'e4');
+    doMove('e2', 'e4');
     jasmine.clock().tick(1000);
     assertTimes(60, 60, 'after 1 move');
-    component.exposedMoveHandler('e7', 'e5');
+    doMove('e7', 'e5');
     assertTimes(60, 60, 'after 2 moves');
     jasmine.clock().tick(1000);
     assertTimes(59, 60, 'after 2 moves + 1 sec');
-    component.exposedMoveHandler('d2', 'd4');
+    doMove('d2', 'd4');
     assertTimes(64, 60, 'after 3rd move, increment');
     jasmine.clock().tick(2 * 1000);
     assertTimes(64, 58, 'after 3rd move + 2 secs');
-    component.exposedMoveHandler('d7', 'd5');
+    doMove('d7', 'd5');
     assertTimes(64, 63, 'after 4th move, increment');
   });
 
   describe('left/right buttons', () => {
-    function getMovableStatus() {
-      if (cg.state.movable.color === undefined) return 'unmovable';
-      return cg.state.movable.color === cg.state.turnColor
-        ? 'movable'
-        : 'premovable';
-    }
-
-    const arrowLeftMock = Mock.ofType<KeyboardEvent>();
-    arrowLeftMock.setup(t => t.key).returns(() => 'ArrowLeft');
-    const arrowLeftEvent = arrowLeftMock.target;
-    const arrowRightMock = Mock.ofType<KeyboardEvent>();
-    arrowRightMock.setup(t => t.key).returns(() => 'ArrowRight');
-    const arrowRightEvent = arrowRightMock.target;
-
     it('when it is the players turn', () => {
-      component.exposedMoveHandler('e2', 'e4');
-      component.exposedMoveHandler('e7', 'e5');
-      component.exposedMoveHandler('d2', 'd4');
-      component.exposedMoveHandler('d7', 'd5');
+      doMove('e2', 'e4');
+      doMove('e7', 'e5');
+      doMove('d2', 'd4');
+      doMove('d7', 'd5');
       expect(getMovableStatus()).toEqual('movable', 'initial');
       for (let i = 0; i < 20; ++i) {
         component.keyEvent(arrowLeftEvent);
@@ -216,22 +216,22 @@ describe('ChessBoardComponent', () => {
     });
 
     it('when it is another persons turn', () => {
-      component.exposedMoveHandler('e2', 'e4');
+      doMove('e2', 'e4');
       expect(getMovableStatus()).toEqual('unmovable', 'opponents turn');
       component.keyEvent(arrowLeftEvent);
       expect(getMovableStatus()).toEqual('unmovable', 'clearly');
       component.keyEvent(arrowRightEvent);
       expect(getMovableStatus()).toEqual('unmovable', 'opponents turn');
 
-      component.exposedMoveHandler('e7', 'e5');
+      doMove('e7', 'e5');
       expect(getMovableStatus()).toEqual('unmovable', 'teammates turn');
       component.keyEvent(arrowLeftEvent);
       expect(getMovableStatus()).toEqual('unmovable', 'clearly');
       component.keyEvent(arrowRightEvent);
       expect(getMovableStatus()).toEqual('unmovable', 'teammates turn');
 
-      component.exposedMoveHandler('d2', 'd4');
-      component.exposedMoveHandler('d7', 'd5');
+      doMove('d2', 'd4');
+      doMove('d7', 'd5');
       expect(getMovableStatus()).toEqual('movable', 'my turn');
       component.keyEvent(arrowLeftEvent);
       expect(getMovableStatus()).toEqual('unmovable', 'clearly');

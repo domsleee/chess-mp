@@ -6,7 +6,6 @@ import { getDefaultNames, IEngineSettings, IPlayerTeam, keyValueFilter, PlayerTe
 import { getEngineName } from '../shared/engine/engine-helpers';
 import { IMessage, MessageData } from '../shared/peer-to-peer/defs';
 import { getDefaultSharedData, ISharedData } from '../shared/peer-to-peer/shared-data';
-import { GetCpuIdService } from './get-cpu-id.service';
 import { PeerToPeerService } from './peer-to-peer.service';
 import merge from 'lodash-es/merge';
 import { PartialDeep, ReadonlyDeep } from 'type-fest';
@@ -30,8 +29,7 @@ export class SharedDataService implements OnDestroy {
   };
 
   constructor(
-    private peerToPeerService: PeerToPeerService,
-    private getCpuIdService: GetCpuIdService
+    private peerToPeerService: PeerToPeerService
   ) {
     this.messageSubscription = this.peerToPeerService.messageSubject.subscribe(this.processMessage.bind(this));
     this.nameByTeamObservable = {
@@ -175,7 +173,7 @@ export class SharedDataService implements OnDestroy {
         }
       }
       this.names.next(newNames);
-      console.log('NEXT NAMES after dc...', newNames);
+      debug('NEXT NAMES after dc...', newNames);
     }
     else if (message.data.command === 'SET_NAMES') {
       const currNames = this.names.getValue();

@@ -15,8 +15,8 @@ describe('sharedDataService', () => {
 
     const cpuIdService1 = new GetCpuIdService(peers[0]);
     const cpuIdService2 = new GetCpuIdService(peers[1]);
-    service1 = new SharedDataService(peers[0], cpuIdService1);
-    service2 = new SharedDataService(peers[1], cpuIdService2);
+    service1 = new SharedDataService(peers[0]);
+    service2 = new SharedDataService(peers[1]);
     const commandService1 = new CommandService(service1, peers[0], cpuIdService1);
     const commandService2 = new CommandService(service2, peers[1], cpuIdService2);
 

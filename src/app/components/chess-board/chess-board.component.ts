@@ -99,7 +99,7 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
     }
   }
 
-  private run(el: any) {
+  private run(el: HTMLElement) {
     const sharedData = this.sharedDataService.getSharedDataSync();
 
     this.cg = Chessground(el, {
@@ -144,13 +144,8 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
     anyWindow.chess = this.chessStatusService.chess;
   }
 
-  private setFen(fen: string) {
-    this.cg.set({fen});
-    this.chessStatusService.setFen(fen);
-  }
-
-  exposedMoveHandler(from: Key, to: Key) {
-    return this.cgMoveHandler(from, to);
+  exposedMoveHandler(from: Key, to: Key, promotion?: Exclude<ChessJS.PieceType, 'p'>) {
+    this.processMoveFromExternal({from, to});
   }
 
   private cgMoveHandler(from: Key, to: Key, promotion?: Exclude<ChessJS.PieceType, 'p'>) {
@@ -263,7 +258,7 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
                 .getMove(this.chessStatusService.chess);
     if (this.chessStatusService.isGameOver()) return;
     if (move != null) {
-      console.log('APPLY CPU MOVE');
+      debug('APPLY CPU MOVE');
       this.processMoveFromExternal(move);
     }
   }
