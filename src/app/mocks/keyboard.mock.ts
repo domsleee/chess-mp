@@ -1,4 +1,4 @@
-import { Mock } from "typemoq";
+import { Mock } from 'typemoq';
 
 export const arrowLeftMock = Mock.ofType<KeyboardEvent>();
 arrowLeftMock.setup(t => t.key).returns(() => 'ArrowLeft');

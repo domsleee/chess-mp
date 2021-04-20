@@ -21,7 +21,6 @@ export class PlayersTurnInfo {
   }
 
   getTeam(playerId: string): Color {
-    console.log(this.players, playerId);
     return this.players.white.filter(t => t === playerId).length === 1 ? 'white' : 'black';
   }
 

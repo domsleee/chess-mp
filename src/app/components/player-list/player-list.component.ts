@@ -19,7 +19,6 @@ export class PlayerListComponent implements OnInit {
 
   ngOnInit(): void {
     this.playersNotNull = this.players;
-    console.log(this.players);
     this.playerIds = getSortedTeamKeys(this.players);
   }
 }

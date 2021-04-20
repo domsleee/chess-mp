@@ -17,9 +17,10 @@ import { ChessTimeoutService } from 'src/app/services/chess-timeout.service';
 import { KeyboardShortcutsComponent, ShortcutInput } from 'ng-keyboard-shortcuts';
 import { CommandService } from 'src/app/services/command.service';
 import { IMessage } from 'src/app/shared/peer-to-peer/defs';
+import { getLogger } from 'src/app/services/logger';
 export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
 
-const debug = console.log;
+const logger = getLogger('chess-board.component');
 
 @Component({
   selector: 'app-chess-board',
@@ -187,7 +188,7 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
 
     const resMove = this.chessStatusService.move(move);
     if (!resMove) {
-      debug('warning: invalid move');
+      logger.warn('invalid move');
       return;
     }
 
@@ -258,7 +259,7 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
                 .getMove(this.chessStatusService.chess);
     if (this.chessStatusService.isGameOver()) return;
     if (move != null) {
-      debug('APPLY CPU MOVE');
+      logger.info('APPLY CPU MOVE');
       this.processMoveFromExternal(move);
     }
   }

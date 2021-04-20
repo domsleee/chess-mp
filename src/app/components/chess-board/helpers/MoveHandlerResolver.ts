@@ -33,7 +33,6 @@ export class MoveHandlerResolver {
   getMoveHander(moveNumber: number): IGetNextMove {
     const turnColor = moveNumber % 2 === 0 ? 'white' : 'black';
     const numHandlers = this.moveHandlers[turnColor].length;
-    console.log('GET MOVE HANDLER', moveNumber);
     return this.moveHandlers[turnColor][Math.floor(moveNumber / 2) % numHandlers];
   }
 }

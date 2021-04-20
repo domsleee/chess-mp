@@ -4,11 +4,11 @@ import { Color } from 'chessground/types';
 import { Observable, Subscription } from 'rxjs';
 import { getSortedTeamKeys, IPlayerTeam, PlayerTeamDict } from 'src/app/components/chess-board/helpers/PlayerTeamHelper';
 import { CommandService } from 'src/app/services/command.service';
+import { getLogger } from 'src/app/services/logger';
 import { PeerToPeerService } from 'src/app/services/peer-to-peer.service';
 import { SharedDataService } from 'src/app/services/shared-data.service';
 
-
-const debug = console.log;
+const logger = getLogger('team-selection-panel');
 
 @Component({
   selector: 'app-team-selection-panel',
@@ -30,15 +30,14 @@ export class TeamSelectionPanelComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    debug('team selection init...');
+    logger.debug('team selection init...');
     this.teamDictSubscription = this.sharedDataService.getNames(this.team).subscribe(t => {
       this.teamDict = t;
       this.sortedKeys = getSortedTeamKeys(this.teamDict);
-      console.log('sortedKeys', this.sortedKeys);
+      logger.info('sortedKeys', this.sortedKeys);
 
       for (const key of Object.keys(this.teamDict)) {
         this.setSortNumberFns[key] = (n: number) => {
-          console.log('setSortNumberFns', key, n);
           this.sharedDataService.setSortNumber(key, n);
         };
       }
@@ -50,7 +49,7 @@ export class TeamSelectionPanelComponent implements OnInit, OnDestroy {
   }
 
   onDestroy() {
-    debug('panel destroyed...');
+    logger.debug('panel destroyed...');
   }
 
   setTeam() {

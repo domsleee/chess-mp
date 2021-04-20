@@ -5,8 +5,11 @@ import { BehaviorSubject } from 'rxjs';
 import { IPlayerTeam } from '../components/chess-board/helpers/PlayerTeamHelper';
 import { toColor } from '../shared/util/play';
 import { PlayersTurnInfo } from '../shared/util/PlayersTurnInfo';
+import { getLogger } from './logger';
 import { SharedDataService } from './shared-data.service';
 export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
+
+const logger = getLogger('chess-status.service');
 
 @Injectable()
 export class ChessStatusService {
@@ -106,7 +109,7 @@ export class ChessStatusService {
   }
 
   private updateCurrentTurn() {
-    console.log(this.getNumMoves(), this.playersTurnInfo.getPlayer(this.getNumMoves()));
+    logger.debug(this.getNumMoves(), this.playersTurnInfo.getPlayer(this.getNumMoves()));
     this.previousTurn.next(this.currentTurn.getValue());
     this.currentTurn.next(this.getTupleForMoveNumber(this.getNumMoves()));
     this.nextTurn.next(this.getTupleForMoveNumber(this.getNumMoves() + 1));

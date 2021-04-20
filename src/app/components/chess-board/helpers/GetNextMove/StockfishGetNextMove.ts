@@ -3,6 +3,9 @@ import { Subject, timer } from 'rxjs';
 import { IGetNextMove } from './IGetNextMove';
 import { filter, take, tap } from 'rxjs/operators';
 import { IEngineSettings } from '../PlayerTeamHelper';
+import { getLogger } from 'src/app/services/logger';
+
+const logger = getLogger('stockfish');
 
 // declare var require: any;
 // const Stockfish = require('stockfish.wasm'); // the module, not the file
@@ -29,9 +32,8 @@ export class StockfishGetNextMove implements IGetNextMove {
       sf.addMessageListener((line: any) => {
         this.sfEmitter.next(line);
 
-        // console.log(line);
         if (line === 'uciok') {
-          console.log('OK!');
+          logger.info('OK!');
           sf.postMessage('setoption name UCI_LimitStrength value true');
           sf.postMessage(`setoption name UCI_Elo value ${this.engineSettings.elo ?? 2850}`);
           sf.postMessage(`setoption name Skill Level value ${this.engineSettings.skillLevel ?? 20}`);
@@ -55,7 +57,7 @@ export class StockfishGetNextMove implements IGetNextMove {
     const t = timer(this.movetime);
     t.pipe();
     await this.doInit();
-    console.log(cg.fen());
+    logger.info(cg.fen());
     this.sf.postMessage(`position fen ${cg.fen()}`);
     this.sf.postMessage(`go movetime ${this.movetime}`);
 

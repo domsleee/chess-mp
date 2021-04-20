@@ -52,7 +52,6 @@ export class ChessTimerService implements OnDestroy {
   }
 
   private setStartingTime(totalTimeSeconds: number, startingTurn: Color = 'white', whiteIncrement = 20 * 1000, blackIncrement = 0) {
-    console.log('set starting time', totalTimeSeconds, startingTurn);
     this.timers.white.next(totalTimeSeconds);
     this.timers.black.next(totalTimeSeconds);
     this.timerState.turn = startingTurn;
@@ -114,7 +113,6 @@ export class ChessTimerService implements OnDestroy {
 
   private tickHandler() {
     if (this.paused) return;
-    // console.log("TICK HANDLER");
     const currentMs = Date.now();
     const diff = currentMs - this.timerState.msWhenLastChanged;
 

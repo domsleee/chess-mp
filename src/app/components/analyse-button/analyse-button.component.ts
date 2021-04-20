@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { LichessService } from 'src/app/services/lichess.service';
 import { ChessStatusService } from 'src/app/services/chess-status.service';
+import { getLogger } from 'src/app/services/logger';
+
+const logger = getLogger('analyse-button.component');
 
 @Component({
   selector: 'app-analyse-button',
@@ -35,7 +38,7 @@ export class AnalyseButtonComponent implements OnInit {
       link = await this.lichessService.importGame(pgn);
       this.analyseLink = link;
     } catch (err) {
-      console.log(err);
+      logger.error(err);
     } finally {
       this.fetching = false;
     }

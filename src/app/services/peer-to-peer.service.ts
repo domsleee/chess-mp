@@ -3,8 +3,9 @@ import Peer, { PeerJSOption } from 'peerjs';
 import { interval, ReplaySubject, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { IMessage, MessageData } from '../shared/peer-to-peer/defs';
+import { getLogger } from './logger';
 
-const debug = /*(...args: any[]) => {}*/console.log;
+const logger = getLogger('peer-to-peer.service');
 const TIMEOUT_MS = 5000;
 const HEROKU_HOST = 'heroku-chess-123.herokuapp.com';
 export const DEFAULT_ID = 'default';
@@ -46,7 +47,7 @@ export class PeerToPeerService {
       this.attachErrorAndCloseConnEvents(conn);
     });
     this.peer.on('close', () => {
-      debug('NOT ACCEPTING INCOMING CONNECTIONS??');
+      logger.warn('NOT ACCEPTING INCOMING CONNECTIONS??');
     });
   }
 
@@ -62,10 +63,10 @@ export class PeerToPeerService {
         timeoutSub.unsubscribe();
       });
 
-      debug(`connecting to ${id}`);
+      logger.info(`connecting to ${id}`);
       const conn = this.peer!.connect(id);
       conn.on('open', () => {
-        debug(`connected to ${id}!`);
+        logger.info(`connected to ${id}!`);
         this.connections[id] = conn;
         this.isConnected = true;
         conn.on('data', this.messageHandler.bind(this));
@@ -146,7 +147,7 @@ export class PeerToPeerService {
   private connectToPeerServer() {
     return new Promise((resolve, reject) => {
       this.peer!.on('open', (id: string) => {
-        debug(`I am connected to peer server as (${this.getId()})`);
+        logger.info(`I am connected to peer server as (${this.getId()})`);
         resolve(true);
       });
       this.peer!.on('error', (err) => {
@@ -157,13 +158,13 @@ export class PeerToPeerService {
 
   private attachErrorAndCloseConnEvents(conn: Peer.DataConnection, additionalFn?: (err?: string) => void) {
     conn.on('error', (err) => {
-      console.log(`connection: ${conn.peer} error! ${err}`);
+      logger.error(`connection: ${conn.peer} error! ${err}`);
       this.onPeerDisconnected(conn);
       if (additionalFn != null) additionalFn(err);
     });
 
     this.attachToConnCloseEvents(conn, () => {
-      console.log(`connection: ${conn.peer} closed!`);
+      logger.info(`connection: ${conn.peer} closed!`);
       this.onPeerDisconnected(conn);
       if (additionalFn != null) additionalFn();
     });
@@ -201,7 +202,7 @@ export class PeerToPeerService {
 
   private sendMessage(to: string, message: IMessage) {
     if (!(to in this.connections)) return;
-    debug(`SEND MESSAGE TO ${to}`, message);
+    logger.debug(`SEND MESSAGE TO ${to}`, message);
     this.connections[to].send(message);
   }
 }

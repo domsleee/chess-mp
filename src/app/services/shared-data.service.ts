@@ -9,8 +9,9 @@ import { getDefaultSharedData, ISharedData } from '../shared/peer-to-peer/shared
 import { PeerToPeerService } from './peer-to-peer.service';
 import merge from 'lodash-es/merge';
 import { PartialDeep, ReadonlyDeep } from 'type-fest';
+import { getLogger } from './logger';
 
-const debug = console.log;
+const logger = getLogger('shared-data.service');
 
 @Injectable({
   providedIn: 'root'
@@ -132,10 +133,10 @@ export class SharedDataService implements OnDestroy {
       const nameId = message.data.playerId;
       const currNames = this.names.getValue();
       if (nameId in currNames) {
-        debug('warning! attempted to create player that exists');
+        logger.warn('warning! attempted to create player that exists');
         return;
       }
-      debug(`creating player ${nameId}`);
+      logger.info(`creating player ${nameId}`);
       currNames[nameId] = message.data.player;
       this.names.next(currNames);
       this.newName.next(nameId);
@@ -145,7 +146,7 @@ export class SharedDataService implements OnDestroy {
       const currNames = this.names.getValue();
       const nameId = message.data.playerId;
       if (!(nameId in currNames)) {
-        debug('warning! attempted to delete player that does not exist');
+        logger.warn('warning! attempted to delete player that does not exist');
         return;
       }
       delete currNames[nameId];
@@ -157,10 +158,10 @@ export class SharedDataService implements OnDestroy {
       const currNames = this.names.getValue();
 
       if (!(nameId in currNames)) {
-        debug('warning! attempted to modify player that does not exist');
+        logger.warn('warning! attempted to modify player that does not exist');
         return;
       }
-      debug(`updating ${nameId}`, message);
+      logger.info(`updating ${nameId}`, message);
       currNames[nameId] = merge(currNames[nameId], message.data.player);
       this.names.next(currNames);
     }
@@ -173,7 +174,7 @@ export class SharedDataService implements OnDestroy {
         }
       }
       this.names.next(newNames);
-      debug('NEXT NAMES after dc...', newNames);
+      logger.info('NEXT NAMES after dc...', newNames);
     }
     else if (message.data.command === 'SET_NAMES') {
       const currNames = this.names.getValue();

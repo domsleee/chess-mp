@@ -1,7 +1,8 @@
 import { DOCUMENT } from '@angular/common';
 import { Component, ElementRef, HostListener, Inject, Input, OnInit, ViewChild } from '@angular/core';
+import { getLogger } from 'src/app/services/logger';
 
-const debug = /*(...args: any[]) => {}*/console.log;
+const logger = getLogger('editable-span.component');
 
 @Component({
   selector: 'app-editable-span',
@@ -21,7 +22,7 @@ export class EditableSpanComponent implements OnInit {
   }
 
   onKeyPress(e: KeyboardEvent) {
-    debug('spankeypress', e.key);
+    logger.debug('spankeypress', e.key);
     if (!(e.key >= '0' && e.key <= '9')) e.preventDefault();
     if (e.key === 'Enter') {
       this.span.nativeElement.blur();
@@ -43,7 +44,7 @@ export class EditableSpanComponent implements OnInit {
   }
 
   private onSpanValueChange(v: any) {
-    debug('SPAN VALUE CHANGE', v);
+    logger.debug('SPAN VALUE CHANGE', v);
     if (!isNaN(v)) {
       let n = parseInt(v, 10);
       n = Math.min(this.max, Math.max(this.min, n));
