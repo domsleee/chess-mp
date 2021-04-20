@@ -46,6 +46,7 @@ export class ChessStatusService {
 
   getColor = () => toColor(this.chess);
   getPgn = () => this.chess.pgn();
+  getColorForMove = (moveNumber: number) => ((this.blackWentFirst ? 1 : 0) + moveNumber) % 2 === 0 ? 'white' : 'black';
   getFenForMove = (moveNumber: number) => this.moveToFen[moveNumber];
 
   setFen(fen: string) {

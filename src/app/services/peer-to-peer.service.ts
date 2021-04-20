@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import Peer, { PeerJSOption } from 'peerjs';
 import { interval, ReplaySubject, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { assertNotNull } from '../shared/helpers';
 import { IMessage, MessageData } from '../shared/peer-to-peer/defs';
 
 const debug = /*(...args: any[]) => {}*/console.log;

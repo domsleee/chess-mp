@@ -1,7 +1,6 @@
 import { APP_BASE_HREF } from '@angular/common';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NgxChessgroundModule } from 'ngx-chessground';
-import sleep from 'sleep-promise';
 import { AudioService } from 'src/app/services/audio.service';
 import { ChessStatusService } from 'src/app/services/chess-status.service';
 import { ChessTimerFormatPipe } from 'src/app/pipes/chess-timer-format.pipe';
@@ -17,6 +16,9 @@ import { getAudioServiceMock } from 'src/app/mocks/audio.service.mock';
 import { ReactiveComponentModule } from '@ngrx/component';
 import { PlayerListComponent } from '../player-list/player-list.component';
 import { CommandService } from 'src/app/services/command.service';
+import { Api } from 'chessground/api';
+import { Color } from 'chessground/types';
+import { Mock } from 'typemoq';
 
 describe('ChessBoardComponent', () => {
   let component: ChessBoardComponent;
@@ -25,9 +27,10 @@ describe('ChessBoardComponent', () => {
   let chessTimerService: ChessTimerService;
   let sharedDataService: SharedDataService;
   let commandService: CommandService;
+  let cg: Api;
 
   beforeEach(async () => {
-    const peers = createPeers(0);
+    const peers = createPeers(2);
     sharedDataService = new SharedDataService(peers[0], new GetCpuIdService(peers[0]));
     commandService = new CommandService(sharedDataService, peers[0], new GetCpuIdService(peers[0]));
 
@@ -36,15 +39,19 @@ describe('ChessBoardComponent', () => {
       team: 'white',
       sortNumber: 0,
       owner: peers[0].getId(),
-      isReady: false
     }, peers[0].getId());
     commandService.createPlayer({
       name: 'p2',
       team: 'black',
-      sortNumber: 0,
-      owner: peers[0].getId(),
-      isReady: false
+      sortNumber: 1,
+      owner: peers[1].getId(),
     }, 'zzz');
+    commandService.createPlayer({
+      name: 'p3',
+      team: 'white',
+      sortNumber: 2,
+      owner: peers[2].getId(),
+    }, 'abc');
 
     chessStatusService = new ChessStatusService(sharedDataService);
     chessTimerService = new ChessTimerService();
@@ -63,7 +70,9 @@ describe('ChessBoardComponent', () => {
       providers: [
         { provide: APP_BASE_HREF, useValue: '' },
         { provide: PeerToPeerService, useValue: peers[0]},
-        { provide: AudioService, useValue: getAudioServiceMock() }
+        { provide: SharedDataService, useValue: sharedDataService},
+        { provide: AudioService, useValue: getAudioServiceMock() },
+        { provide: CommandService, useValue: commandService},
       ]
     });
 
@@ -84,6 +93,9 @@ describe('ChessBoardComponent', () => {
     component.ngOnInit();
     component.ngAfterViewInit();
     component.ngAfterContentInit();
+
+    // tslint:disable-next-line
+    cg = component['cg'];
 
     jasmine.clock().install();
     jasmine.clock().mockDate();
@@ -164,5 +176,67 @@ describe('ChessBoardComponent', () => {
     assertTimes(64, 58, 'after 3rd move + 2 secs');
     component.exposedMoveHandler('d7', 'd5');
     assertTimes(64, 63, 'after 4th move, increment');
+  });
+
+  describe('left/right buttons', () => {
+    function getMovableStatus() {
+      if (cg.state.movable.color === undefined) return 'unmovable';
+      return cg.state.movable.color === cg.state.turnColor
+        ? 'movable'
+        : 'premovable';
+    }
+
+    const arrowLeftMock = Mock.ofType<KeyboardEvent>();
+    arrowLeftMock.setup(t => t.key).returns(() => 'ArrowLeft');
+    const arrowLeftEvent = arrowLeftMock.target;
+    const arrowRightMock = Mock.ofType<KeyboardEvent>();
+    arrowRightMock.setup(t => t.key).returns(() => 'ArrowRight');
+    const arrowRightEvent = arrowRightMock.target;
+
+    it('when it is the players turn', () => {
+      component.exposedMoveHandler('e2', 'e4');
+      component.exposedMoveHandler('e7', 'e5');
+      component.exposedMoveHandler('d2', 'd4');
+      component.exposedMoveHandler('d7', 'd5');
+      expect(getMovableStatus()).toEqual('movable', 'initial');
+      for (let i = 0; i < 20; ++i) {
+        component.keyEvent(arrowLeftEvent);
+        expect(getMovableStatus()).toEqual('unmovable', `try to go BEFORE the start ${i}`);
+      }
+      for (let i = 0; i < 3; ++i) {
+        component.keyEvent(arrowRightEvent);
+        expect(getMovableStatus()).toEqual('unmovable', 'go up to previous move');
+      }
+      for (let i = 0; i < 20; ++i) {
+        component.keyEvent(arrowRightEvent);
+        expect(getMovableStatus()).toEqual('movable', `try to go AFTER the start ${i}`);
+      }
+      component.keyEvent(arrowLeftEvent);
+      expect(getMovableStatus()).toEqual('unmovable', 'go back from the start (again)');
+    });
+
+    it('when it is another persons turn', () => {
+      component.exposedMoveHandler('e2', 'e4');
+      expect(getMovableStatus()).toEqual('unmovable', 'opponents turn');
+      component.keyEvent(arrowLeftEvent);
+      expect(getMovableStatus()).toEqual('unmovable', 'clearly');
+      component.keyEvent(arrowRightEvent);
+      expect(getMovableStatus()).toEqual('unmovable', 'opponents turn');
+
+      component.exposedMoveHandler('e7', 'e5');
+      expect(getMovableStatus()).toEqual('unmovable', 'teammates turn');
+      component.keyEvent(arrowLeftEvent);
+      expect(getMovableStatus()).toEqual('unmovable', 'clearly');
+      component.keyEvent(arrowRightEvent);
+      expect(getMovableStatus()).toEqual('unmovable', 'teammates turn');
+
+      component.exposedMoveHandler('d2', 'd4');
+      component.exposedMoveHandler('d7', 'd5');
+      expect(getMovableStatus()).toEqual('movable', 'my turn');
+      component.keyEvent(arrowLeftEvent);
+      expect(getMovableStatus()).toEqual('unmovable', 'clearly');
+      component.keyEvent(arrowRightEvent);
+      expect(getMovableStatus()).toEqual('movable', 'my turn');
+    });
   });
 });
