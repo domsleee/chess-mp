@@ -6,17 +6,20 @@ export function createPeers(numberOfClients: number) {
   const peers: PeerToPeerServiceMock[] = [];
 
   const hostPeer = new PeerToPeerServiceMock();
-
-  hostPeer.isHost = true;
-  hostPeer.alias = 'host';
+  hostPeer.setState({
+    isHost: true,
+    alias: 'host',
+    isConnected: true
+  });
   hostPeer.peerIdOverride = 'hostId';
-  hostPeer.isConnected = true;
   hostPeer.hostIdOverride = hostPeer.getId();
 
   function addClient(alias: string) {
     const clientPeer = new PeerToPeerServiceMock();
-    clientPeer.isHost = false;
-    clientPeer.alias = alias;
+    clientPeer.setState({
+      isHost: false,
+      alias
+    });
     clientPeer.peerIdOverride = alias + 'Id';
     clientPeer.hostIdOverride = hostPeer.getId();
     hostPeer.addConnection(clientPeer);

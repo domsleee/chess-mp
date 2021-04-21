@@ -17,7 +17,7 @@ import { ChessStatusService } from 'src/app/services/chess-status.service';
 export class ChessTimerComponent implements OnInit {
   whiteTime: Observable<number>;
   blackTime: Observable<number>;
-  currentStatus: BehaviorSubject<string>;
+  currentStatus: Observable<string>;
   currentTurn: Observable<string>;
   currentId: Observable<string>;
   nextId: Observable<string>;
@@ -34,11 +34,11 @@ export class ChessTimerComponent implements OnInit {
     private chessTimerService: ChessTimerService,
     private chessStatusService: ChessStatusService,
     private peerToPeerService: PeerToPeerService,
-    private sharedDataService: SharedDataService) {
-
+    private sharedDataService: SharedDataService
+  ) {
     this.whiteTime = this.chessTimerService.getTimerObservable('white');
     this.blackTime = this.chessTimerService.getTimerObservable('black');
-    this.currentStatus = this.chessStatusService.currentStatus;
+    this.currentStatus = this.chessStatusService.currentStatus.asObservable();
 
     this.currentId = this.chessStatusService.currentTurn.asObservable().pipe(map(([key, value]) => key));
     this.nextId = this.chessStatusService.nextTurn.asObservable().pipe(map(([key, value]) => key));

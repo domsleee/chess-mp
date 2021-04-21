@@ -10,12 +10,13 @@ export class PeerToPeerServiceMock extends PeerToPeerService {
   messageSendTimeMs = 200;
   messageHistory: IMessage[] = [];
 
-  getId() {
-    return this.peerIdOverride;
-  }
+  getId = () => this.peerIdOverride;
+  getHostId = () => this.hostIdOverride;
 
-  getHostId() {
-    return this.hostIdOverride;
+  setState(data: {isHost?: boolean, alias?: string, isConnected?: boolean}) {
+    if (data.isHost !== undefined) this.isHost = data.isHost;
+    if (data.alias !== undefined) this.alias = data.alias;
+    if (data.isConnected !== undefined) this.isConnected = data.isConnected;
   }
 
   addConnection(p: PeerToPeerServiceMock) {

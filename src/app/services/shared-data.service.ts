@@ -17,10 +17,10 @@ const logger = getLogger('shared-data.service');
   providedIn: 'root'
 })
 export class SharedDataService implements OnDestroy {
-  messageSubscription: Subscription;
   numNames = new BehaviorSubject<number>(0);
-  newName: Subject<string> = new Subject();
+  newName = new Subject<string>();
 
+  private messageSubscription: Subscription;
   private names: BehaviorSubject<PlayerTeamDict> = new BehaviorSubject({});
   private sharedData: BehaviorSubject<ISharedData> = new BehaviorSubject(getDefaultSharedData());
 
@@ -32,13 +32,13 @@ export class SharedDataService implements OnDestroy {
   constructor(
     private peerToPeerService: PeerToPeerService
   ) {
-    this.messageSubscription = this.peerToPeerService.messageSubject.subscribe(this.processMessage.bind(this));
+    this.messageSubscription = this.peerToPeerService.getMessageObservable().subscribe(this.processMessage.bind(this));
     this.nameByTeamObservable = {
       white: this.names.pipe(map(t => keyValueFilter(t, 'white'))),
       black: this.names.pipe(map(t => keyValueFilter(t, 'black')))
     };
 
-    if (!this.peerToPeerService.isConnected) {
+    if (!this.peerToPeerService.getIsConnected()) {
       this.names.next(getDefaultNames());
     }
   }

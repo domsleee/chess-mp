@@ -34,7 +34,7 @@ export class MpLobbyComponent implements OnInit, OnDestroy {
     this.sharedData = this.sharedDataService.getSharedData();
 
     this.connectedSubscription = this.sharedDataService.newName.subscribe((id) => {
-      if (this.peerToPeerService.isHost) {
+      if (this.peerToPeerService.getIsHost()) {
         this.peerToPeerService.sendSingleMessage(id, {
           command: 'SET_NAMES',
           names: this.sharedDataService.getNamesSync(),
@@ -42,13 +42,12 @@ export class MpLobbyComponent implements OnInit, OnDestroy {
         });
       }
     });
-    this.peerToPeerService.messageSubject.subscribe((message) => {
+    this.peerToPeerService.getMessageObservable().subscribe((message) => {
       if (message.data.command === 'START') {
-        this.startGameNoBroadcast();
+        this.router.navigate([RouteNames.PLAY]);
       }
     });
   }
-
 
   ngOnInit(): void {
     this.commandService.createPlayer({
@@ -71,9 +70,5 @@ export class MpLobbyComponent implements OnInit, OnDestroy {
     this.peerToPeerService.broadcastAndToSelf({
       command: 'START'
     });
-  }
-
-  startGameNoBroadcast() {
-    this.router.navigate([RouteNames.PLAY]);
   }
 }

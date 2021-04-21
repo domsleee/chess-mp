@@ -21,6 +21,7 @@ import { Key } from 'chessground/types';
 
 import * as ChessJS from 'chess.js';
 import { arrowLeftEvent, arrowRightEvent } from 'src/app/mocks/keyboard.mock';
+import { PeerToPeerServiceMock } from 'src/app/mocks/services/peer-to-peer.service.mock';
 
 describe('ChessBoardComponent', () => {
   let component: ChessBoardComponent;
@@ -29,10 +30,11 @@ describe('ChessBoardComponent', () => {
   let chessTimerService: ChessTimerService;
   let sharedDataService: SharedDataService;
   let commandService: CommandService;
+  let peers: PeerToPeerServiceMock[];
   let cg: Api;
 
   beforeEach(async () => {
-    const peers = createPeers(2);
+    peers = createPeers(2);
     sharedDataService = new SharedDataService(peers[0]);
     commandService = new CommandService(sharedDataService, peers[0], new GetCpuIdService(peers[0]));
 
@@ -109,7 +111,14 @@ describe('ChessBoardComponent', () => {
   });
 
   function doMove(from: Key, to: Key, claimedTime?: number) {
-    component.exposedMoveHandler(from, to);
+    peers[0].broadcastAndToSelf({
+      command: 'MOVE',
+      from,
+      to,
+      claimedTime,
+      numMoves: 0,
+      matchId: 1
+    });
     jasmine.clock().tick(1);
   }
 

@@ -51,7 +51,7 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
     private chessTimeoutService: ChessTimeoutService,
     private commandService: CommandService
   ) {
-    this.isSinglePlayer = !this.peerToPeerService.isConnected;
+    this.isSinglePlayer = !this.peerToPeerService.getIsConnected();
     this.myTeam = this.chessStatusService.playersTurnInfo.getTeam(this.peerToPeerService.getId());
   }
 
@@ -68,7 +68,7 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
       this.onGameOver();
     });
 
-    this.peerToPeerSubscription = this.peerToPeerService.messageSubject.subscribe(this.peerToPeerHandler.bind(this));
+    this.peerToPeerSubscription = this.peerToPeerService.getMessageObservable().subscribe(this.peerToPeerHandler.bind(this));
 
     this.shortcuts.push(
       {
@@ -143,10 +143,6 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
     const anyWindow = window as any;
     anyWindow.cg = this.cg;
     anyWindow.chess = this.chessStatusService.chess;
-  }
-
-  exposedMoveHandler(from: Key, to: Key, promotion?: Exclude<ChessJS.PieceType, 'p'>) {
-    this.processMoveFromExternal({from, to});
   }
 
   private cgMoveHandler(from: Key, to: Key, promotion?: Exclude<ChessJS.PieceType, 'p'>) {

@@ -26,7 +26,7 @@ export interface IMove extends ICommand {
   from: Key;
   to: Key;
   matchId: number;
-  claimedTime: number;
+  claimedTime?: number;
   promotion?: Exclude<ChessJS.PieceType, 'p'>;
 }
 

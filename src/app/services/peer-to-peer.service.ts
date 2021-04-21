@@ -19,20 +19,21 @@ interface IBroadcastOptions {
   providedIn: 'root'
 })
 export class PeerToPeerService {
-  messageSubject: Subject<IMessage> = new ReplaySubject(100);
-  isHost = false;
-  isConnected = false;
-  alias = DEFAULT_ID;
-
+  private messageSubject: Subject<IMessage> = new ReplaySubject(100);
   private peer: Peer | null = null;
+
+  protected isHost = false;
+  protected isConnected = false;
+  protected alias = DEFAULT_ID;
   protected connections: {[key: string]: Peer.DataConnection} = {};
 
   constructor() {
   }
 
-  getId() {
-    return this.peer?.id ?? DEFAULT_ID;
-  }
+  getId = () => this.peer?.id ?? DEFAULT_ID;
+  getIsHost = () => this.isHost;
+  getIsConnected = () => this.isConnected;
+  getMessageObservable = () => this.messageSubject.asObservable();
 
   async setupAsHost() {
     this.peer?.destroy();
@@ -86,9 +87,7 @@ export class PeerToPeerService {
     this.alias = alias;
   }
 
-  getAlias() {
-    return this.alias;
-  }
+  getAlias = () => this.alias;
 
   getHostId() {
     if (this.isHost) return this.peer!.id;
@@ -119,7 +118,6 @@ export class PeerToPeerService {
   }
 
   sendSingleMessage(to: string, data: MessageData) {
-    if (!(to in this.connections)) return;
     const message: IMessage = {
       from: this.getId(),
       type: 'SINGLE',
@@ -201,7 +199,10 @@ export class PeerToPeerService {
   }
 
   private sendMessage(to: string, message: IMessage) {
-    if (!(to in this.connections)) return;
+    if (!(to in this.connections)) {
+      logger.warn(`cant send message ${this.getId()} ==> ${to}, ${message}`);
+      return;
+    }
     logger.debug(`SEND MESSAGE TO ${to}`, message);
     this.connections[to].send(message);
   }

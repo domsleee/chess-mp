@@ -10,13 +10,12 @@ interface ITimerState {
 
 @Injectable()
 export class ChessTimerService implements OnDestroy {
-  timeout: Subject<Color> = new Subject();
+  private timeout = new Subject<Color>();
 
   private timers = {
     white: new BehaviorSubject(10),
     black: new BehaviorSubject(10)
   };
-
   private timerState: ITimerState = {
     turn: 'white',
     msWhenLastChanged: -1
