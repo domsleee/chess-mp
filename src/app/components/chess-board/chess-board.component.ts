@@ -251,7 +251,7 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
   }
 
   private async getAndApplyCPUMove() {
-    const move = await this.moveHandlerResolver.getMoveHander(this.chessStatusService.getNumMovesConsideringIfBlackWentFirst())
+    const move = await this.moveHandlerResolver.getMoveHander(this.chessStatusService.getColor(), this.chessStatusService.getNumMoves())
                 .getMove(this.chessStatusService.chess);
     if (this.chessStatusService.isGameOver()) return;
     if (move != null) {

@@ -1,3 +1,4 @@
+import { Color } from 'chessground/types';
 import { IGetNextMove } from './GetNextMove/IGetNextMove';
 import { NullGetNextMove } from './GetNextMove/NullGetNextMove';
 import { StockfishGetNextMove } from './GetNextMove/StockfishGetNextMove';
@@ -30,9 +31,8 @@ export class MoveHandlerResolver {
     return new StockfishGetNextMove(player.engineSettings);
   }
 
-  getMoveHander(moveNumber: number): IGetNextMove {
-    const turnColor = moveNumber % 2 === 0 ? 'white' : 'black';
-    const numHandlers = this.moveHandlers[turnColor].length;
-    return this.moveHandlers[turnColor][Math.floor(moveNumber / 2) % numHandlers];
+  getMoveHander(color: Color, moveNumber: number): IGetNextMove {
+    const numHandlers = this.moveHandlers[color].length;
+    return this.moveHandlers[color][Math.floor(moveNumber / 2) % numHandlers];
   }
 }

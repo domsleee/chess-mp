@@ -1,7 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import * as ChessJS from 'chess.js';
 import { Color } from 'chessground/types';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subscription } from 'rxjs';
 import { IPlayerTeam } from '../components/chess-board/helpers/PlayerTeamHelper';
 import { toColor } from '../shared/util/play';
 import { PlayersTurnInfo } from '../shared/util/PlayersTurnInfo';
@@ -12,7 +12,7 @@ export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
 const logger = getLogger('chess-status.service');
 
 @Injectable()
-export class ChessStatusService {
+export class ChessStatusService implements OnDestroy {
   currentStatus = new BehaviorSubject<string>('');
   currentTurn = new BehaviorSubject<[string, IPlayerTeam|null]>(['', null]);
   previousTurn = new BehaviorSubject<[string, IPlayerTeam|null]>(['', null]);
@@ -21,6 +21,7 @@ export class ChessStatusService {
   private moveToFen: {[key: number]: string} = {};
   private moveToPreviousMove: {[key: number]: ChessJS.Move} = {};
   private blackWentFirst = false;
+  private numNamesSubscription: Subscription;
 
   chess: ChessJS.ChessInstance;
   playersTurnInfo: PlayersTurnInfo;
@@ -29,11 +30,15 @@ export class ChessStatusService {
     this.chess = new Chess();
     this.playersTurnInfo = new PlayersTurnInfo(this.sharedDataService.getNamesSync());
     this.resetPlayersTurnInfo();
-    this.sharedDataService.newName.subscribe(() => {
+    this.numNamesSubscription = this.sharedDataService.numNames.subscribe(() => {
       this.resetPlayersTurnInfo();
     });
     this.updateCurrentTurn();
     this.updateMoveForFen();
+  }
+
+  ngOnDestroy() {
+    this.numNamesSubscription.unsubscribe();
   }
 
   move(move: string | ChessJS.ShortMove): ChessJS.Move | null {
@@ -71,10 +76,6 @@ export class ChessStatusService {
 
   getNumMoves() {
     return this.chess.history().length;
-  }
-
-  getNumMovesConsideringIfBlackWentFirst() {
-    return this.getNumMoves() + (this.blackWentFirst ? 1 : 0);
   }
 
   isInCheck(moveNumber: number): boolean {
