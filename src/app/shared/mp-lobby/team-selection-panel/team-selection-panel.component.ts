@@ -69,6 +69,7 @@ export class TeamSelectionPanelComponent implements OnInit, OnDestroy {
   }
 
   @HostListener('keydown.enter') onEnterKeypress(e: Event) {
+    if (!e) return;
     e.preventDefault();
     e.stopImmediatePropagation();
     e.stopPropagation();

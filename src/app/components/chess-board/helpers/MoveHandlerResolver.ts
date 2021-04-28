@@ -10,7 +10,7 @@ export class MoveHandlerResolver {
     'black': IGetNextMove[]
   };
 
-  constructor(private whiteTeamDict: PlayerTeamDict, private blackTeamDict: PlayerTeamDict) {
+  constructor(whiteTeamDict: PlayerTeamDict, blackTeamDict: PlayerTeamDict) {
     this.moveHandlers = {
       white: this.buildMoveHandlers(whiteTeamDict),
       black: this.buildMoveHandlers(blackTeamDict)

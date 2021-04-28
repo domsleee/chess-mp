@@ -18,7 +18,7 @@
 </style>
 
 <h1>MP Lobby</h1>
-<app-textarea-selectall [text]="url"></app-textarea-selectall>
+<app-textarea-selectall *ngIf="multiplayerGame" [text]="url"></app-textarea-selectall>
 
 <app-timer-config></app-timer-config>
 
@@ -32,5 +32,5 @@
   </div>
 </div>
 <div style="text-align:center; padding-top:10px">
-  <button mat-stroked-button (click)="startGame()">Start</button>
+  <button mat-stroked-button (click)="startGame()" [disabled]="!valid">Start</button>
 </div>

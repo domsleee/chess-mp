@@ -15,11 +15,13 @@ import { CommandService } from 'src/app/services/command.service';
   styleUrls: ['./mp-lobby.component.scss']
 })
 export class MpLobbyComponent implements OnInit, OnDestroy {
-  url: string;
+  readonly url: string;
+  readonly multiplayerGame: boolean;
+  valid = false;
 
-  readonly connectedSubscription: Subscription;
-  readonly hostUrl: string;
-  readonly sharedData: Observable<ISharedData>;
+  private readonly connectedSubscription: Subscription;
+  private readonly messageSubscription: Subscription;
+  private readonly hostUrl: string;
 
   constructor(
     private peerToPeerService: PeerToPeerService,
@@ -31,8 +33,6 @@ export class MpLobbyComponent implements OnInit, OnDestroy {
     this.hostUrl = `/join/${this.peerToPeerService.getHostId()}`;
     this.url = `${window.location.origin}${this.baseHref}${this.hostUrl.substring(1)}`;
 
-    this.sharedData = this.sharedDataService.getSharedData();
-
     this.connectedSubscription = this.sharedDataService.newName.subscribe((id) => {
       if (this.peerToPeerService.getIsHost()) {
         this.peerToPeerService.sendSingleMessage(id, {
@@ -42,11 +42,14 @@ export class MpLobbyComponent implements OnInit, OnDestroy {
         });
       }
     });
-    this.peerToPeerService.getMessageObservable().subscribe((message) => {
+    this.messageSubscription = this.peerToPeerService.getMessageObservable().subscribe((message) => {
       if (message.data.command === 'START') {
         this.router.navigate([RouteNames.PLAY]);
       }
+      this.valid = Object.keys(this.sharedDataService.getNamesSync('white')).length > 0
+                && Object.keys(this.sharedDataService.getNamesSync('black')).length > 0;
     });
+    this.multiplayerGame = !this.peerToPeerService.isLocal;
   }
 
   ngOnInit(): void {
@@ -60,6 +63,7 @@ export class MpLobbyComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.connectedSubscription.unsubscribe();
+    this.messageSubscription.unsubscribe();
   }
 
   setTeam(team: Color) {

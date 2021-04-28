@@ -6,6 +6,7 @@
   </mat-form-field>
   <div style="text-align:center">
     <app-loading-button text="Host Game" (click)="hostGameIfValid()" [loading]="loading" #myButton></app-loading-button>
+    <app-loading-button text="Local Game" (click)="localGame()"></app-loading-button>
   </div>
 </form>
 <div *ngIf='err != ""'>{{err}}</div>

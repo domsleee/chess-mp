@@ -19,6 +19,8 @@ interface IBroadcastOptions {
   providedIn: 'root'
 })
 export class PeerToPeerService {
+  public isLocal = false;
+
   private messageSubject: Subject<IMessage> = new ReplaySubject(100);
   private peer: Peer | null = null;
 

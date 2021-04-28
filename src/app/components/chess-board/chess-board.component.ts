@@ -30,6 +30,7 @@ const logger = getLogger('chess-board.component');
 })
 export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit, AfterViewInit {
   readonly myTeam: Color;
+  shortcuts: ShortcutInput[] = [];
 
   private moveHandlerResolver!: MoveHandlerResolver; // todo: service?
   private readonly isSinglePlayer;
@@ -38,9 +39,7 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
   private peerToPeerSubscription!: Subscription;
 
   @ViewChild('chess') private ngxChessgroundComponent!: NgxChessgroundComponent;
-
   private cg!: Api;
-  shortcuts: ShortcutInput[] = [];
 
   constructor(
     private chessTimerService: ChessTimerService,

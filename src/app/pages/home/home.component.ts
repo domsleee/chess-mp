@@ -49,7 +49,12 @@ export class HomeComponent implements OnInit, AfterViewInit {
     } finally {
       this.loading = false;
     }
+  }
 
+  localGame() {
+    this.peerToPeerService.setAlias(this.control.controls.name.value);
+    this.peerToPeerService.isLocal = true;
+    this.router.navigate([RouteNames.MP_LOBBY], { replaceUrl: true });
   }
 
   async hostGame() {

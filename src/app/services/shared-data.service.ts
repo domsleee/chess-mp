@@ -38,7 +38,7 @@ export class SharedDataService implements OnDestroy {
       black: this.names.pipe(map(t => keyValueFilter(t, 'black')))
     };
 
-    if (!this.peerToPeerService.getIsConnected()) {
+    if (!this.peerToPeerService.getIsConnected() && !this.peerToPeerService.isLocal) {
       this.names.next(getDefaultNames());
     }
   }
