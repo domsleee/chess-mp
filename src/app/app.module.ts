@@ -39,6 +39,7 @@ import { EditableSpanComponent } from './components/editable-span/editable-span.
 import { PanelHeaderDisableEventsDirective } from './directives/panel-header-disable-events.directive';
 import { ReactiveComponentModule } from '@ngrx/component';
 import { KeyboardShortcutsModule } from 'ng-keyboard-shortcuts';
+import { HistoryComponent } from './pages/history/history.component';
 
 @NgModule({
   declarations: [
@@ -62,7 +63,8 @@ import { KeyboardShortcutsModule } from 'ng-keyboard-shortcuts';
     RematchButtonComponent,
     TextareaSelectallComponent,
     EditableSpanComponent,
-    PanelHeaderDisableEventsDirective
+    PanelHeaderDisableEventsDirective,
+    HistoryComponent
   ],
   imports: [
     BrowserModule,

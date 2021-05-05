@@ -1,0 +1,11 @@
+<h1>Game history</h1>
+<table>
+  <tr>
+    <th>Time</th>
+    <th>PGN</th>
+  </tr>
+  <tr *ngFor="let game of games">
+    <td>{{game.time | date}}</td>
+    <td>{{game.pgn}}</td>
+  </tr>
+</table>
