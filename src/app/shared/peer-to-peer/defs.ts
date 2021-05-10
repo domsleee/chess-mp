@@ -23,8 +23,8 @@ export interface ICommand {
 export interface IMove extends ICommand {
   command: 'MOVE';
   numMoves: number;
-  from: Key;
-  to: Key;
+  from: ChessJS.Square;
+  to: ChessJS.Square;
   matchId: number;
   claimedTime?: number;
   promotion?: Exclude<ChessJS.PieceType, 'p'>;

@@ -1,6 +1,6 @@
 import { AfterContentInit, AfterViewInit, Component, HostListener, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Chessground } from 'chessground';
-import { NgxChessgroundComponent, NgxChessgroundModule } from 'ngx-chessground';
+import { NgxChessgroundComponent } from 'ngx-chessground';
 import * as ChessJS from 'chess.js';
 import { OnePlayerBoardChanger } from './helpers/OnePlayerBoardChanger';
 import { Api } from 'chessground/api';
@@ -14,12 +14,13 @@ import { AudioService } from 'src/app/services/audio.service';
 import { promoteIfNecessary, removeEnPassantIfNecessary } from './helpers/ChessgroundHelpers';
 import { Subscription } from 'rxjs';
 import { ChessTimeoutService } from 'src/app/services/chess-timeout.service';
-import { KeyboardShortcutsComponent, ShortcutInput } from 'ng-keyboard-shortcuts';
 import { CommandService } from 'src/app/services/command.service';
 import { IMessage } from 'src/app/shared/peer-to-peer/defs';
 import { getLogger } from 'src/app/services/logger';
+import hotkeys from 'hotkeys-js';
 export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
 
+const HOTKEYS_SCOPE = 'chess-board';
 const logger = getLogger('chess-board.component');
 
 @Component({
@@ -30,7 +31,6 @@ const logger = getLogger('chess-board.component');
 })
 export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit, AfterViewInit {
   readonly myTeam: Color;
-  shortcuts: ShortcutInput[] = [];
 
   private moveHandlerResolver!: MoveHandlerResolver; // todo: service?
   private readonly isSinglePlayer;
@@ -69,13 +69,10 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
 
     this.peerToPeerSubscription = this.peerToPeerService.getMessageObservable().subscribe(this.peerToPeerHandler.bind(this));
 
-    this.shortcuts.push(
-      {
-        key: 'ctrl + shift + r',
-        preventDefault: true,
-        command: e => this.commandService.resign(this.myTeam)
-      },
-    );
+    hotkeys('ctrl+shift+r', HOTKEYS_SCOPE, (event: any) => {
+      event.preventDefault();
+      this.commandService.resign(this.myTeam);
+    });
   }
 
   ngAfterContentInit() {
@@ -86,6 +83,7 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
     this.cg.destroy();
     this.chessTimerSubscription.unsubscribe();
     this.peerToPeerSubscription.unsubscribe();
+    hotkeys.deleteScope(HOTKEYS_SCOPE);
   }
 
   @HostListener('window:keydown', ['$event'])
@@ -145,6 +143,7 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
   }
 
   private cgMoveHandler(from: Key, to: Key, promotion?: Exclude<ChessJS.PieceType, 'p'>) {
+    if (from === 'a0' || to === 'a0') throw new Error('should not be a0');
     this.movePieceWithEnPassantAndPromotion({from, to, promotion});
 
     this.chessTimerService.setTurn(this.chessStatusService.getColor());
