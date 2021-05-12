@@ -10,7 +10,7 @@ export class MoveHandlerResolver {
     'black': IGetNextMove[]
   };
 
-  constructor(whiteTeamDict: PlayerTeamDict, blackTeamDict: PlayerTeamDict) {
+  constructor(private myId: string, whiteTeamDict: PlayerTeamDict, blackTeamDict: PlayerTeamDict) {
     this.moveHandlers = {
       white: this.buildMoveHandlers(whiteTeamDict),
       black: this.buildMoveHandlers(blackTeamDict)
@@ -27,7 +27,7 @@ export class MoveHandlerResolver {
   }
 
   private buildMoveHandler(player: IPlayerTeam): IGetNextMove {
-    if (player.engineSettings == null) return new NullGetNextMove();
+    if (player.engineSettings == null || player.owner !== this.myId) return new NullGetNextMove();
     return new StockfishGetNextMove(player.engineSettings);
   }
 
