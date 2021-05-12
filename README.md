@@ -2,12 +2,6 @@
 
 [Live link](https://domsleee.github.io/chess-mp)
 
-## Atrocities
-Angular 11 runs typescript 4.0. Chessgrounds uses templated types, a feature of typescript 4.1. Change this type to any in `types.d.ts`
-```typescript
-export declare type Key = 'a0' | /*`${File}${Rank}`*/any;
-```
-
 ## Running locally
 ```bash
 # serve web
