@@ -39,6 +39,7 @@ import { EditableSpanComponent } from './components/editable-span/editable-span.
 import { PanelHeaderDisableEventsDirective } from './directives/panel-header-disable-events.directive';
 import { ReactiveComponentModule } from '@ngrx/component';
 import { HistoryComponent } from './pages/history/history.component';
+import { MatTableModule } from '@angular/material/table';
 
 @NgModule({
   declarations: [
@@ -83,6 +84,7 @@ import { HistoryComponent } from './pages/history/history.component';
     HttpClientModule,
     MatProgressSpinnerModule,
     MatIconModule,
+    MatTableModule,
     ReactiveComponentModule
   ],
   providers: [
