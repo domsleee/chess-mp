@@ -20,7 +20,7 @@ export function promoteIfNecessary(move: ChessJS.Move, cg: Api, oldColor: Color)
 
 export function removeEnPassantIfNecessary(move: ChessJS.Move, cg: Api) {
   if (move.flags.includes(FLAGS.EP_CAPTURE)) {
-    const enPassantSquare: Key = move.to[0] + move.from[1];
+    const enPassantSquare = move.to[0] + move.from[1] as Key;
     const m: PiecesDiff = new Map();
     m.set(enPassantSquare, undefined);
     cg.setPieces(m);

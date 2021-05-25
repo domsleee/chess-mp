@@ -38,7 +38,6 @@ import { TextareaSelectallComponent } from './components/textarea-selectall/text
 import { EditableSpanComponent } from './components/editable-span/editable-span.component';
 import { PanelHeaderDisableEventsDirective } from './directives/panel-header-disable-events.directive';
 import { ReactiveComponentModule } from '@ngrx/component';
-import { KeyboardShortcutsModule } from 'ng-keyboard-shortcuts';
 import { HistoryComponent } from './pages/history/history.component';
 
 @NgModule({
@@ -84,8 +83,7 @@ import { HistoryComponent } from './pages/history/history.component';
     HttpClientModule,
     MatProgressSpinnerModule,
     MatIconModule,
-    ReactiveComponentModule,
-    KeyboardShortcutsModule.forRoot()
+    ReactiveComponentModule
   ],
   providers: [
     {

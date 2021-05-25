@@ -1,6 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
-import { NgxChessgroundComponent } from 'ngx-chessground';
-import { initial } from './shared/util/play';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-root',
