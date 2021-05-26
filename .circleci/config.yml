@@ -27,7 +27,7 @@ jobs:
           key: AngularCircleCI-{{ .Branch }}-{{ checksum "yarn.lock" }}
           paths:
             - "node_modules"
-      - run: xvfb-run -a yarn run test --no-progress --browsers=ChromeHeadlessCI
+      - run: xvfb-run -a yarn run test --no-progress --browsers=ChromeHeadlessCI --watch=false
       - run: yarn run lint
 
 workflows:
