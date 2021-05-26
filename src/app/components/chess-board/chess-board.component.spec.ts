@@ -110,7 +110,7 @@ describe('ChessBoardComponent', () => {
     component.ngOnDestroy();
   });
 
-  function doMove(from: Key, to: Key, claimedTime?: number) {
+  function doMove(from: ChessJS.Square, to: ChessJS.Square, claimedTime?: number) {
     peers[0].broadcastAndToSelf({
       command: 'MOVE',
       from,
@@ -148,7 +148,7 @@ describe('ChessBoardComponent', () => {
 
   it('threefold repetition', () => {
     expect(chessStatusService.isGameOver()).toBeFalse();
-    const moves = [
+    const moves: [ChessJS.Square, ChessJS.Square][] = [
       ['b1', 'c3'],
       ['b8', 'c6'],
       ['c3', 'b1'],
