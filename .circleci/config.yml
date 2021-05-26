@@ -27,7 +27,19 @@ jobs:
           key: AngularCircleCI-{{ .Branch }}-{{ checksum "yarn.lock" }}
           paths:
             - "node_modules"
-      - run: xvfb-run -a yarn run test --no-progress --browsers=ChromeHeadlessCI --watch=false
+      
+      - run: mkdir ~/junit
+
+      - run: 
+        command: xvfb-run -a yarn run test --no-progress --browsers=ChromeHeadlessCI --watch=false
+        environment:
+          JUNIT_REPORT_PATH: ./junit/
+          JUNIT_REPORT_NAME: test-results.xml
+      - store_test_results:
+          path: ./junit
+      - store_artifacts:
+          path: ./junit
+
       - run: yarn run lint
 
 workflows:
