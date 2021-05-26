@@ -1,0 +1,17 @@
+version: 2.1
+jobs:
+  build:
+    working_directory: ~/chess-mp
+    docker:
+      - image: circleci/node:12-browsers
+    steps:
+      - checkout
+      - restore_cache:
+          key: AngularCircleCI-{{ .Branch }}-{{ checksum "yarn.lock" }}
+      - run: yarn
+      - save_cache:
+          key: AngularCircleCI-{{ .Branch }}-{{ checksum "yarn.lock" }}
+          paths:
+            - "node_modules"
+      - run: xvfb-run -a yarn run test -- --single-run --no-progress --browser=ChromeNoSandbox
+      - run: yarn run lint
