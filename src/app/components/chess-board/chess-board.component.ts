@@ -17,6 +17,7 @@ import { ChessTimeoutService } from 'src/app/services/chess-timeout.service';
 import { CommandService } from 'src/app/services/command.service';
 import { IMessage } from 'src/app/shared/peer-to-peer/defs';
 import { getLogger } from 'src/app/services/logger';
+import { LocalStorageService } from 'src/app/services/local-storage/local-storage.service';
 import hotkeys from 'hotkeys-js';
 export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
 
@@ -48,7 +49,8 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
     private sharedDataService: SharedDataService,
     private audioService: AudioService,
     private chessTimeoutService: ChessTimeoutService,
-    private commandService: CommandService
+    private commandService: CommandService,
+    private localStorageService: LocalStorageService
   ) {
     this.isSinglePlayer = !this.peerToPeerService.getIsConnected();
     this.myTeam = this.chessStatusService.playersTurnInfo.getTeam(this.peerToPeerService.getId());
@@ -233,6 +235,7 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
     OnePlayerBoardChanger.setUnmovable(this.cg);
     this.audioService.genericNotify.play();
     this.chessTimerService.pauseTimer();
+    this.localStorageService.addGame(this.chessStatusService.getPgn());
   }
 
   private setBoardMouseEvents() {

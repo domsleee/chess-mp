@@ -38,6 +38,8 @@ import { TextareaSelectallComponent } from './components/textarea-selectall/text
 import { EditableSpanComponent } from './components/editable-span/editable-span.component';
 import { PanelHeaderDisableEventsDirective } from './directives/panel-header-disable-events.directive';
 import { ReactiveComponentModule } from '@ngrx/component';
+import { HistoryComponent } from './pages/history/history.component';
+import { MatTableModule } from '@angular/material/table';
 
 @NgModule({
   declarations: [
@@ -61,7 +63,8 @@ import { ReactiveComponentModule } from '@ngrx/component';
     RematchButtonComponent,
     TextareaSelectallComponent,
     EditableSpanComponent,
-    PanelHeaderDisableEventsDirective
+    PanelHeaderDisableEventsDirective,
+    HistoryComponent
   ],
   imports: [
     BrowserModule,
@@ -81,6 +84,7 @@ import { ReactiveComponentModule } from '@ngrx/component';
     HttpClientModule,
     MatProgressSpinnerModule,
     MatIconModule,
+    MatTableModule,
     ReactiveComponentModule
   ],
   providers: [
