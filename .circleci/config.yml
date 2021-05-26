@@ -31,10 +31,10 @@ jobs:
       - run: mkdir ~/junit
 
       - run: 
-        command: xvfb-run -a yarn run test --no-progress --browsers=ChromeHeadlessCI --watch=false
-        environment:
-          JUNIT_REPORT_PATH: ./junit/
-          JUNIT_REPORT_NAME: test-results.xml
+          command: xvfb-run -a yarn run test --no-progress --browsers=ChromeHeadlessCI --watch=false
+          environment:
+            JUNIT_REPORT_PATH: ./junit/
+            JUNIT_REPORT_NAME: test-results.xml
       - store_test_results:
           path: ./junit
       - store_artifacts:
