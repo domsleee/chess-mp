@@ -1,4 +1,4 @@
-import { Color, Key } from 'chessground/types';
+import { Color } from 'chessground/types';
 import * as ChessJS from 'chess.js';
 import { IPlayerTeam, PlayerTeamDict } from '../../components/chess-board/helpers/PlayerTeamHelper';
 import { ISharedData } from './shared-data';

@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { BehaviorSubject, Observable, timer } from 'rxjs';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ChessTimerFormatPipe } from 'src/app/pipes/chess-timer-format.pipe';
 import { ChessTimerService } from 'src/app/services/chess-timer.service';

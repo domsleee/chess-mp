@@ -1,4 +1,4 @@
-import {ChessInstance, default as ChessJS} from 'chess.js';
+import { default as ChessJS } from 'chess.js';
 export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
 
 const h = new Chess();

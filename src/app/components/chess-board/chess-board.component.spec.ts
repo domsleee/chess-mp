@@ -17,7 +17,6 @@ import { ReactiveComponentModule } from '@ngrx/component';
 import { PlayerListComponent } from '../player-list/player-list.component';
 import { CommandService } from 'src/app/services/command.service';
 import { Api } from 'chessground/api';
-import { Key } from 'chessground/types';
 
 import * as ChessJS from 'chess.js';
 import { arrowLeftEvent, arrowRightEvent } from 'src/app/mocks/keyboard.mock';

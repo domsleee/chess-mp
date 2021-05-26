@@ -1,4 +1,4 @@
-import { AfterContentInit, AfterViewInit, Component, HostListener, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterContentInit, AfterViewInit, Component, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Chessground } from 'chessground';
 import { NgxChessgroundComponent } from 'ngx-chessground';
 import * as ChessJS from 'chess.js';

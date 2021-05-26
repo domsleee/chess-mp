@@ -1,8 +1,6 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { first } from 'rxjs/operators';
 import { LoadingButtonComponent } from 'src/app/components/loading-button/loading-button.component';
 import { PeerToPeerService } from 'src/app/services/peer-to-peer.service';
 import { RouteNames } from '../routes';

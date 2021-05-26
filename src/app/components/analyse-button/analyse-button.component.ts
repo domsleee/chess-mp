@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { LichessService } from 'src/app/services/lichess.service';
 import { ChessStatusService } from 'src/app/services/chess-status.service';
 import { getLogger } from 'src/app/services/logger';

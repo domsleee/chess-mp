@@ -1,4 +1,4 @@
-import { Directive, Host, Input, Optional, Self } from '@angular/core';
+import { Directive, Host, Optional, Self } from '@angular/core';
 import { MatExpansionPanelHeader } from '@angular/material/expansion';
 
 @Directive({

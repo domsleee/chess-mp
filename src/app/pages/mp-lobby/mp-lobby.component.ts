@@ -1,8 +1,7 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Color } from 'chessground/types';
-import { Observable, Subscription } from 'rxjs';
-import { ISharedData } from 'src/app/shared/peer-to-peer/shared-data';
+import { Subscription } from 'rxjs';
 import { PeerToPeerService } from 'src/app/services/peer-to-peer.service';
 import { SharedDataService } from 'src/app/services/shared-data.service';
 import { RouteNames } from '../routes';

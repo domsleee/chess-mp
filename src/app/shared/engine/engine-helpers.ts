@@ -1,4 +1,4 @@
-import { IEngineSettings, PlayerTeamDict } from 'src/app/components/chess-board/helpers/PlayerTeamHelper';
+import { IEngineSettings } from 'src/app/components/chess-board/helpers/PlayerTeamHelper';
 
 export function getEngineName(engineSettings: IEngineSettings) {
   return `SF${engineSettings.skillLevel}(`

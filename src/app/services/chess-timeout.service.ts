@@ -22,7 +22,8 @@ export class ChessTimeoutService implements OnDestroy {
     private sharedDataService: SharedDataService
   ) {
       this.timerSubscription = this.chessTimerService.getTimeoutObservable().subscribe(color => {
-        const [playerName, currentPlayer] = this.chessStatusService.currentTurn.getValue();
+        // @ts-ignore: noUnusedLocals
+        const [_, currentPlayer] = this.chessStatusService.currentTurn.getValue();
         if (currentPlayer?.owner === this.peerToPeerService.getId()) {
           this.doTimeout(color);
         } else if (this.peerToPeerService.getIsHost()) {

@@ -17,7 +17,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { JoinComponent } from './pages/join/join.component';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { PlayerListComponent } from './components/player-list/player-list.component';
 import { MatSliderModule } from '@angular/material/slider';
@@ -36,7 +35,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RematchButtonComponent } from './components/rematch-button/rematch-button.component';
 import { TextareaSelectallComponent } from './components/textarea-selectall/textarea-selectall.component';
 import { EditableSpanComponent } from './components/editable-span/editable-span.component';
-import { PanelHeaderDisableEventsDirective } from './directives/panel-header-disable-events.directive';
 import { ReactiveComponentModule } from '@ngrx/component';
 import { HistoryComponent } from './pages/history/history.component';
 import { MatTableModule } from '@angular/material/table';
@@ -63,7 +61,6 @@ import { MatTableModule } from '@angular/material/table';
     RematchButtonComponent,
     TextareaSelectallComponent,
     EditableSpanComponent,
-    PanelHeaderDisableEventsDirective,
     HistoryComponent
   ],
   imports: [
@@ -77,7 +74,6 @@ import { MatTableModule } from '@angular/material/table';
     BrowserAnimationsModule,
     FormsModule,
     ReactiveFormsModule,
-    MatSnackBarModule,
     MatGridListModule,
     MatSliderModule,
     MatExpansionModule,

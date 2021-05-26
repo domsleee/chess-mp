@@ -1,7 +1,7 @@
 import { ChessInstance, ShortMove, Square } from 'chess.js';
 import { Subject, timer } from 'rxjs';
 import { IGetNextMove } from './IGetNextMove';
-import { filter, take, tap } from 'rxjs/operators';
+import { filter, take } from 'rxjs/operators';
 import { IEngineSettings } from '../PlayerTeamHelper';
 import { getLogger } from 'src/app/services/logger';
 

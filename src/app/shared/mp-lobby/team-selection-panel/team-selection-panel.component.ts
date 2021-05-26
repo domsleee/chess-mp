@@ -1,8 +1,7 @@
-import { Component, HostListener, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { MatExpansionPanelHeader } from '@angular/material/expansion';
+import { Component, HostListener, Input, OnDestroy, OnInit } from '@angular/core';
 import { Color } from 'chessground/types';
-import { Observable, Subscription } from 'rxjs';
-import { getSortedTeamKeys, IPlayerTeam, PlayerTeamDict } from 'src/app/components/chess-board/helpers/PlayerTeamHelper';
+import { Subscription } from 'rxjs';
+import { getSortedTeamKeys, PlayerTeamDict } from 'src/app/components/chess-board/helpers/PlayerTeamHelper';
 import { CommandService } from 'src/app/services/command.service';
 import { getLogger } from 'src/app/services/logger';
 import { PeerToPeerService } from 'src/app/services/peer-to-peer.service';
