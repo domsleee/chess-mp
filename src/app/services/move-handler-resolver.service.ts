@@ -2,9 +2,8 @@ import { Injectable } from '@angular/core';
 import { Color } from 'chessground/types';
 import { IGetNextMove } from '../components/chess-board/helpers/GetNextMove/IGetNextMove';
 import { NullGetNextMove } from '../components/chess-board/helpers/GetNextMove/NullGetNextMove';
-import { StockfishGetNextMove } from '../components/chess-board/helpers/GetNextMove/StockfishGetNextMove';
 import { getSortedTeamKeys, IPlayerTeam, PlayerTeamDict } from '../components/chess-board/helpers/PlayerTeamHelper';
-import { EngineProviderStockfishService } from '../service/engine-provider-stockfish.service';
+import { GetNextMoveProviderService } from './get-next-move-provider.service';
 import { PeerToPeerService } from './peer-to-peer.service';
 import { SharedDataService } from './shared-data.service';
 
@@ -18,7 +17,7 @@ export class MoveHandlerResolverService {
   constructor(
     private peerToPeerService: PeerToPeerService,
     private sharedDataService: SharedDataService,
-    private engineProviderStockfishService: EngineProviderStockfishService
+    private getNextMoveProviderService: GetNextMoveProviderService
   ) {
     this.rebuild();
   }
@@ -48,6 +47,6 @@ export class MoveHandlerResolverService {
 
   private buildMoveHandler(player: IPlayerTeam): IGetNextMove {
     if (player.engineSettings == null || player.owner !== this.peerToPeerService.getId()) return new NullGetNextMove();
-    return new StockfishGetNextMove(player.engineSettings, this.engineProviderStockfishService);
+    return this.getNextMoveProviderService.getNextMoveGetter(player.engineSettings);
   }
 }

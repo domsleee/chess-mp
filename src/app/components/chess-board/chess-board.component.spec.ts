@@ -21,10 +21,11 @@ import { Api } from 'chessground/api';
 import * as ChessJS from 'chess.js';
 import { arrowLeftEvent, arrowRightEvent } from 'src/app/mocks/keyboard.mock';
 import { PeerToPeerServiceMock } from 'src/app/mocks/services/peer-to-peer.service.mock';
-import { IMock, It, Mock } from 'typemoq';
-import { IEngine } from 'src/app/shared/engine/IEngine';
-import { EngineProviderStockfishService } from 'src/app/service/engine-provider-stockfish.service';
-import { getEngineProviderStockfishMock } from 'src/app/mocks/services/engine-provider-stockfish.mock';
+import { IMock, It, Mock, Times } from 'typemoq';
+import { GetNextMoveProviderService } from 'src/app/services/get-next-move-provider.service';
+import { IGetNextMove } from './helpers/GetNextMove/IGetNextMove';
+import { MoveHandlerResolverService } from 'src/app/services/move-handler-resolver.service';
+import { getNextMoveGetterProviderMock } from 'src/app/mocks/next-move-getter-provider.mock';
 
 describe('ChessBoardComponent', () => {
   let component: ChessBoardComponent;
@@ -35,13 +36,15 @@ describe('ChessBoardComponent', () => {
   let commandService: CommandService;
   let peers: PeerToPeerServiceMock[];
   let cg: Api;
-  let engineMock: IMock<IEngine>;
+  let getNextMoveMock: IMock<IGetNextMove>;
+  let nextMoveGetterProviderMock: IMock<GetNextMoveProviderService>;
 
   beforeEach(async () => {
     peers = createPeers(2);
     sharedDataService = new SharedDataService(peers[0]);
     commandService = new CommandService(sharedDataService, peers[0], new GetCpuIdService(peers[0]));
-    engineMock = Mock.ofType<IEngine>();
+    getNextMoveMock = Mock.ofType<IGetNextMove>();
+    nextMoveGetterProviderMock = getNextMoveGetterProviderMock(getNextMoveMock.object);
 
     commandService.createPlayer({
       name: 'p1',
@@ -78,11 +81,12 @@ describe('ChessBoardComponent', () => {
       ],
       providers: [
         { provide: APP_BASE_HREF, useValue: '' },
-        { provide: PeerToPeerService, useValue: peers[0]},
-        { provide: SharedDataService, useValue: sharedDataService},
+        { provide: PeerToPeerService, useValue: peers[0] },
+        { provide: SharedDataService, useValue: sharedDataService },
         { provide: AudioService, useValue: getAudioServiceMock() },
         { provide: CommandService, useValue: commandService},
-        { provide: EngineProviderStockfishService, useValue: getEngineProviderStockfishMock(engineMock.object)}
+        { provide: GetNextMoveProviderService, useValue: nextMoveGetterProviderMock.object },
+        MoveHandlerResolverService
       ]
     });
 
@@ -257,17 +261,38 @@ describe('ChessBoardComponent', () => {
 
   describe('engine tests', () => {
     beforeEach(() => {
-      engineMock.setup(m => m.postMessage(It.isAnyString())).returns(() => (s: string) => {
-        console.log("SDFKLSJDFKLS", s);
-      });
       commandService.deletePlayer('p2');
       commandService.deletePlayer('p3');
+      // nextMoveGetterProviderMock.verify(x => x.getNextMoveGetter(It.isAny()), Times.exactly(0));
       commandService.addCPU('black');
     });
 
-    fit('idk', () => {
+    it('engine is called correct amount of times', () => {
       doMove('e2', 'e4');
-      expect(true).toEqual(true);
+      getNextMoveMock.verify(x => x.getMove(It.isAny()), Times.exactly(1));
+      doMove('e7', 'e5');
+      doMove('d2', 'd4');
+      getNextMoveMock.verify(x => x.getMove(It.isAny()), Times.exactly(2));
+      expect(true).toBeTrue();
+    });
+
+    it('engine is called correct number on gameover', () => {
+      doMove('e2', 'e4');
+      getNextMoveMock.verify(x => x.getMove(It.isAny()), Times.exactly(1));
+      doMove('f7', 'f5');
+      getNextMoveMock.verify(x => x.getMove(It.isAny()), Times.exactly(1));
+      doMove('e4', 'e5');
+      getNextMoveMock.verify(x => x.getMove(It.isAny()), Times.exactly(2));
+      doMove('g7', 'g5');
+      getNextMoveMock.verify(x => x.getMove(It.isAny()), Times.exactly(2));
+      doMove('d1', 'h5');
+      getNextMoveMock.verify(x => x.getMove(It.isAny()), Times.exactly(2));
+      expect(true).toBeTrue();
+    });
+
+    it('rebuild counts', () => {
+      // strange...
+      nextMoveGetterProviderMock.verify(x => x.getNextMoveGetter(It.isAny()), Times.exactly(2));
     });
   });
 });

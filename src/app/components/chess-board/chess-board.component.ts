@@ -69,7 +69,7 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
       this.onGameOver();
     });
 
-    this.numNamesSubscription = this.sharedDataService.numNames.subscribe(() => {
+    this.numNamesSubscription = this.sharedDataService.numNames.subscribe((num) => {
       this.updateMoveHandlerResolver();
       this.setBoardMouseEvents();
     });
@@ -160,11 +160,10 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
     this.setBoardMouseEvents();
     this.cg.playPremove();
 
-    if (this.chessStatusService.isGameOver()) {
-      this.onGameOver();
-    }
-
     this.chessBoardHistoryController.afterMove();
+    if (this.chessStatusService.isGameOver()) {
+      return this.onGameOver();
+    }
     this.getAndApplyCPUMove();
   }
 
