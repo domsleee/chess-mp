@@ -21,6 +21,10 @@ import { Api } from 'chessground/api';
 import * as ChessJS from 'chess.js';
 import { arrowLeftEvent, arrowRightEvent } from 'src/app/mocks/keyboard.mock';
 import { PeerToPeerServiceMock } from 'src/app/mocks/services/peer-to-peer.service.mock';
+import { IMock, It, Mock } from 'typemoq';
+import { IEngine } from 'src/app/shared/engine/IEngine';
+import { EngineProviderStockfishService } from 'src/app/service/engine-provider-stockfish.service';
+import { getEngineProviderStockfishMock } from 'src/app/mocks/services/engine-provider-stockfish.mock';
 
 describe('ChessBoardComponent', () => {
   let component: ChessBoardComponent;
@@ -31,11 +35,13 @@ describe('ChessBoardComponent', () => {
   let commandService: CommandService;
   let peers: PeerToPeerServiceMock[];
   let cg: Api;
+  let engineMock: IMock<IEngine>;
 
   beforeEach(async () => {
     peers = createPeers(2);
     sharedDataService = new SharedDataService(peers[0]);
     commandService = new CommandService(sharedDataService, peers[0], new GetCpuIdService(peers[0]));
+    engineMock = Mock.ofType<IEngine>();
 
     commandService.createPlayer({
       name: 'p1',
@@ -48,13 +54,13 @@ describe('ChessBoardComponent', () => {
       team: 'black',
       sortNumber: 1,
       owner: peers[1].getId(),
-    }, 'zzz');
+    }, 'p2');
     commandService.createPlayer({
       name: 'p3',
       team: 'white',
       sortNumber: 2,
       owner: peers[2].getId(),
-    }, 'abc');
+    }, 'p3');
 
     chessStatusService = new ChessStatusService(sharedDataService);
     chessTimerService = new ChessTimerService();
@@ -76,6 +82,7 @@ describe('ChessBoardComponent', () => {
         { provide: SharedDataService, useValue: sharedDataService},
         { provide: AudioService, useValue: getAudioServiceMock() },
         { provide: CommandService, useValue: commandService},
+        { provide: EngineProviderStockfishService, useValue: getEngineProviderStockfishMock(engineMock.object)}
       ]
     });
 
@@ -245,6 +252,22 @@ describe('ChessBoardComponent', () => {
       expect(getMovableStatus()).toEqual('unmovable', 'clearly');
       component.keyEvent(arrowRightEvent);
       expect(getMovableStatus()).toEqual('movable', 'my turn');
+    });
+  });
+
+  describe('engine tests', () => {
+    beforeEach(() => {
+      engineMock.setup(m => m.postMessage(It.isAnyString())).returns(() => (s: string) => {
+        console.log("SDFKLSJDFKLS", s);
+      });
+      commandService.deletePlayer('p2');
+      commandService.deletePlayer('p3');
+      commandService.addCPU('black');
+    });
+
+    fit('idk', () => {
+      doMove('e2', 'e4');
+      expect(true).toEqual(true);
     });
   });
 });

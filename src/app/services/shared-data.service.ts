@@ -145,6 +145,7 @@ export class SharedDataService implements OnDestroy {
     else if (message.data.command === 'DELETE_PLAYER') {
       const currNames = this.names.getValue();
       const nameId = message.data.playerId;
+      logger.info(`deleting player ${nameId}`);
       if (!(nameId in currNames)) {
         logger.warn('warning! attempted to delete player that does not exist');
         return;

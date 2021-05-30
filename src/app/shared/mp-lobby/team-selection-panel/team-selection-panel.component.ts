@@ -4,7 +4,6 @@ import { Subscription } from 'rxjs';
 import { getSortedTeamKeys, PlayerTeamDict } from 'src/app/components/chess-board/helpers/PlayerTeamHelper';
 import { CommandService } from 'src/app/services/command.service';
 import { getLogger } from 'src/app/services/logger';
-import { PeerToPeerService } from 'src/app/services/peer-to-peer.service';
 import { SharedDataService } from 'src/app/services/shared-data.service';
 
 const logger = getLogger('team-selection-panel');
@@ -24,7 +23,6 @@ export class TeamSelectionPanelComponent implements OnInit, OnDestroy {
 
   constructor(
     private sharedDataService: SharedDataService,
-    private peerToPeerService: PeerToPeerService,
     private commandService: CommandService
   ) {}
 
@@ -60,10 +58,7 @@ export class TeamSelectionPanelComponent implements OnInit, OnDestroy {
   }
 
   deleteCpu(e: Event, playerId: string) {
-    this.peerToPeerService.broadcastAndToSelf({
-      command: 'DELETE_PLAYER',
-      playerId
-    });
+    this.commandService.deletePlayer(playerId);
     e.stopPropagation();
   }
 
