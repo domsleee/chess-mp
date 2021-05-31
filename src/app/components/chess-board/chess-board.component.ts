@@ -203,9 +203,11 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
     const correctMatchId = (data: {matchId: number}) => {
       return data.matchId === this.sharedDataService.getSharedDataSync().matchCount;
     };
+    if (!('matchId' in message.data) || !correctMatchId(message.data)) {
+      return;
+    }
 
     if (message.data.command === 'MOVE') {
-      if (!correctMatchId(message.data)) return;
       this.processMoveFromExternal({
         from: message.data.from,
         to: message.data.to,
@@ -213,11 +215,9 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
       }, message.data.claimedTime);
     }
     else if (message.data.command === 'DECLARE_TIMEOUT') {
-      if (!correctMatchId(message.data)) return;
       this.chessStatusService.setTimeout(message.data.color);
     }
     else if (message.data.command === 'RESIGN') {
-      if (!correctMatchId(message.data)) return;
       this.chessStatusService.resign(message.data.team);
       this.onGameOver();
     }
