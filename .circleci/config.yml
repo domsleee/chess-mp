@@ -41,6 +41,10 @@ jobs:
           path: ./junit
 
       - run: yarn run lint
+    
+    branches:
+        ignore:
+          - gh-pages
 
 workflows:
   # Below is the definition of your workflow.
@@ -49,7 +53,4 @@ workflows:
   # For more details on extending your workflow, see the configuration docs: https://circleci.com/docs/2.0/configuration-reference/#workflows
   build-and-test: 
     jobs:
-      - build-and-test:
-          branches:
-            ignore:
-              - gh-pages
+      - build-and-test
