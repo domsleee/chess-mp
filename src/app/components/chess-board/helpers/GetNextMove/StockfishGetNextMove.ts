@@ -4,30 +4,22 @@ import { IGetNextMove } from './IGetNextMove';
 import { filter, take } from 'rxjs/operators';
 import { IEngineSettings } from '../PlayerTeamHelper';
 import { getLogger } from 'src/app/services/logger';
+import { IEngineProvider } from 'src/app/shared/engine/IEngineProvider';
+import { IEngine } from 'src/app/shared/engine/IEngine';
 
 const logger = getLogger('stockfish');
 
-// declare var require: any;
-// const Stockfish = require('stockfish.wasm'); // the module, not the file
-
 export class StockfishGetNextMove implements IGetNextMove {
   initPromise: Promise<any>;
-  sf: any;
+  sf!: IEngine;
   sfEmitter = new Subject<string>();
 
   movetime = 700;
 
-  constructor(private engineSettings: IEngineSettings) {
-    // @ts-ignore
+  constructor(private engineSettings: IEngineSettings, engineProvider: IEngineProvider) {
     this.movetime = engineSettings.timeForMove ?? 700;
 
-    if (!('Stockfish' in window)) {
-      this.initPromise = new Promise(resolve => resolve(1));
-      return;
-    }
-
-    // @ts-ignore
-    this.initPromise = Stockfish().then((sf: any) => {
+    this.initPromise = engineProvider.getEngine().then((sf: IEngine) => {
       this.sf = sf;
       sf.addMessageListener((line: any) => {
         this.sfEmitter.next(line);

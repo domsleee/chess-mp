@@ -12,6 +12,13 @@ export class AudioService {
   move: IPlayable = new Multiplay(this.getAsset('audio/Move.mp3'), 3);
   genericNotify: IPlayable = new Audio(this.getAsset('audio/GenericNotify.mp3'));
 
+  playMoveSound(captured: boolean) {
+    if (captured) {
+      return this.capture.play();
+    }
+    return this.move.play();
+  }
+
   private getAsset(assetDir: string) {
     return `${this.baseHref}assets/${assetDir}`;
   }

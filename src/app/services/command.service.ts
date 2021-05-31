@@ -43,6 +43,13 @@ export class CommandService {
     });
   }
 
+  deletePlayer(playerId: string) {
+    return this.peerToPeerService.broadcastAndToSelf({
+      command: 'DELETE_PLAYER',
+      playerId
+    });
+  }
+
   swapAllTeamsAndRematch() {
     const names = this.sharedDataService.getNamesSync();
     for (const key of Object.keys(names)) {

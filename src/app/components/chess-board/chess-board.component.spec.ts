@@ -21,6 +21,11 @@ import { Api } from 'chessground/api';
 import * as ChessJS from 'chess.js';
 import { arrowLeftEvent, arrowRightEvent } from 'src/app/mocks/keyboard.mock';
 import { PeerToPeerServiceMock } from 'src/app/mocks/services/peer-to-peer.service.mock';
+import { IMock, It, Mock, Times } from 'typemoq';
+import { GetNextMoveProviderService } from 'src/app/services/get-next-move-provider.service';
+import { IGetNextMove } from './helpers/GetNextMove/IGetNextMove';
+import { MoveHandlerResolverService } from 'src/app/services/move-handler-resolver.service';
+import { getNextMoveGetterProviderMock } from 'src/app/mocks/next-move-getter-provider.mock';
 
 describe('ChessBoardComponent', () => {
   let component: ChessBoardComponent;
@@ -31,11 +36,15 @@ describe('ChessBoardComponent', () => {
   let commandService: CommandService;
   let peers: PeerToPeerServiceMock[];
   let cg: Api;
+  let getNextMoveMock: IMock<IGetNextMove>;
+  let nextMoveGetterProviderMock: IMock<GetNextMoveProviderService>;
 
   beforeEach(async () => {
     peers = createPeers(2);
     sharedDataService = new SharedDataService(peers[0]);
     commandService = new CommandService(sharedDataService, peers[0], new GetCpuIdService(peers[0]));
+    getNextMoveMock = Mock.ofType<IGetNextMove>();
+    nextMoveGetterProviderMock = getNextMoveGetterProviderMock(getNextMoveMock.object);
 
     commandService.createPlayer({
       name: 'p1',
@@ -48,13 +57,13 @@ describe('ChessBoardComponent', () => {
       team: 'black',
       sortNumber: 1,
       owner: peers[1].getId(),
-    }, 'zzz');
+    }, 'p2');
     commandService.createPlayer({
       name: 'p3',
       team: 'white',
       sortNumber: 2,
       owner: peers[2].getId(),
-    }, 'abc');
+    }, 'p3');
 
     chessStatusService = new ChessStatusService(sharedDataService);
     chessTimerService = new ChessTimerService();
@@ -72,10 +81,12 @@ describe('ChessBoardComponent', () => {
       ],
       providers: [
         { provide: APP_BASE_HREF, useValue: '' },
-        { provide: PeerToPeerService, useValue: peers[0]},
-        { provide: SharedDataService, useValue: sharedDataService},
+        { provide: PeerToPeerService, useValue: peers[0] },
+        { provide: SharedDataService, useValue: sharedDataService },
         { provide: AudioService, useValue: getAudioServiceMock() },
         { provide: CommandService, useValue: commandService},
+        { provide: GetNextMoveProviderService, useValue: nextMoveGetterProviderMock.object },
+        MoveHandlerResolverService
       ]
     });
 
@@ -92,10 +103,6 @@ describe('ChessBoardComponent', () => {
     fixture = TestBed.createComponent(ChessBoardComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-
-    component.ngOnInit();
-    component.ngAfterViewInit();
-    component.ngAfterContentInit();
 
     // tslint:disable-next-line
     cg = component['cg'];
@@ -245,6 +252,43 @@ describe('ChessBoardComponent', () => {
       expect(getMovableStatus()).toEqual('unmovable', 'clearly');
       component.keyEvent(arrowRightEvent);
       expect(getMovableStatus()).toEqual('movable', 'my turn');
+    });
+  });
+
+  describe('engine tests', () => {
+    beforeEach(() => {
+      commandService.deletePlayer('p2');
+      commandService.deletePlayer('p3');
+      nextMoveGetterProviderMock.verify(x => x.getNextMoveGetter(It.isAny()), Times.exactly(0));
+      commandService.addCPU('black');
+    });
+
+    it('engine is called correct amount of times', () => {
+      doMove('e2', 'e4');
+      getNextMoveMock.verify(x => x.getMove(It.isAny()), Times.exactly(1));
+      doMove('e7', 'e5');
+      doMove('d2', 'd4');
+      getNextMoveMock.verify(x => x.getMove(It.isAny()), Times.exactly(2));
+      expect(true).toBeTrue();
+    });
+
+    it('engine is called correct number on gameover', () => {
+      doMove('e2', 'e4');
+      getNextMoveMock.verify(x => x.getMove(It.isAny()), Times.exactly(1));
+      doMove('f7', 'f5');
+      getNextMoveMock.verify(x => x.getMove(It.isAny()), Times.exactly(1));
+      doMove('e4', 'e5');
+      getNextMoveMock.verify(x => x.getMove(It.isAny()), Times.exactly(2));
+      doMove('g7', 'g5');
+      getNextMoveMock.verify(x => x.getMove(It.isAny()), Times.exactly(2));
+      doMove('d1', 'h5');
+      getNextMoveMock.verify(x => x.getMove(It.isAny()), Times.exactly(2));
+      expect(true).toBeTrue();
+    });
+
+    it('rebuild counts', () => {
+      nextMoveGetterProviderMock.verify(x => x.getNextMoveGetter(It.isAny()), Times.exactly(1));
+      expect(true).toBeTrue();
     });
   });
 });

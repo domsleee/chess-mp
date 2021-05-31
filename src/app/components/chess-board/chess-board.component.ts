@@ -2,10 +2,9 @@ import { AfterContentInit, AfterViewInit, Component, HostListener, OnDestroy, On
 import { Chessground } from 'chessground';
 import { NgxChessgroundComponent } from 'ngx-chessground';
 import * as ChessJS from 'chess.js';
-import { OnePlayerBoardChanger } from './helpers/OnePlayerBoardChanger';
+import { BoardMouseEventHelper } from './helpers/BoardMouseEventHelper';
 import { Api } from 'chessground/api';
 import { Color, Key } from 'chessground/types';
-import { MoveHandlerResolver } from './helpers/MoveHandlerResolver';
 import { ChessTimerService } from 'src/app/services/chess-timer.service';
 import { ChessStatusService } from 'src/app/services/chess-status.service';
 import { PeerToPeerService } from 'src/app/services/peer-to-peer.service';
@@ -19,6 +18,8 @@ import { IMessage } from 'src/app/shared/peer-to-peer/defs';
 import { getLogger } from 'src/app/services/logger';
 import { LocalStorageService } from 'src/app/services/local-storage/local-storage.service';
 import hotkeys from 'hotkeys-js';
+import { ChessBoardHistoryControllerService } from 'src/app/services/chess-board-history-controller.service';
+import { MoveHandlerResolverService } from 'src/app/services/move-handler-resolver.service';
 export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
 
 const HOTKEYS_SCOPE = 'chess-board';
@@ -28,16 +29,14 @@ const logger = getLogger('chess-board.component');
   selector: 'app-chess-board',
   templateUrl: './chess-board.component.html',
   styleUrls: ['./chess-board.component.scss'],
-  providers: [ChessStatusService, ChessTimerService, ChessTimeoutService]
+  providers: [ChessStatusService, ChessTimerService, ChessTimeoutService, ChessBoardHistoryControllerService, MoveHandlerResolverService]
 })
 export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit, AfterViewInit {
   readonly myTeam: Color;
-
-  private moveHandlerResolver!: MoveHandlerResolver; // todo: service?
   private readonly isSinglePlayer;
-  private historicalMoveNumber!: number;
   private chessTimerSubscription!: Subscription;
   private peerToPeerSubscription!: Subscription;
+  private numNamesSubscription!: Subscription;
 
   @ViewChild('chess') private ngxChessgroundComponent!: NgxChessgroundComponent;
   private cg!: Api;
@@ -50,7 +49,9 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
     private audioService: AudioService,
     private chessTimeoutService: ChessTimeoutService,
     private commandService: CommandService,
-    private localStorageService: LocalStorageService
+    private localStorageService: LocalStorageService,
+    private chessBoardHistoryController: ChessBoardHistoryControllerService,
+    private moveHandlerResolverService: MoveHandlerResolverService
   ) {
     this.isSinglePlayer = !this.peerToPeerService.getIsConnected();
     this.myTeam = this.chessStatusService.playersTurnInfo.getTeam(this.peerToPeerService.getId());
@@ -58,7 +59,6 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
 
   ngOnInit() {
     this.updateMoveHandlerResolver();
-    this.historicalMoveNumber = 0;
   }
 
   ngAfterViewInit(): void {
@@ -67,6 +67,11 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
     this.chessTimerSubscription = this.chessTimeoutService.getTimeoutObservable().subscribe(color => {
       this.chessStatusService.setTimeout(color);
       this.onGameOver();
+    });
+
+    this.numNamesSubscription = this.sharedDataService.numNames.subscribe((num) => {
+      this.updateMoveHandlerResolver();
+      this.setBoardMouseEvents();
     });
 
     this.peerToPeerSubscription = this.peerToPeerService.getMessageObservable().subscribe(this.peerToPeerHandler.bind(this));
@@ -85,18 +90,13 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
     this.cg.destroy();
     this.chessTimerSubscription.unsubscribe();
     this.peerToPeerSubscription.unsubscribe();
+    this.numNamesSubscription.unsubscribe();
     hotkeys.deleteScope(HOTKEYS_SCOPE);
   }
 
   @HostListener('window:keydown', ['$event'])
   keyEvent(event: KeyboardEvent) {
-    if (event.key === 'ArrowLeft') {
-      this.navigatePosition(-1);
-    }
-
-    if (event.key === 'ArrowRight') {
-      this.navigatePosition(1);
-    }
+    this.chessBoardHistoryController.handleKeyEvent(event);
   }
 
   private run(el: HTMLElement) {
@@ -128,6 +128,7 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
     this.setupDebug();
     this.getAndApplyCPUMove();
     this.setBoardMouseEvents();
+    this.chessBoardHistoryController.setCg(this.cg, () => this.setBoardMouseEvents());
 
     return this.cg;
   }
@@ -159,11 +160,10 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
     this.setBoardMouseEvents();
     this.cg.playPremove();
 
+    this.chessBoardHistoryController.afterMove();
     if (this.chessStatusService.isGameOver()) {
-      this.onGameOver();
+      return this.onGameOver();
     }
-
-    this.historicalMoveNumber = this.chessStatusService.getNumMoves();
     this.getAndApplyCPUMove();
   }
 
@@ -191,7 +191,7 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
     promoteIfNecessary(resMove, this.cg, oldColor);
     removeEnPassantIfNecessary(resMove, this.cg);
 
-    this.playMoveSound(resMove.captured != null);
+    this.audioService.playMoveSound(resMove.captured != null);
     this.cg.set({
       check: this.chessStatusService.chess.in_check() ? this.chessStatusService.getColor() : undefined,
     });
@@ -203,9 +203,11 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
     const correctMatchId = (data: {matchId: number}) => {
       return data.matchId === this.sharedDataService.getSharedDataSync().matchCount;
     };
+    if (!('matchId' in message.data) || !correctMatchId(message.data)) {
+      return;
+    }
 
     if (message.data.command === 'MOVE') {
-      if (!correctMatchId(message.data)) return;
       this.processMoveFromExternal({
         from: message.data.from,
         to: message.data.to,
@@ -213,26 +215,16 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
       }, message.data.claimedTime);
     }
     else if (message.data.command === 'DECLARE_TIMEOUT') {
-      if (!correctMatchId(message.data)) return;
       this.chessStatusService.setTimeout(message.data.color);
     }
     else if (message.data.command === 'RESIGN') {
-      if (!correctMatchId(message.data)) return;
       this.chessStatusService.resign(message.data.team);
       this.onGameOver();
     }
   }
 
-  private playMoveSound(captured: boolean) {
-    if (captured) {
-      this.audioService.capture.play();
-    } else {
-      this.audioService.move.play();
-    }
-  }
-
   private onGameOver() {
-    OnePlayerBoardChanger.setUnmovable(this.cg);
+    BoardMouseEventHelper.setUnmovable(this.cg);
     this.audioService.genericNotify.play();
     this.chessTimerService.pauseTimer();
     this.localStorageService.addGame(this.chessStatusService.getPgn());
@@ -240,20 +232,21 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
 
   private setBoardMouseEvents() {
     if (this.chessStatusService.isGameOver()) {
-      return OnePlayerBoardChanger.setUnmovable(this.cg);
+      return BoardMouseEventHelper.setUnmovable(this.cg);
     }
     if (this.chessStatusService.isPlayersMove(this.peerToPeerService.getId())) {
-      return OnePlayerBoardChanger.setMovable(this.chessStatusService.chess, this.cg);
+      return BoardMouseEventHelper.setMovable(this.chessStatusService.chess, this.cg);
     }
     if (this.chessStatusService.isPlayersMoveNext(this.peerToPeerService.getId())) {
-      return OnePlayerBoardChanger.setPremovable(this.chessStatusService.chess, this.cg);
+      return BoardMouseEventHelper.setPremovable(this.chessStatusService.chess, this.cg);
     }
-    return OnePlayerBoardChanger.setUnmovable(this.cg);
+    return BoardMouseEventHelper.setUnmovable(this.cg);
   }
 
   private async getAndApplyCPUMove() {
-    const move = await this.moveHandlerResolver.getMoveHander(this.chessStatusService.getColor(), this.chessStatusService.getNumMoves())
-                .getMove(this.chessStatusService.chess);
+    const moveHandler = this.moveHandlerResolverService
+                        .getMoveHander(this.chessStatusService.getColor(), this.chessStatusService.getNumMoves());
+    const move = await moveHandler.getMove(this.chessStatusService.chess);
     if (this.chessStatusService.isGameOver()) return;
     if (move != null) {
       logger.info('APPLY CPU MOVE');
@@ -266,58 +259,11 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
       this.chessTimerService.setTimeForCurrentTurn(claimedTime);
       this.chessTimerService.pauseTimer();
     }
-    this.resetHistoryIfRequired();
+    this.chessBoardHistoryController.resetHistoryIfRequired();
     this.cg.move(move.from, move.to);
   }
 
-  private navigatePosition(offset: number) {
-    if (offset < 0 && this.historicalMoveNumber + offset >= 0) {
-      this.historicalMoveNumber += offset;
-      this.setCgForHistoricalMove(this.historicalMoveNumber, true);
-      OnePlayerBoardChanger.setUnmovable(this.cg);
-    }
-    else if (offset > 0 && this.historicalMoveNumber + offset <= this.chessStatusService.getNumMoves()) {
-      this.historicalMoveNumber += offset;
-      this.setCgForHistoricalMove(this.historicalMoveNumber);
-      if (this.historicalMoveNumber === this.chessStatusService.getNumMoves()) {
-        this.setBoardMouseEvents();
-      }
-    }
-  }
-
-  private setCgForHistoricalMove(moveNumber: number, movingBackward: boolean = false) {
-    const fen = this.chessStatusService.getFenForMove(moveNumber);
-    const toMoveArray = (move: ChessJS.Move) => [move.from, move.to];
-    const lastMove = moveNumber !== 0
-      ? toMoveArray(this.chessStatusService.getPreviousMoveForMove(moveNumber))
-      : undefined;
-    this.cg.set({
-      fen,
-      lastMove,
-      check: this.chessStatusService.isInCheck(moveNumber) ? this.chessStatusService.getColorForMove(moveNumber) : false
-    });
-    this.playSoundForMoveNumber(moveNumber + (movingBackward ? 1 : 0));
-  }
-
-  private playSoundForMoveNumber(moveNumber: number) {
-    if (moveNumber <= 0) return;
-    const lastMove = this.chessStatusService.getPreviousMoveForMove(moveNumber);
-    this.playMoveSound(lastMove.captured != null);
-  }
-
-  private resetHistoryIfRequired() {
-    if (this.historicalMoveNumber !== this.chessStatusService.getNumMoves()) {
-      this.historicalMoveNumber = this.chessStatusService.getNumMoves();
-      const oldAnimation = this.cg.state.animation.enabled;
-      this.cg.set({animation: {enabled: false}});
-      this.cg.set({fen: this.chessStatusService.getFenForMove(this.historicalMoveNumber)});
-      this.cg.set({animation: {enabled: oldAnimation}});
-    }
-  }
-
   private updateMoveHandlerResolver() {
-    const whiteTeamDict = this.sharedDataService.getNamesSync('white');
-    const blackTeamDict = this.sharedDataService.getNamesSync('black');
-    return this.moveHandlerResolver = new MoveHandlerResolver(this.peerToPeerService.getId(), whiteTeamDict, blackTeamDict);
+    this.moveHandlerResolverService.rebuild();
   }
 }
