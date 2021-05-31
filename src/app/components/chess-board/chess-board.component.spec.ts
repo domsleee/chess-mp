@@ -104,10 +104,6 @@ describe('ChessBoardComponent', () => {
     component = fixture.componentInstance;
     fixture.detectChanges();
 
-    component.ngOnInit();
-    component.ngAfterViewInit();
-    component.ngAfterContentInit();
-
     // tslint:disable-next-line
     cg = component['cg'];
 
@@ -263,7 +259,7 @@ describe('ChessBoardComponent', () => {
     beforeEach(() => {
       commandService.deletePlayer('p2');
       commandService.deletePlayer('p3');
-      // nextMoveGetterProviderMock.verify(x => x.getNextMoveGetter(It.isAny()), Times.exactly(0));
+      nextMoveGetterProviderMock.verify(x => x.getNextMoveGetter(It.isAny()), Times.exactly(0));
       commandService.addCPU('black');
     });
 
@@ -291,8 +287,8 @@ describe('ChessBoardComponent', () => {
     });
 
     it('rebuild counts', () => {
-      // strange...
-      nextMoveGetterProviderMock.verify(x => x.getNextMoveGetter(It.isAny()), Times.exactly(2));
+      nextMoveGetterProviderMock.verify(x => x.getNextMoveGetter(It.isAny()), Times.exactly(1));
+      expect(true).toBeTrue();
     });
   });
 });
