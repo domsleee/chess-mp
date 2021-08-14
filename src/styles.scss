@@ -1,8 +1,11 @@
 /* You can add global styles to this file, and also import other style files */
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+body {
+  // https://stackoverflow.com/questions/37754542/css-calc-round-down-with-two-decimal-cases/64921523#64921523
+  --shf: 4.9406564584124654e-324;
+  margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif;
+}
 
 section {
-  --shf: 4.9406564584124654e-322;
   width: calc(((min(80vh, 72vw) / 8) * var(--shf) / var(--shf)) * 8);
   height: calc(((min(80vh, 72vw) / 8) * var(--shf) / var(--shf)) * 8);
 
@@ -15,7 +18,6 @@ section {
 
 @media only screen and (max-width: 600px) {
   section {
-    --shf: 4.9406564584124654e-322;
     width: calc(((min(100vh, 100vw) / 8) * var(--shf) / var(--shf)) * 8);
     height: calc(((min(100vh, 100vw) / 8) * var(--shf) / var(--shf)) * 8);
   }
