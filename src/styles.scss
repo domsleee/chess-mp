@@ -5,20 +5,25 @@ body {
   margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
-section {
-  width: calc(((min(80vh, 72vw) / 8) * var(--shf) / var(--shf)) * 8);
-  height: calc(((min(80vh, 72vw) / 8) * var(--shf) / var(--shf)) * 8);
+@function floorToEight($v) {
+  @return calc((#{$v}) / 8 * var(--shf) / var(--shf) * 8);
+}
 
+div#chessground-examples {
+  width: #{floorToEight(min(80vh, 72vw))};
   max-width: 896px;
   max-height: 896px;
+}
 
+section {
+  height: 0;
+  padding-bottom: 100%;
   display: block;
   position: relative;
 }
 
 @media only screen and (max-width: 600px) {
-  section {
-    width: calc(((min(100vh, 100vw) / 8) * var(--shf) / var(--shf)) * 8);
-    height: calc(((min(100vh, 100vw) / 8) * var(--shf) / var(--shf)) * 8);
+  div#chessground-examples {
+    width: #{floorToEight(min(100vh, 100vw))};
   }
 }
