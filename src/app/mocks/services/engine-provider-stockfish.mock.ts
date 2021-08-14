@@ -1,4 +1,4 @@
-import { EngineProviderStockfishService } from 'src/app/service/engine-provider-stockfish.service';
+import { EngineProviderStockfishService } from 'src/app/services/engine-provider-stockfish.service';
 import { IEngine } from 'src/app/shared/engine/IEngine';
 import { Mock } from 'typemoq';
 

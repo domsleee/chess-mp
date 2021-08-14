@@ -34,7 +34,6 @@ export class LocalStorageService {
         gamePgns: []
       };
     }
-    console.log(item);
     return JSON.parse(item);
   }
 
