@@ -8,8 +8,6 @@
 .cg-wrap {
   width: 100%;
   height: 100%;
-  max-width: 893px;
-  max-height: 893px;
   position: absolute;
   display: table;
 }
