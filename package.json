@@ -18,6 +18,11 @@
     "path": false,
     "perf_hooks": false
   },
+  "engineStrict": true,
+  "engines": {
+    "npm": "please-use-yarn",
+    "yarn": ">= 1.19.1"
+  },
   "private": true,
   "dependencies": {
     "@angular/animations": "12.2.1",
