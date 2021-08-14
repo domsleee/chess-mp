@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { IGetNextMove } from '../components/chess-board/helpers/GetNextMove/IGetNextMove';
 import { StockfishGetNextMove } from '../components/chess-board/helpers/GetNextMove/StockfishGetNextMove';
 import { IEngineSettings } from '../components/chess-board/helpers/PlayerTeamHelper';
-import { EngineProviderStockfishService } from '../service/engine-provider-stockfish.service';
+import { EngineProviderStockfishService } from '../services/engine-provider-stockfish.service';
 
 @Injectable({
   providedIn: 'root'

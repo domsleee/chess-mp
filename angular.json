@@ -28,11 +28,17 @@
             "aot": true,
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              {"glob": "**/*", "input": "node_modules/stockfish.js", "output": "/"}
             ],
             "styles": [
               "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
-              "src/styles.scss"
+              "src/styles.scss",
+              "src/assets/chessground.css",
+              "src/assets/theme.css"
+            ],
+            "scripts": [
+              "./node_modules/stockfish.wasm/stockfish.js"
             ]
           },
           "configurations": {
@@ -55,7 +61,7 @@
                 {
                   "type": "initial",
                   "maximumWarning": "500kb",
-                  "maximumError": "1mb"
+                  "maximumError": "1.05mb"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -63,6 +69,16 @@
                   "maximumError": "4kb"
                 }
               ]
+            },
+            "development": {
+              "optimization": false,
+              "outputHashing": "all",
+              "sourceMap": true,
+              "namedChunks": true,
+              "extractLicenses": false,
+              "vendorChunk": true,
+              "buildOptimizer": false,
+              "budgets": []
             }
           }
         },
@@ -74,8 +90,12 @@
           "configurations": {
             "production": {
               "browserTarget": "chess-mp:build:production"
+            },
+            "development": {
+              "browserTarget": "chess-mp:build:development"
             }
-          }
+          },
+          "defaultConfiguration": "development"
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
