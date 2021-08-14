@@ -1,0 +1,63 @@
+{
+  "_from": "stockfish.js",
+  "_id": "stockfish.js@10.0.2",
+  "_inBundle": false,
+  "_integrity": "sha512-treB3AYcdvRJ9SDPOyL0R2NcEAtQgG432nStfRzR4wzVELGQ6iVoeBHwvirHTfocNOTims7XNkK3SADaocsJmQ==",
+  "_location": "/stockfish.js",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "stockfish.js",
+    "name": "stockfish.js",
+    "escapedName": "stockfish.js",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/stockfish.js/-/stockfish.js-10.0.2.tgz",
+  "_shasum": "c8206aa3b0290171ace52b463a74112ea1f83989",
+  "_spec": "stockfish.js",
+  "_where": "/home/dom/git/chess-mp",
+  "author": {
+    "name": "Niklas Fiekas",
+    "email": "niklas.fiekas@backscattering.de"
+  },
+  "bugs": {
+    "url": "https://github.com/niklasf/stockfish.js/issues",
+    "email": "niklas.fiekas@backscattering.de"
+  },
+  "bundleDependencies": false,
+  "deprecated": false,
+  "description": "The strong chess engine Stockfish with multi-variant support compiled to JavaScript and WebAssembly",
+  "files": [
+    "Copying.txt",
+    "stockfish.js",
+    "stockfish.wasm",
+    "stockfish.wasm.js"
+  ],
+  "homepage": "https://github.com/niklasf/stockfish.js#readme",
+  "keywords": [
+    "chess",
+    "stockfish",
+    "emscripten",
+    "lichess",
+    "asmjs",
+    "webassembly"
+  ],
+  "license": "GPL-3.0",
+  "main": "stockfish.wasm.js",
+  "name": "stockfish.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/niklasf/stockfish.js.git"
+  },
+  "scripts": {
+    "prepare": "./build.sh"
+  },
+  "version": "10.0.2"
+}
