@@ -76,10 +76,12 @@ export class ChessBoardComponent implements OnInit, OnDestroy, AfterContentInit,
 
     this.peerToPeerSubscription = this.peerToPeerService.getMessageObservable().subscribe(this.peerToPeerHandler.bind(this));
 
-    hotkeys('ctrl+shift+r', HOTKEYS_SCOPE, (event: any) => {
+    hotkeys('alt+r', HOTKEYS_SCOPE, (event: any) => {
       event.preventDefault();
       this.commandService.resign(this.myTeam);
     });
+
+    hotkeys.setScope(HOTKEYS_SCOPE);
   }
 
   ngAfterContentInit() {
